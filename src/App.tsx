@@ -308,6 +308,7 @@ export default function App() {
   const [rowLockFields, setRowLockFields] = useState({ name: '', email: '', loanNumber: '' })
   const [rowSending, setRowSending] = useState(false)
   const [rowStatus, setRowStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [openActionDropdown, setOpenActionDropdown] = useState<string | null>(null) // "programName-optIdx"
 
   useEffect(() => {
     if (!isLoading) { setLoadingProgress(0); return }
@@ -315,6 +316,14 @@ export default function App() {
     const timer = setTimeout(() => setLoadingProgress(92), 300)
     return () => clearTimeout(timer)
   }, [isLoading])
+
+  // Close action dropdown on outside click
+  useEffect(() => {
+    if (!openActionDropdown) return
+    const handler = () => setOpenActionDropdown(null)
+    document.addEventListener('click', handler)
+    return () => document.removeEventListener('click', handler)
+  }, [openActionDropdown])
 
   // Auto-populate location from ZIP using API lookup
   const [zipLoading, setZipLoading] = useState(false)
@@ -1891,51 +1900,68 @@ export default function App() {
                                       return (
                                         <tr key={optIdx} className={`border-t border-slate-100 ${isClosestTo100 ? 'bg-blue-50/50' : ''} ${isActiveRow ? 'bg-yellow-50/50' : ''}`}>
                                           <td className="py-2 pr-2 text-left">
-                                            <div className="flex items-center gap-1">
+                                            <div className="relative">
                                               <button
                                                 type="button"
                                                 onClick={(e) => {
                                                   e.stopPropagation()
-                                                  setActiveRowAction(isActiveRow && activeRowAction?.type === 'reserve' ? null : {
-                                                    type: 'reserve', programName, optIdx,
-                                                    rate: safeNumber(opt.rate), price, payment,
-                                                    apr: safeNumber(opt.apr), description: opt.description || programName
-                                                  })
-                                                  setRowReserveFields({ name: '', email: '', scenarioName: '', confirmed: false })
-                                                  setRowStatus('idle')
+                                                  const key = `${programName}-${optIdx}`
+                                                  setOpenActionDropdown(openActionDropdown === key ? null : key)
                                                 }}
-                                                className="px-2 py-1 text-[9px] font-bold text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors whitespace-nowrap"
+                                                className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors whitespace-nowrap"
                                               >
-                                                Reserve Pricing
+                                                Actions <ChevronDown className={`w-3 h-3 transition-transform ${openActionDropdown === `${programName}-${optIdx}` ? 'rotate-180' : ''}`} />
                                               </button>
-                                              {isPartner && (
-                                                <button
-                                                  type="button"
-                                                  onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    setActiveRowAction(isActiveRow && activeRowAction?.type === 'lock' ? null : {
-                                                      type: 'lock', programName, optIdx,
-                                                      rate: safeNumber(opt.rate), price, payment,
-                                                      apr: safeNumber(opt.apr), description: opt.description || programName
-                                                    })
-                                                    setRowLockFields({ name: '', email: '', loanNumber: '' })
-                                                    setRowStatus('idle')
-                                                  }}
-                                                  className="px-2 py-1 text-[9px] font-bold text-white bg-slate-900 rounded hover:bg-black transition-colors whitespace-nowrap"
-                                                >
-                                                  Request Lock
-                                                </button>
-                                              )}
-                                              {isPartner && (
-                                                <a
-                                                  href="https://sub.defywholesale.com/"
-                                                  target="_blank"
-                                                  rel="noopener noreferrer"
-                                                  onClick={(e) => e.stopPropagation()}
-                                                  className="inline-flex items-center px-2 py-1 text-[9px] font-bold text-white bg-slate-600 rounded hover:bg-slate-700 transition-colors whitespace-nowrap no-underline"
-                                                >
-                                                  Select Rate + Submit File
-                                                </a>
+                                              {openActionDropdown === `${programName}-${optIdx}` && (
+                                                <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-lg shadow-lg border border-slate-200 py-1 min-w-[180px]">
+                                                  <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation()
+                                                      setActiveRowAction(isActiveRow && activeRowAction?.type === 'reserve' ? null : {
+                                                        type: 'reserve', programName, optIdx,
+                                                        rate: safeNumber(opt.rate), price, payment,
+                                                        apr: safeNumber(opt.apr), description: opt.description || programName
+                                                      })
+                                                      setRowReserveFields({ name: '', email: '', scenarioName: '', confirmed: false })
+                                                      setRowStatus('idle')
+                                                      setOpenActionDropdown(null)
+                                                    }}
+                                                    className="w-full text-left px-3 py-2 text-[11px] font-semibold text-blue-700 hover:bg-blue-50 transition-colors"
+                                                  >
+                                                    Reserve Pricing
+                                                  </button>
+                                                  {isPartner && (
+                                                    <button
+                                                      type="button"
+                                                      onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setActiveRowAction(isActiveRow && activeRowAction?.type === 'lock' ? null : {
+                                                          type: 'lock', programName, optIdx,
+                                                          rate: safeNumber(opt.rate), price, payment,
+                                                          apr: safeNumber(opt.apr), description: opt.description || programName
+                                                        })
+                                                        setRowLockFields({ name: '', email: '', loanNumber: '' })
+                                                        setRowStatus('idle')
+                                                        setOpenActionDropdown(null)
+                                                      }}
+                                                      className="w-full text-left px-3 py-2 text-[11px] font-semibold text-slate-800 hover:bg-slate-50 transition-colors"
+                                                    >
+                                                      Request Lock
+                                                    </button>
+                                                  )}
+                                                  {isPartner && (
+                                                    <a
+                                                      href="https://sub.defywholesale.com/"
+                                                      target="_blank"
+                                                      rel="noopener noreferrer"
+                                                      onClick={(e) => { e.stopPropagation(); setOpenActionDropdown(null) }}
+                                                      className="block w-full text-left px-3 py-2 text-[11px] font-semibold text-slate-600 hover:bg-slate-50 transition-colors no-underline"
+                                                    >
+                                                      Select Rate + Submit File
+                                                    </a>
+                                                  )}
+                                                </div>
                                               )}
                                             </div>
                                           </td>
@@ -2047,48 +2073,65 @@ export default function App() {
                                         </div>
                                       </div>
                                       {/* Mobile action buttons */}
-                                      <div className="flex items-center gap-2 mt-2">
+                                      <div className="relative mt-2">
                                         <button
                                           type="button"
                                           onClick={() => {
-                                            setActiveRowAction({
-                                              type: 'reserve', programName, optIdx,
-                                              rate: safeNumber(opt.rate), price, payment,
-                                              apr: safeNumber(opt.apr), description: opt.description || programName
-                                            })
-                                            setRowReserveFields({ name: '', email: '', scenarioName: '', confirmed: false })
-                                            setRowStatus('idle')
+                                            const key = `m-${programName}-${optIdx}`
+                                            setOpenActionDropdown(openActionDropdown === key ? null : key)
                                           }}
-                                          className="px-2 py-1 text-[9px] font-bold text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors"
+                                          className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors"
                                         >
-                                          Reserve Pricing
+                                          Actions <ChevronDown className={`w-3 h-3 transition-transform ${openActionDropdown === `m-${programName}-${optIdx}` ? 'rotate-180' : ''}`} />
                                         </button>
-                                        {isPartner && (
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              setActiveRowAction({
-                                                type: 'lock', programName, optIdx,
-                                                rate: safeNumber(opt.rate), price, payment,
-                                                apr: safeNumber(opt.apr), description: opt.description || programName
-                                              })
-                                              setRowLockFields({ name: '', email: '', loanNumber: '' })
-                                              setRowStatus('idle')
-                                            }}
-                                            className="px-2 py-1 text-[9px] font-bold text-white bg-slate-900 rounded hover:bg-black transition-colors"
-                                          >
-                                            Request Lock
-                                          </button>
-                                        )}
-                                        {isPartner && (
-                                          <a
-                                            href="https://sub.defywholesale.com/"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex items-center px-2 py-1 text-[9px] font-bold text-white bg-slate-600 rounded hover:bg-slate-700 transition-colors no-underline"
-                                          >
-                                            Select Rate + Submit File
-                                          </a>
+                                        {openActionDropdown === `m-${programName}-${optIdx}` && (
+                                          <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-lg shadow-lg border border-slate-200 py-1 min-w-[180px]">
+                                            <button
+                                              type="button"
+                                              onClick={() => {
+                                                setActiveRowAction({
+                                                  type: 'reserve', programName, optIdx,
+                                                  rate: safeNumber(opt.rate), price, payment,
+                                                  apr: safeNumber(opt.apr), description: opt.description || programName
+                                                })
+                                                setRowReserveFields({ name: '', email: '', scenarioName: '', confirmed: false })
+                                                setRowStatus('idle')
+                                                setOpenActionDropdown(null)
+                                              }}
+                                              className="w-full text-left px-3 py-2 text-[11px] font-semibold text-blue-700 hover:bg-blue-50 transition-colors"
+                                            >
+                                              Reserve Pricing
+                                            </button>
+                                            {isPartner && (
+                                              <button
+                                                type="button"
+                                                onClick={() => {
+                                                  setActiveRowAction({
+                                                    type: 'lock', programName, optIdx,
+                                                    rate: safeNumber(opt.rate), price, payment,
+                                                    apr: safeNumber(opt.apr), description: opt.description || programName
+                                                  })
+                                                  setRowLockFields({ name: '', email: '', loanNumber: '' })
+                                                  setRowStatus('idle')
+                                                  setOpenActionDropdown(null)
+                                                }}
+                                                className="w-full text-left px-3 py-2 text-[11px] font-semibold text-slate-800 hover:bg-slate-50 transition-colors"
+                                              >
+                                                Request Lock
+                                              </button>
+                                            )}
+                                            {isPartner && (
+                                              <a
+                                                href="https://sub.defywholesale.com/"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={() => setOpenActionDropdown(null)}
+                                                className="block w-full text-left px-3 py-2 text-[11px] font-semibold text-slate-600 hover:bg-slate-50 transition-colors no-underline"
+                                              >
+                                                Select Rate + Submit File
+                                              </a>
+                                            )}
+                                          </div>
                                         )}
                                       </div>
                                     </div>
