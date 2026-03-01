@@ -71,9 +71,29 @@
   .skeleton {
     @apply animate-pulse bg-gray-200 rounded-lg;
   }
+
+  /* Flowing grey gradient wave for pricing loader */
+  .pricing-wave-bg {
+    background: linear-gradient(
+      -45deg,
+      #FAFAFA 0%,
+      #E5E7EB 25%,
+      #F4F4F5 50%,
+      #E5E7EB 75%,
+      #FAFAFA 100%
+    );
+    background-size: 400% 400%;
+    animation: pricing-wave 2.5s ease-in-out infinite;
+  }
 }
 
 @keyframes bar-shimmer {
   0% { background-position: 100% 0; }
   100% { background-position: 0 0; }
+}
+
+@keyframes pricing-wave {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }

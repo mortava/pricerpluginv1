@@ -288,7 +288,7 @@ export default function App() {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
   const [expandedProgram, setExpandedProgram] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [loadingProgress, setLoadingProgress] = useState(0)
+  // loadingProgress removed — wave animation replaces progress bar
   const [lpResult, setLpResult] = useState<any>(null)
   const [lpLoading, setLpLoading] = useState(false)
   const [lpUnlocked, setLpUnlocked] = useState(false)
@@ -325,12 +325,7 @@ export default function App() {
     })
   }
 
-  useEffect(() => {
-    if (!isLoading) { setLoadingProgress(0); return }
-    setLoadingProgress(10)
-    const timer = setTimeout(() => setLoadingProgress(92), 300)
-    return () => clearTimeout(timer)
-  }, [isLoading])
+  // Loading progress bar removed — replaced by wave animation
 
   // Close action dropdown on outside click
   useEffect(() => {
@@ -1717,7 +1712,7 @@ export default function App() {
               disabled={isLoading}
               className="w-full max-w-sm h-11 bg-[#171717] text-white font-semibold rounded-lg hover:bg-[#262626] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
             >
-              {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" />Fetching rates...</> : 'Get Pricing'}
+              {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" />Fetching Pricing</> : 'Get Pricing'}
             </button>
           </div>
         </div>
@@ -1725,15 +1720,13 @@ export default function App() {
         {/* ===== RESULTS SECTION ===== */}
         <div className="mt-6 px-4 lg:px-6 pb-10 max-w-6xl mx-auto">
           <AnimatePresence mode="wait">
-            {/* Loading skeleton */}
+            {/* Loading — flowing grey gradient wave */}
             {isLoading && !result && (
-              <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-                <div className="h-48 w-full rounded-xl bg-[#F3F4F6] animate-pulse" />
-                <div className="h-32 w-full rounded-xl bg-[#F3F4F6] animate-pulse" />
-                <div className="h-32 w-full rounded-xl bg-[#F3F4F6] animate-pulse" />
-                <div className="w-full mt-4">
-                  <div className="loading-bar-track">
-                    <div className="loading-bar-fill" style={{ width: `${loadingProgress}%` }} />
+              <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <div className="relative overflow-hidden rounded-xl border border-[#E5E7EB] bg-white">
+                  <div className="pricing-wave-bg h-40 flex flex-col items-center justify-center gap-3">
+                    <Loader2 className="w-6 h-6 text-[#6B7280] animate-spin" />
+                    <span className="text-sm font-medium text-[#6B7280] tracking-wide">Fetching Pricing</span>
                   </div>
                 </div>
               </motion.div>
@@ -2263,10 +2256,10 @@ export default function App() {
                       </div>
                     ) : null}
 
-                    {/* Secondary Manager Access - LP Results Gate */}
+                    {/* National Rate Access - LP Results Gate */}
                     {(lpLoading || lpResult) && !lpUnlocked && (
                       <div className="mt-4 flex items-center gap-3 justify-end">
-                        <span className="text-[11px] text-[#9CA3AF] font-medium">Secondary Manager Access</span>
+                        <span className="text-[11px] text-[#9CA3AF] font-medium">National Rate Access</span>
                         <input
                           type="password"
                           inputMode="numeric"
