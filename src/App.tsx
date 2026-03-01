@@ -9,6 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { formatCurrency, formatPercent } from '@/lib/utils'
 import { validateFormBeforeSubmit } from '@/lib/PricingLogic'
 
+const OpenPriceLogo = ({ size = 36 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+    <text x="24" y="36" fontSize="36" fontWeight="800" fill="#000" fontFamily='-apple-system, BlinkMacSystemFont, "Inter", sans-serif' textAnchor="middle" letterSpacing="-0.04em">P</text>
+  </svg>
+)
+
 interface LoanData {
   // Loan Information
   lienPosition: string
@@ -1090,9 +1096,12 @@ export default function App() {
       {/* ===== DESKTOP SIDEBAR (fixed, 200px) ===== */}
       <aside className="hidden lg:flex flex-col fixed left-0 top-0 h-screen w-[200px] bg-white border-r border-[#E5E7EB] z-50">
         {/* Brand */}
-        <div className="px-5 pt-6 pb-4 border-b border-[#E5E7EB]">
-          <div className="text-[15px] font-bold text-[#171717] leading-tight">OpenPrice</div>
-          <div className="text-[10px] text-[#9CA3AF] mt-0.5">powered by DEFY TPO</div>
+        <div className="px-4 pt-5 pb-4 border-b border-[#E5E7EB]">
+          <div className="flex items-center gap-1">
+            <OpenPriceLogo size={28} />
+            <span className="text-[15px] font-bold text-[#171717] leading-tight">OpenPrice</span>
+          </div>
+          <div className="text-[10px] text-[#9CA3AF] mt-0.5 pl-1">powered by DEFY TPO</div>
         </div>
 
         {/* Nav */}
@@ -1178,7 +1187,10 @@ export default function App() {
         >
           <Menu className="w-5 h-5" />
         </button>
-        <div className="text-[15px] font-bold text-[#171717]">OpenPrice</div>
+        <div className="flex items-center gap-1">
+          <OpenPriceLogo size={24} />
+          <span className="text-[15px] font-bold text-[#171717]">OpenPrice</span>
+        </div>
         <div className="w-8" />
       </header>
 
@@ -1189,8 +1201,11 @@ export default function App() {
           <div className="fixed left-0 top-0 h-full w-[260px] bg-white z-[201] flex flex-col shadow-2xl lg:hidden">
             <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[#E5E7EB]">
               <div>
-                <div className="text-[15px] font-bold text-[#171717]">OpenPrice</div>
-                <div className="text-[10px] text-[#9CA3AF] mt-0.5">powered by DEFY TPO</div>
+                <div className="flex items-center gap-1">
+                  <OpenPriceLogo size={24} />
+                  <span className="text-[15px] font-bold text-[#171717]">OpenPrice</span>
+                </div>
+                <div className="text-[10px] text-[#9CA3AF] mt-0.5 pl-1">powered by DEFY TPO</div>
               </div>
               <button type="button" onClick={() => setMobileMenuOpen(false)} className="p-1 text-[#9CA3AF] hover:text-[#374151]">
                 <X className="w-5 h-5" />
