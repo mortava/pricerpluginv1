@@ -1,27 +1,26 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-primary-light: #dbeafe;
+  --color-primary: #171717;
+  --color-primary-hover: #262626;
+  --color-primary-light: #F4F4F5;
 
-  --color-success: #30d158;
-  --color-warning: #ff9f0a;
-  --color-error: #ff453a;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
 
-  --color-gray-50: #fafafa;
-  --color-gray-100: #f4f4f5;
-  --color-gray-200: #e4e4e7;
-  --color-gray-300: #d4d4d8;
-  --color-gray-400: #a1a1aa;
-  --color-gray-500: #71717a;
-  --color-gray-600: #52525b;
-  --color-gray-700: #3f3f46;
-  --color-gray-800: #27272a;
-  --color-gray-900: #18181b;
+  --color-gray-50: #FAFAFA;
+  --color-gray-100: #F4F4F5;
+  --color-gray-200: #E5E7EB;
+  --color-gray-300: #D1D5DB;
+  --color-gray-400: #9CA3AF;
+  --color-gray-500: #6B7280;
+  --color-gray-600: #4B5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1F2937;
+  --color-gray-900: #171717;
 
-  --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -30,7 +29,7 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  --shadow-focus: 0 0 0 2px #171717;
 }
 
 @layer base {
@@ -39,8 +38,9 @@
   }
 
   body {
-    @apply bg-white text-gray-900 antialiased m-0;
+    @apply bg-gray-50 text-gray-900 antialiased m-0;
     font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums;
   }
 
   ::selection {
@@ -50,21 +50,26 @@
 
 @layer components {
   .input-focus {
-    @apply outline-none ring-2 ring-primary/20 border-primary;
+    @apply outline-none ring-2 ring-gray-900/20 border-gray-900;
   }
 
   /* Simple progress bar loader */
   .loading-bar-track {
     @apply w-full h-1.5 rounded-full overflow-hidden;
-    background: #dbeafe;
+    background: #E5E7EB;
   }
 
   .loading-bar-fill {
     @apply h-full rounded-full;
-    background: linear-gradient(90deg, #1e3a8a, #2563eb, #93c5fd);
+    background: linear-gradient(90deg, #374151, #171717, #6B7280);
     background-size: 200% 100%;
     transition: width 3.5s cubic-bezier(0.4, 0, 0.2, 1);
     animation: bar-shimmer 1.5s ease-in-out infinite;
+  }
+
+  /* Skeleton loading */
+  .skeleton {
+    @apply animate-pulse bg-gray-200 rounded-lg;
   }
 }
 
