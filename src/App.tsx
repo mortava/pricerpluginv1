@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { DollarSign, Loader2, CheckCircle2, AlertCircle, ChevronDown, ChevronUp, X, Zap, Globe, ShieldCheck, Mail, LogOut, User, HelpCircle, Send, BarChart3 } from 'lucide-react'
+import { DollarSign, Loader2, CheckCircle2, AlertCircle, ChevronDown, ChevronUp, X, Zap, Globe, ShieldCheck, Mail, LogOut, User, HelpCircle, Send, BarChart3, Menu } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { LoginPage } from '@/components/auth/LoginPage'
@@ -281,7 +281,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
   const [expandedProgram, setExpandedProgram] = useState<string | null>(null)
-  const [_mobileMenuOpen, _setMobileMenuOpen] = useState(false) // legacy, kept for state slot
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [lpResult, setLpResult] = useState<any>(null)
   const [lpLoading, setLpLoading] = useState(false)
@@ -307,9 +307,9 @@ export default function App() {
   const [rowSending, setRowSending] = useState(false)
   const [rowStatus, setRowStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [openActionDropdown, setOpenActionDropdown] = useState<string | null>(null) // "programName-optIdx"
-  const [mobileTab, setMobileTab] = useState<'inputs' | 'results'>('inputs')
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set())
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [stickyBarVisible, setStickyBarVisible] = useState(true)
 
   const toggleSection = (s: string) => {
     setCollapsedSections(prev => {
@@ -342,9 +342,22 @@ export default function App() {
     return () => document.removeEventListener('click', handler)
   }, [showUserMenu])
 
-  // Auto-switch to results tab on mobile when results arrive
+  // Sticky results bar: hide on scroll down, show on scroll up
   useEffect(() => {
-    if (result && window.innerWidth < 1024) setMobileTab('results')
+    if (!result) { setStickyBarVisible(false); return }
+    setStickyBarVisible(true)
+    let lastScrollY = window.scrollY
+    const handler = () => {
+      const currentY = window.scrollY
+      if (currentY > lastScrollY && currentY > 120) {
+        setStickyBarVisible(false)
+      } else {
+        setStickyBarVisible(true)
+      }
+      lastScrollY = currentY
+    }
+    window.addEventListener('scroll', handler, { passive: true })
+    return () => window.removeEventListener('scroll', handler)
   }, [result])
 
   // Auto-populate location from ZIP using API lookup
@@ -1070,1244 +1083,1335 @@ export default function App() {
   // Auto-fill help desk fields from partner profile
   const helpDeskDefaults = profile ? { name: `${profile.first_name} ${profile.last_name}`, email: user?.email || '' } : { name: '', email: '' }
 
+
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
 
-      {/* ===== STICKY HEADER ===== */}
-      <header className="sticky top-0 z-50 h-14 bg-white/80 backdrop-blur-xl border-b border-[#E5E7EB] flex items-center justify-between px-4 lg:px-6">
-        <div className="flex items-center gap-1">
-          <span className="font-['Montserrat'] text-[16px] font-normal text-[#6B7280]">QUICK</span>
-          <span className="font-['Montserrat'] text-[16px] font-bold text-[#171717]">PRICER</span>
+      {/* ===== DESKTOP SIDEBAR (fixed, 200px) ===== */}
+      <aside className="hidden lg:flex flex-col fixed left-0 top-0 h-screen w-[200px] bg-white border-r border-[#E5E7EB] z-50">
+        {/* Brand */}
+        <div className="px-5 pt-6 pb-4 border-b border-[#E5E7EB]">
+          <div className="text-[15px] font-bold text-[#171717] leading-tight">OpenPrice</div>
+          <div className="text-[10px] text-[#9CA3AF] mt-0.5">powered by DEFY TPO</div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-[#6B7280] hidden sm:block">powered by DEFY TPO</span>
-          <div className="relative">
+
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-4 space-y-0.5">
+          <div className="px-2 py-1 mb-2">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-[#9CA3AF]">Tools</span>
+          </div>
+          {/* Deal Desk — active */}
+          <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-[#171717] text-white">
+            <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0" />
+            <span className="text-[13px] font-semibold truncate">Deal Desk</span>
+          </div>
+          {/* Pipeline — disabled */}
+          <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
+            <span className="text-[13px] text-[#D1D5DB] truncate">Pipeline</span>
+          </div>
+          {/* QuickAVM */}
+          <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] transition-colors">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
+            <span className="text-[13px] text-[#374151] truncate">QuickAVM</span>
+          </a>
+          {/* Veriqual */}
+          <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] transition-colors">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
+            <span className="text-[13px] text-[#374151] truncate">Veriqual AUS</span>
+          </a>
+          {/* Help Desk — partner only */}
+          {isPartner && (
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); setShowUserMenu(!showUserMenu) }}
-              className="w-8 h-8 rounded-full bg-[#171717] flex items-center justify-center text-white text-[11px] font-bold hover:bg-[#262626] transition-colors"
+              onClick={() => { setHelpDeskFields({ name: helpDeskDefaults.name, email: helpDeskDefaults.email, topic: '' }); setHelpDeskStatus('idle'); setShowHelpDesk(true) }}
+              className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] transition-colors text-left"
             >
-              {isPartner && profile ? `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}` : <User className="w-4 h-4" />}
+              <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
+              <span className="text-[13px] text-[#374151] truncate">Help Desk</span>
             </button>
-            {showUserMenu && (
-              <div className="absolute right-0 top-full mt-2 w-[240px] bg-white rounded-xl shadow-lg border border-[#E5E7EB] py-2 z-50" onClick={(e) => e.stopPropagation()}>
-                {isPartner && profile && (
-                  <div className="px-4 py-3 border-b border-[#E5E7EB]">
-                    <div className="text-[13px] font-semibold text-[#171717]">{profile.first_name} {profile.last_name}</div>
-                    <div className="text-[11px] text-[#6B7280] truncate">{profile.company_name}</div>
-                  </div>
-                )}
-                <div className="px-3 py-2">
-                  <div className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest px-2 mb-1">Tools</div>
-                  <div className="px-2 py-2 text-[13px] font-semibold text-[#171717] bg-[#F3F4F6] rounded-lg mb-0.5">TRINITY AI Deal Desk</div>
-                  <div className="px-2 py-2 text-[13px] text-[#D1D5DB] cursor-not-allowed">Pipeline</div>
-                  <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="block px-2 py-2 text-[13px] text-[#374151] hover:bg-[#F9FAFB] rounded-lg transition-colors" onClick={() => setShowUserMenu(false)}>QuickAVM</a>
-                  <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="block px-2 py-2 text-[13px] text-[#374151] hover:bg-[#F9FAFB] rounded-lg transition-colors" onClick={() => setShowUserMenu(false)}>Veriqual AUS</a>
-                  {isPartner && (
-                    <button type="button" onClick={() => { setShowUserMenu(false); setHelpDeskFields({ name: helpDeskDefaults.name, email: helpDeskDefaults.email, topic: '' }); setHelpDeskStatus('idle'); setShowHelpDesk(true) }} className="w-full text-left px-2 py-2 text-[13px] text-[#374151] hover:bg-[#F9FAFB] rounded-lg transition-colors">Help Desk</button>
-                  )}
-                  <div className="px-2 py-2 text-[13px] text-[#D1D5DB] cursor-not-allowed">Exception Request</div>
-                </div>
-                <div className="border-t border-[#E5E7EB] px-3 py-2 mt-1">
-                  {isPartner ? (
-                    <button type="button" onClick={() => { setShowUserMenu(false); signOut() }} className="w-full flex items-center gap-2 px-2 py-2 text-[13px] text-[#374151] hover:bg-[#F9FAFB] rounded-lg transition-colors">
-                      <LogOut className="w-4 h-4 text-[#9CA3AF]" />Sign Out
-                    </button>
-                  ) : (
-                    <button type="button" onClick={() => { setShowUserMenu(false); setCurrentView('login') }} className="w-full flex items-center gap-2 px-2 py-2 text-[13px] font-semibold text-[#171717] hover:bg-[#F9FAFB] rounded-lg transition-colors">
-                      <User className="w-4 h-4 text-[#9CA3AF]" />Partner Login
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
+          )}
+          {/* Exception — disabled */}
+          <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
+            <span className="text-[13px] text-[#D1D5DB] truncate">Exception</span>
           </div>
+        </nav>
+
+        {/* Partner Login / User Info */}
+        <div className="px-3 py-4 border-t border-[#E5E7EB]">
+          {isPartner && profile ? (
+            <div className="space-y-2">
+              <div className="px-2">
+                <div className="text-[12px] font-semibold text-[#171717] truncate">{profile.first_name} {profile.last_name}</div>
+                <div className="text-[10px] text-[#9CA3AF] truncate">{profile.company_name}</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => signOut()}
+                className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] text-left transition-colors"
+              >
+                <LogOut className="w-3.5 h-3.5 text-[#9CA3AF]" />
+                <span className="text-[12px] text-[#6B7280]">Sign Out</span>
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setCurrentView('login')}
+              className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] text-left transition-colors"
+            >
+              <User className="w-3.5 h-3.5 text-[#9CA3AF]" />
+              <span className="text-[12px] font-semibold text-[#171717]">Partner Login</span>
+            </button>
+          )}
         </div>
+      </aside>
+
+      {/* ===== MOBILE HEADER (lg:hidden) ===== */}
+      <header className="lg:hidden sticky top-0 z-40 h-12 bg-white/90 backdrop-blur-xl border-b border-[#E5E7EB] flex items-center justify-between px-4">
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(true)}
+          className="w-8 h-8 flex items-center justify-center text-[#374151] hover:text-[#171717]"
+          aria-label="Open menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <div className="text-[15px] font-bold text-[#171717]">OpenPrice</div>
+        <div className="w-8" />
       </header>
 
-      {/* ===== TWO-PANEL LAYOUT ===== */}
-      <div className="lg:flex" style={{ minHeight: 'calc(100vh - 3.5rem)' }}>
-
-        {/* ===== LEFT PANEL: FORM ===== */}
-        <aside className={`w-full lg:w-[440px] lg:flex-shrink-0 lg:border-r border-[#E5E7EB] bg-white lg:h-[calc(100vh-3.5rem)] lg:sticky lg:top-14 lg:flex lg:flex-col ${mobileTab !== 'inputs' ? 'hidden lg:flex' : 'flex flex-col'}`}>
-          <div className="flex-1 overflow-y-auto px-5 py-5">
-            <form id="pricing-form" onSubmit={handleSubmit} className="space-y-6">
-
-              {/* ===== LOAN INFORMATION SECTION ===== */}
-              <div id="section-loan">
-                <button type="button" onClick={() => toggleSection('loan')} className="flex items-center justify-between w-full pb-2 mb-4 border-b border-[#E5E7EB]">
-                  <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Loan Information</span>
-                  <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('loan') ? 'rotate-180' : ''}`} />
-                </button>
-                {!collapsedSections.has('loan') && (
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                    {/* Lien Position */}
-                    <div className="space-y-1">
-                      <label htmlFor="lienPosition" className="block text-[11px] font-medium text-[#374151]">Lien Position</label>
-                      <Select name="lienPosition" value={formData.lienPosition} onValueChange={(v) => handleInputChange('lienPosition', v)}>
-                        <SelectTrigger id="lienPosition" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1st">1st</SelectItem>
-                          <SelectItem value="2nd">2nd</SelectItem>
-                          <SelectItem value="heloc">HELOC</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {/* Lock Period */}
-                    <div className="space-y-1">
-                      <label htmlFor="lockPeriod" className="block text-[11px] font-medium text-[#374151]">Lock Period</label>
-                      <Select name="lockPeriod" value={formData.lockPeriod} onValueChange={(v) => handleInputChange('lockPeriod', v)}>
-                        <SelectTrigger id="lockPeriod" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="30">30</SelectItem>
-                          <SelectItem value="45">45</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {/* Loan Purpose */}
-                    <div className="space-y-1">
-                      <label htmlFor="loanPurpose" className={`block text-[11px] font-medium ${hasError('loanPurpose') ? 'text-red-600' : 'text-[#374151]'}`}>Loan Purpose *</label>
-                      <Select name="loanPurpose" value={formData.loanPurpose} onValueChange={(v) => handleInputChange('loanPurpose', v)}>
-                        <SelectTrigger id="loanPurpose" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('loanPurpose') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="purchase">Purchase</SelectItem>
-                          <SelectItem value="refinance">Refi Rate/Term</SelectItem>
-                          <SelectItem value="cashout">Refinance Cashout</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {hasError('loanPurpose') && <p className="text-[10px] text-red-600">{validationErrors.loanPurpose}</p>}
-                    </div>
-                    {/* Value / Sales Price */}
-                    <div className="space-y-1">
-                      <label htmlFor="propertyValue" className={`block text-[11px] font-medium ${hasError('propertyValue') ? 'text-red-600' : 'text-[#374151]'}`}>Value/Sales Price *</label>
-                      <Input id="propertyValue" name="propertyValue" value={formData.propertyValue} onChange={(e) => handleInputChange('propertyValue', formatNumberInput(e.target.value))} icon={<DollarSign className="w-4 h-4" />} className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyValue') ? 'border-red-500' : ''}`} />
-                      {hasError('propertyValue') && <p className="text-[10px] text-red-600">{validationErrors.propertyValue}</p>}
-                    </div>
-                    {/* Loan Amount */}
-                    <div className="space-y-1">
-                      <label htmlFor="loanAmount" className={`block text-[11px] font-medium ${hasError('loanAmount') ? 'text-red-600' : 'text-[#374151]'}`}>Loan Amount *</label>
-                      <Input id="loanAmount" name="loanAmount" value={formData.loanAmount} onChange={(e) => handleInputChange('loanAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-4 h-4" />} className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('loanAmount') ? 'border-red-500' : ''}`} />
-                      {hasError('loanAmount') && <p className="text-[10px] text-red-600">{validationErrors.loanAmount}</p>}
-                    </div>
-                    {/* LTV */}
-                    <div className="space-y-1">
-                      <label htmlFor="ltv" className="block text-[11px] font-medium text-[#374151]">LTV</label>
-                      <div className="relative">
-                        <Input id="ltv" name="ltv" value={formData.ltv} onChange={(e) => handleInputChange('ltv', e.target.value.replace(/[^0-9.]/g, ''))} className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] pr-8 bg-[#F9FAFB]" />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#9CA3AF] pointer-events-none">%</span>
-                      </div>
-                    </div>
-                    {/* Amortization */}
-                    <div className="space-y-1">
-                      <label htmlFor="amortization" className="block text-[11px] font-medium text-[#374151]">Amortization</label>
-                      <Select name="amortization" value={formData.amortization} onValueChange={(v) => handleInputChange('amortization', v)}>
-                        <SelectTrigger id="amortization" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="fixed">Fixed</SelectItem>
-                          <SelectItem value="arm3">3 Year ARM</SelectItem>
-                          <SelectItem value="arm5">5 Year ARM</SelectItem>
-                          <SelectItem value="arm7">7 Year ARM</SelectItem>
-                          <SelectItem value="arm10">10 Year ARM</SelectItem>
-                          <SelectItem value="other40">Other/40 Year</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {/* Payment */}
-                    <div className="space-y-1">
-                      <label htmlFor="paymentType" className="block text-[11px] font-medium text-[#374151]">Payment</label>
-                      <Select name="paymentType" value={formData.paymentType} onValueChange={(v) => handleInputChange('paymentType', v)}>
-                        <SelectTrigger id="paymentType" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pi">P&I</SelectItem>
-                          <SelectItem value="io">Interest Only</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {/* Impound Type — full width */}
-                    <div className="col-span-2 space-y-1">
-                      <label htmlFor="impoundType" className="block text-[11px] font-medium text-[#374151]">Impound Type</label>
-                      <Select name="impoundType" value={formData.impoundType} onValueChange={(v) => handleInputChange('impoundType', v)}>
-                        <SelectTrigger id="impoundType" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="escrowed">Taxes and Insurance Escrowed</SelectItem>
-                          <SelectItem value="noescrow">No Escrow</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {/* CLTV — conditional */}
-                    {formData.lienPosition !== '1st' && (
-                      <div className="space-y-1">
-                        <label htmlFor="cltv" className="block text-[11px] font-medium text-[#374151]">CLTV</label>
-                        <div id="cltv" className="h-9 px-3 py-2 bg-[#F3F4F6] border border-[#E5E7EB] rounded-md text-sm font-medium text-[#9CA3AF]">Enter 2nd Lien</div>
-                      </div>
-                    )}
-                    {/* Cashout Amount — conditional */}
-                    {showCashoutField && (
-                      <div className="space-y-1">
-                        <label htmlFor="cashoutAmount" className="block text-[11px] font-medium text-[#374151]">Cashout Amount</label>
-                        <Input id="cashoutAmount" name="cashoutAmount" value={formData.cashoutAmount} onChange={(e) => handleInputChange('cashoutAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-4 h-4" />} className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]" />
-                      </div>
-                    )}
-                  </div>
-                )}
+      {/* ===== MOBILE DRAWER ===== */}
+      {mobileMenuOpen && (
+        <>
+          <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm lg:hidden" onClick={() => setMobileMenuOpen(false)} />
+          <div className="fixed left-0 top-0 h-full w-[260px] bg-white z-[201] flex flex-col shadow-2xl lg:hidden">
+            <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[#E5E7EB]">
+              <div>
+                <div className="text-[15px] font-bold text-[#171717]">OpenPrice</div>
+                <div className="text-[10px] text-[#9CA3AF] mt-0.5">powered by DEFY TPO</div>
               </div>
-
-              {/* ===== PROPERTY DETAILS SECTION ===== */}
-              <div id="section-property">
-                <button type="button" onClick={() => toggleSection('property')} className="flex items-center justify-between w-full pb-2 mb-4 border-b border-[#E5E7EB]">
-                  <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Property Details</span>
-                  <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('property') ? 'rotate-180' : ''}`} />
-                </button>
-                {!collapsedSections.has('property') && (
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                    {/* ZIP Code */}
-                    <div className="space-y-1">
-                      <label htmlFor="propertyZip" className={`block text-[11px] font-medium ${hasError('propertyZip') ? 'text-red-600' : 'text-[#374151]'}`}>
-                        ZIP Code * {zipLoading && <Loader2 className="w-3 h-3 inline animate-spin ml-1" />}
-                      </label>
-                      <Input id="propertyZip" name="propertyZip" maxLength={5} value={formData.propertyZip} onChange={(e) => handleInputChange('propertyZip', e.target.value.replace(/\D/g, ''))} className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyZip') ? 'border-red-500' : ''}`} placeholder="ZIP" autoComplete="postal-code" />
-                      {hasError('propertyZip') && <p className="text-[10px] text-red-600">{validationErrors.propertyZip}</p>}
-                    </div>
-                    {/* State */}
-                    <div className="space-y-1">
-                      <label htmlFor="propertyState" className={`block text-[11px] font-medium ${hasError('propertyState') ? 'text-red-600' : 'text-[#374151]'}`}>State *</label>
-                      <Select name="propertyState" value={formData.propertyState} onValueChange={(v) => handleInputChange('propertyState', v)}>
-                        <SelectTrigger id="propertyState" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyState') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
-                        <SelectContent>{US_STATES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                      </Select>
-                      {hasError('propertyState') && <p className="text-[10px] text-red-600">{validationErrors.propertyState}</p>}
-                    </div>
-                    {/* County */}
-                    <div className="space-y-1">
-                      <label htmlFor="propertyCounty" className="block text-[11px] font-medium text-[#374151]">County</label>
-                      <Input id="propertyCounty" name="propertyCounty" value={formData.propertyCounty} onChange={(e) => handleInputChange('propertyCounty', e.target.value)} className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]" />
-                    </div>
-                    {/* City */}
-                    <div className="space-y-1">
-                      <label htmlFor="propertyCity" className="block text-[11px] font-medium text-[#374151]">City</label>
-                      <Input id="propertyCity" name="propertyCity" value={formData.propertyCity} onChange={(e) => handleInputChange('propertyCity', e.target.value)} className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]" autoComplete="address-level2" />
-                    </div>
-                    {/* Property Use */}
-                    <div className="space-y-1">
-                      <label htmlFor="occupancyType" className={`block text-[11px] font-medium ${hasError('occupancyType') ? 'text-red-600' : 'text-[#374151]'}`}>Property Use *</label>
-                      <Select name="occupancyType" value={formData.occupancyType} onValueChange={(v) => handleInputChange('occupancyType', v)}>
-                        <SelectTrigger id="occupancyType" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('occupancyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="primary">Primary Residence</SelectItem>
-                          <SelectItem value="secondary">Second Home</SelectItem>
-                          <SelectItem value="investment">Investment</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {hasError('occupancyType') && <p className="text-[10px] text-red-600">{validationErrors.occupancyType}</p>}
-                    </div>
-                    {/* Property Type */}
-                    <div className="space-y-1">
-                      <label htmlFor="propertyType" className={`block text-[11px] font-medium ${hasError('propertyType') ? 'text-red-600' : 'text-[#374151]'}`}>Property Type *</label>
-                      <Select name="propertyType" value={formData.propertyType} onValueChange={(v) => handleInputChange('propertyType', v)}>
-                        <SelectTrigger id="propertyType" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="sfr">Single Family</SelectItem>
-                          <SelectItem value="condo">Condo</SelectItem>
-                          <SelectItem value="townhouse">Townhouse</SelectItem>
-                          <SelectItem value="2unit">2 Unit</SelectItem>
-                          <SelectItem value="3unit">3 Unit</SelectItem>
-                          <SelectItem value="4unit">4 Unit</SelectItem>
-                          <SelectItem value="5-8unit">MultiFamily 5-8</SelectItem>
-                          <SelectItem value="blanket" disabled className="text-gray-400">Blanket Investor</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {hasError('propertyType') && <p className="text-[10px] text-red-600">{validationErrors.propertyType}</p>}
-                    </div>
-                    {/* Structure Type — full width */}
-                    <div className="col-span-2 space-y-1">
-                      <label htmlFor="structureType" className="block text-[11px] font-medium text-[#374151]">Structure Type</label>
-                      <Select name="structureType" value={formData.structureType} onValueChange={(v) => handleInputChange('structureType', v)}>
-                        <SelectTrigger id="structureType" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="detached">Detached</SelectItem>
-                          <SelectItem value="attached">Attached</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {/* Property checkboxes as chips */}
-                    <div className="col-span-2 flex flex-wrap gap-2">
-                      <label htmlFor="isRuralProperty" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isRuralProperty ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
-                        <input type="checkbox" id="isRuralProperty" name="isRuralProperty" className="sr-only" checked={formData.isRuralProperty} onChange={(e) => handleInputChange('isRuralProperty', e.target.checked)} />
-                        Rural Property
-                      </label>
-                      <label htmlFor="isNonWarrantableProject" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isNonWarrantableProject ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
-                        <input type="checkbox" id="isNonWarrantableProject" name="isNonWarrantableProject" className="sr-only" checked={formData.isNonWarrantableProject} onChange={(e) => handleInputChange('isNonWarrantableProject', e.target.checked)} />
-                        Non-Warrantable
-                      </label>
-                      <label htmlFor="isMixedUsePML" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isMixedUsePML ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
-                        <input type="checkbox" id="isMixedUsePML" name="isMixedUsePML" className="sr-only" checked={formData.isMixedUsePML} onChange={(e) => handleInputChange('isMixedUsePML', e.target.checked)} />
-                        Mixed Use
-                      </label>
-                      <label htmlFor="is5PlusUnits" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.is5PlusUnits ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
-                        <input type="checkbox" id="is5PlusUnits" name="is5PlusUnits" className="sr-only" checked={formData.is5PlusUnits} onChange={(e) => handleInputChange('is5PlusUnits', e.target.checked)} />
-                        5+ Units
-                      </label>
-                      <label htmlFor="isAVMOrCDA" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isAVMOrCDA ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
-                        <input type="checkbox" id="isAVMOrCDA" name="isAVMOrCDA" className="sr-only" checked={formData.isAVMOrCDA} onChange={(e) => handleInputChange('isAVMOrCDA', e.target.checked)} />
-                        AVM or CDA
-                      </label>
-                    </div>
-                  </div>
-                )}
+              <button type="button" onClick={() => setMobileMenuOpen(false)} className="p-1 text-[#9CA3AF] hover:text-[#374151]">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+              <div className="px-2 py-1 mb-2">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-[#9CA3AF]">Tools</span>
               </div>
-
-              {/* ===== BORROWER DETAILS SECTION ===== */}
-              <div id="section-borrower">
-                <button type="button" onClick={() => toggleSection('borrower')} className="flex items-center justify-between w-full pb-2 mb-4 border-b border-[#E5E7EB]">
-                  <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Borrower Details</span>
-                  <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('borrower') ? 'rotate-180' : ''}`} />
-                </button>
-                {!collapsedSections.has('borrower') && (
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                    {/* Credit Score */}
-                    <div className="space-y-1">
-                      <label htmlFor="creditScore" className={`block text-[11px] font-medium ${hasError('creditScore') ? 'text-red-600' : 'text-[#374151]'}`}>Credit Score *</label>
-                      <Input id="creditScore" name="creditScore" maxLength={3} value={formData.creditScore} onChange={(e) => handleInputChange('creditScore', e.target.value.replace(/\D/g, ''))} className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('creditScore') ? 'border-red-500' : ''}`} />
-                      {hasError('creditScore') && <p className="text-[10px] text-red-600">{validationErrors.creditScore}</p>}
-                    </div>
-                    {/* DTI */}
-                    <div className="space-y-1">
-                      <label htmlFor="dti" className={`block text-[11px] font-medium ${hasError('dti') ? 'text-red-600' : 'text-[#374151]'}`}>DTI % *</label>
-                      <Input id="dti" name="dti" maxLength={2} value={formData.dti} onChange={(e) => handleInputChange('dti', e.target.value.replace(/\D/g, ''))} className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('dti') ? 'border-red-500' : ''}`} />
-                      {hasError('dti') && <p className="text-[10px] text-red-600">{validationErrors.dti}</p>}
-                    </div>
-                    {/* Citizenship */}
-                    <div className="space-y-1">
-                      <label htmlFor="citizenship" className="block text-[11px] font-medium text-[#374151]">Citizenship</label>
-                      <Select name="citizenship" value={formData.citizenship} onValueChange={(v) => handleInputChange('citizenship', v)}>
-                        <SelectTrigger id="citizenship" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="usCitizen">US Citizen</SelectItem>
-                          <SelectItem value="permanentResident">Permanent Resident</SelectItem>
-                          <SelectItem value="nonPermanentResident">Non-Permanent Resident</SelectItem>
-                          <SelectItem value="foreignNational">Foreign National</SelectItem>
-                          <SelectItem value="itin">ITIN</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {/* Doc Type */}
-                    <div className="space-y-1">
-                      <label htmlFor="documentationType" className={`block text-[11px] font-medium ${hasError('documentationType') ? 'text-red-600' : 'text-[#374151]'}`}>Doc Type</label>
-                      <Select name="documentationType" value={formData.documentationType} onValueChange={(v) => handleInputChange('documentationType', v)}>
-                        <SelectTrigger id="documentationType" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('documentationType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="fullDoc">Full Document</SelectItem>
-                          <SelectItem value="dscr">Debt Service Coverage (DSCR)</SelectItem>
-                          <SelectItem value="bankStatement12">12 Mo. Bank Statements</SelectItem>
-                          <SelectItem value="bankStatement24">24 Mo. Bank Statements</SelectItem>
-                          <SelectItem value="bankStatementOther">Other Bank Statements</SelectItem>
-                          <SelectItem value="taxReturns1Yr">1 Yr. Tax Returns</SelectItem>
-                          <SelectItem value="voe">VOE</SelectItem>
-                          <SelectItem value="assetUtilization">Asset Utilization</SelectItem>
-                          <SelectItem value="noRatio">No Ratio</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {hasError('documentationType') && <p className="text-[10px] text-red-600">{validationErrors.documentationType}</p>}
-                    </div>
-                    {/* Term — full width */}
-                    <div className="col-span-2 space-y-1">
-                      <label htmlFor="loanTerm" className={`block text-[11px] font-medium ${hasError('loanTerm') ? 'text-red-600' : 'text-[#374151]'}`}>Term *</label>
-                      <Select name="loanTerm" value={formData.loanTerm} onValueChange={(v) => handleInputChange('loanTerm', v)}>
-                        <SelectTrigger id="loanTerm" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('loanTerm') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="30">30 Year</SelectItem>
-                          <SelectItem value="25">25 Year</SelectItem>
-                          <SelectItem value="20">20 Year</SelectItem>
-                          <SelectItem value="15">15 Year</SelectItem>
-                          <SelectItem value="10">10 Year</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {hasError('loanTerm') && <p className="text-[10px] text-red-600">{validationErrors.loanTerm}</p>}
-                    </div>
-                    {/* Borrower checkboxes as chips */}
-                    <div className="col-span-2 flex flex-wrap gap-2">
-                      <label htmlFor="isSelfEmployed" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isSelfEmployed ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
-                        <input type="checkbox" id="isSelfEmployed" name="isSelfEmployed" className="sr-only" checked={formData.isSelfEmployed} onChange={(e) => handleInputChange('isSelfEmployed', e.target.checked)} />
-                        Self Employed
-                      </label>
-                      <label htmlFor="isFTHB" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isFTHB ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
-                        <input type="checkbox" id="isFTHB" name="isFTHB" className="sr-only" checked={formData.isFTHB} onChange={(e) => handleInputChange('isFTHB', e.target.checked)} />
-                        FTHB
-                      </label>
-                      <label htmlFor="hasITIN" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.hasITIN ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
-                        <input type="checkbox" id="hasITIN" name="hasITIN" className="sr-only" checked={formData.hasITIN} onChange={(e) => handleInputChange('hasITIN', e.target.checked)} />
-                        Has ITIN
-                      </label>
-                    </div>
-                  </div>
-                )}
+              <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-[#171717] text-white">
+                <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0" />
+                <span className="text-[13px] font-semibold">Deal Desk</span>
               </div>
-
-              {/* ===== INVESTOR DETAILS SECTION (conditional) ===== */}
-              {showInvestorDetails && (
-                <div id="section-investor">
-                  <button type="button" onClick={() => toggleSection('investor')} className="flex items-center justify-between w-full pb-2 mb-4 border-b border-[#E5E7EB]">
-                    <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Investor Details</span>
-                    <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('investor') ? 'rotate-180' : ''}`} />
+              <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
+                <span className="text-[13px] text-[#D1D5DB]">Pipeline</span>
+              </div>
+              <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] transition-colors" onClick={() => setMobileMenuOpen(false)}>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
+                <span className="text-[13px] text-[#374151]">QuickAVM</span>
+              </a>
+              <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] transition-colors" onClick={() => setMobileMenuOpen(false)}>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
+                <span className="text-[13px] text-[#374151]">Veriqual AUS</span>
+              </a>
+              {isPartner && (
+                <button
+                  type="button"
+                  onClick={() => { setMobileMenuOpen(false); setHelpDeskFields({ name: helpDeskDefaults.name, email: helpDeskDefaults.email, topic: '' }); setHelpDeskStatus('idle'); setShowHelpDesk(true) }}
+                  className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] transition-colors text-left"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
+                  <span className="text-[13px] text-[#374151]">Help Desk</span>
+                </button>
+              )}
+              <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
+                <span className="text-[13px] text-[#D1D5DB]">Exception</span>
+              </div>
+            </nav>
+            <div className="px-3 py-4 border-t border-[#E5E7EB]">
+              {isPartner && profile ? (
+                <div className="space-y-2">
+                  <div className="px-2">
+                    <div className="text-[12px] font-semibold text-[#171717] truncate">{profile.first_name} {profile.last_name}</div>
+                    <div className="text-[10px] text-[#9CA3AF] truncate">{profile.company_name}</div>
+                  </div>
+                  <button type="button" onClick={() => { setMobileMenuOpen(false); signOut() }} className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] text-left transition-colors">
+                    <LogOut className="w-3.5 h-3.5 text-[#9CA3AF]" />
+                    <span className="text-[12px] text-[#6B7280]">Sign Out</span>
                   </button>
-                  {!collapsedSections.has('investor') && (
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                      {/* Prepay Period */}
-                      <div className="space-y-1">
-                        <label htmlFor="prepayPeriod" className="block text-[11px] font-medium text-[#374151]">Prepay Period</label>
-                        <Select name="prepayPeriod" value={formData.prepayPeriod} onValueChange={(v) => handleInputChange('prepayPeriod', v)}>
-                          <SelectTrigger id="prepayPeriod" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="60mo">60 Months</SelectItem>
-                            <SelectItem value="48mo">48 Months</SelectItem>
-                            <SelectItem value="36mo">36 Months</SelectItem>
-                            <SelectItem value="24mo">24 Months</SelectItem>
-                            <SelectItem value="12mo">12 Months</SelectItem>
-                            <SelectItem value="0mo">None</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      {/* Prepay Type */}
-                      <div className="space-y-1">
-                        <label htmlFor="prepayType" className="block text-[11px] font-medium text-[#374151]">Prepay Type</label>
-                        <Select name="prepayType" value={formData.prepayType} onValueChange={(v) => handleInputChange('prepayType', v)}>
-                          <SelectTrigger id="prepayType" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="5pct">5%</SelectItem>
-                            <SelectItem value="declining">Declining</SelectItem>
-                            <SelectItem value="6mointerest">6 Months Interest</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      {/* DSCR-specific fields */}
-                      {formData.documentationType === 'dscr' && (
-                        <>
-                          {/* DSCR Entity Type */}
-                          <div className="space-y-1">
-                            <label htmlFor="dscrEntityType" className="block text-[11px] font-medium text-[#374151]">DSCR Entity Type</label>
-                            <Select name="dscrEntityType" value={formData.dscrEntityType} onValueChange={(v) => handleInputChange('dscrEntityType', v)}>
-                              <SelectTrigger id="dscrEntityType" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="individual">Individual</SelectItem>
-                                <SelectItem value="llc">LLC</SelectItem>
-                                <SelectItem value="corp">Corp.</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          {/* DSCR % */}
-                          <div className="space-y-1">
-                            <label htmlFor="dscrManualInput" className="block text-[11px] font-medium text-[#374151]">DSCR %</label>
-                            <Input id="dscrManualInput" name="dscrManualInput" type="text" inputMode="decimal" placeholder="1.000" value={formData.dscrManualInput}
-                              onChange={(e) => {
-                                const val = e.target.value.replace(/[^0-9.]/g, '')
-                                handleInputChange('dscrManualInput', val)
-                                const dscrNum = parseFloat(val) || 0
-                                const staticExpense = 5000
-                                const computedRent = Math.round(dscrNum * staticExpense)
-                                handleInputChange('grossRent', computedRent > 0 ? computedRent.toLocaleString() : '5,000')
-                                handleInputChange('presentHousingExpense', '5,000')
-                              }}
-                              icon={<span className="text-xs font-semibold text-gray-500">%</span>}
-                              className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"
-                            />
-                          </div>
-                          {/* DSCR Range — full width */}
-                          <div className="col-span-2 space-y-1">
-                            <label className="block text-[11px] font-medium text-[#374151]">Range</label>
-                            <div className="h-9 px-3 py-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-md text-sm font-medium flex items-center justify-between">
-                              <span className={`${calculatedDSCR.ratio >= 1.0 ? 'text-emerald-600' : calculatedDSCR.ratio >= 0.75 ? 'text-yellow-600' : 'text-red-600'}`}>
-                                {calculatedDSCR.display}
-                              </span>
-                              <span className="text-xs text-[#9CA3AF] ml-2">
-                                ({calculatedDSCR.range === '>=1.250' ? '>=1.250' : calculatedDSCR.range === 'noRatio' ? 'No Ratio' : calculatedDSCR.range})
-                              </span>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                      {/* Investor checkboxes as chips */}
-                      <div className="col-span-2 flex flex-wrap gap-2">
-                        <label htmlFor="isSeasonalProperty" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${(formData.isSeasonalProperty || formData.isShortTermRental) ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
-                          <input type="checkbox" id="isSeasonalProperty" name="isSeasonalProperty" className="sr-only" checked={formData.isSeasonalProperty || formData.isShortTermRental}
-                            onChange={(e) => { handleInputChange('isSeasonalProperty', e.target.checked); handleInputChange('isShortTermRental', e.target.checked) }}
-                          />
-                          Seasonal / STR
-                        </label>
-                        <label htmlFor="isCrossCollateralized" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isCrossCollateralized ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
-                          <input type="checkbox" id="isCrossCollateralized" name="isCrossCollateralized" className="sr-only" checked={formData.isCrossCollateralized} onChange={(e) => handleInputChange('isCrossCollateralized', e.target.checked)} />
-                          Cross-Collateralized
-                        </label>
-                      </div>
+                </div>
+              ) : (
+                <button type="button" onClick={() => { setMobileMenuOpen(false); setCurrentView('login') }} className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] text-left transition-colors">
+                  <User className="w-3.5 h-3.5 text-[#9CA3AF]" />
+                  <span className="text-[12px] font-semibold text-[#171717]">Partner Login</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ===== MAIN CONTENT ===== */}
+      <main className="lg:ml-[200px] min-h-screen">
+
+        {/* ===== STICKY RESULTS SUMMARY BAR ===== */}
+        <AnimatePresence>
+          {result && stickyBarVisible && targetPricing && (
+            <motion.div
+              key="sticky-bar"
+              initial={{ y: -48, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -48, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-[#E5E7EB] px-4 lg:px-6 py-2.5"
+            >
+              <div className="max-w-6xl mx-auto flex items-center gap-4 flex-wrap">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />Live
+                </span>
+                <div className="flex items-center gap-4 flex-wrap text-sm">
+                  <div>
+                    <span className="font-bold text-[#171717] tabular-nums">{formatPercent(targetPricing.rate)}</span>
+                    <span className="text-[10px] text-[#9CA3AF] ml-1 uppercase">Rate</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-[#374151] tabular-nums">{targetPricing.price.toFixed(3)}</span>
+                    <span className="text-[10px] text-[#9CA3AF] ml-1 uppercase">Price</span>
+                  </div>
+                  <div>
+                    <span className="font-semibold text-[#374151] tabular-nums">{formatPercent(targetPricing.apr)}</span>
+                    <span className="text-[10px] text-[#9CA3AF] ml-1 uppercase">APR</span>
+                  </div>
+                  {targetPricing.payment > 0 && (
+                    <div>
+                      <span className="font-semibold text-[#374151] tabular-nums">{formatCurrency(targetPricing.payment)}</span>
+                      <span className="text-[10px] text-[#9CA3AF] ml-1 uppercase">Pmt</span>
+                    </div>
+                  )}
+                  <div>
+                    <span className="font-semibold text-[#374151] tabular-nums">{safeNumber(result.ltvRatio).toFixed(1)}%</span>
+                    <span className="text-[10px] text-[#9CA3AF] ml-1 uppercase">LTV</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ===== FORM SECTION ===== */}
+        <div className="px-4 lg:px-6 py-5 max-w-6xl mx-auto">
+          <form id="pricing-form" onSubmit={handleSubmit} className="space-y-6">
+
+            {/* ===== LOAN INFORMATION SECTION ===== */}
+            <div id="section-loan">
+              <button type="button" onClick={() => toggleSection('loan')} className="flex items-center justify-between w-full pb-2 mb-4 border-b border-[#E5E7EB]">
+                <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Loan Information</span>
+                <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('loan') ? 'rotate-180' : ''}`} />
+              </button>
+              {!collapsedSections.has('loan') && (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-3">
+                  <div className="space-y-1">
+                    <label htmlFor="lienPosition" className="block text-[11px] font-medium text-[#374151]">Lien Position</label>
+                    <Select name="lienPosition" value={formData.lienPosition} onValueChange={(v) => handleInputChange('lienPosition', v)}>
+                      <SelectTrigger id="lienPosition" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1st">1st</SelectItem>
+                        <SelectItem value="2nd">2nd</SelectItem>
+                        <SelectItem value="heloc">HELOC</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="lockPeriod" className="block text-[11px] font-medium text-[#374151]">Lock Period</label>
+                    <Select name="lockPeriod" value={formData.lockPeriod} onValueChange={(v) => handleInputChange('lockPeriod', v)}>
+                      <SelectTrigger id="lockPeriod" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="30">30</SelectItem>
+                        <SelectItem value="45">45</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="loanPurpose" className={`block text-[11px] font-medium ${hasError('loanPurpose') ? 'text-red-600' : 'text-[#374151]'}`}>Loan Purpose *</label>
+                    <Select name="loanPurpose" value={formData.loanPurpose} onValueChange={(v) => handleInputChange('loanPurpose', v)}>
+                      <SelectTrigger id="loanPurpose" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('loanPurpose') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="purchase">Purchase</SelectItem>
+                        <SelectItem value="refinance">Refi Rate/Term</SelectItem>
+                        <SelectItem value="cashout">Refinance Cashout</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {hasError('loanPurpose') && <p className="text-[10px] text-red-600">{validationErrors.loanPurpose}</p>}
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="propertyValue" className={`block text-[11px] font-medium ${hasError('propertyValue') ? 'text-red-600' : 'text-[#374151]'}`}>Value/Sales Price *</label>
+                    <Input id="propertyValue" name="propertyValue" value={formData.propertyValue} onChange={(e) => handleInputChange('propertyValue', formatNumberInput(e.target.value))} icon={<DollarSign className="w-4 h-4" />} className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyValue') ? 'border-red-500' : ''}`} />
+                    {hasError('propertyValue') && <p className="text-[10px] text-red-600">{validationErrors.propertyValue}</p>}
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="loanAmount" className={`block text-[11px] font-medium ${hasError('loanAmount') ? 'text-red-600' : 'text-[#374151]'}`}>Loan Amount *</label>
+                    <Input id="loanAmount" name="loanAmount" value={formData.loanAmount} onChange={(e) => handleInputChange('loanAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-4 h-4" />} className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('loanAmount') ? 'border-red-500' : ''}`} />
+                    {hasError('loanAmount') && <p className="text-[10px] text-red-600">{validationErrors.loanAmount}</p>}
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="ltv" className="block text-[11px] font-medium text-[#374151]">LTV</label>
+                    <div className="relative">
+                      <Input id="ltv" name="ltv" value={formData.ltv} onChange={(e) => handleInputChange('ltv', e.target.value.replace(/[^0-9.]/g, ''))} className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] pr-8 bg-[#F9FAFB]" />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#9CA3AF] pointer-events-none">%</span>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="amortization" className="block text-[11px] font-medium text-[#374151]">Amortization</label>
+                    <Select name="amortization" value={formData.amortization} onValueChange={(v) => handleInputChange('amortization', v)}>
+                      <SelectTrigger id="amortization" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="fixed">Fixed</SelectItem>
+                        <SelectItem value="arm3">3 Year ARM</SelectItem>
+                        <SelectItem value="arm5">5 Year ARM</SelectItem>
+                        <SelectItem value="arm7">7 Year ARM</SelectItem>
+                        <SelectItem value="arm10">10 Year ARM</SelectItem>
+                        <SelectItem value="other40">Other/40 Year</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="paymentType" className="block text-[11px] font-medium text-[#374151]">Payment</label>
+                    <Select name="paymentType" value={formData.paymentType} onValueChange={(v) => handleInputChange('paymentType', v)}>
+                      <SelectTrigger id="paymentType" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pi">P&I</SelectItem>
+                        <SelectItem value="io">Interest Only</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="col-span-full space-y-1">
+                    <label htmlFor="impoundType" className="block text-[11px] font-medium text-[#374151]">Impound Type</label>
+                    <Select name="impoundType" value={formData.impoundType} onValueChange={(v) => handleInputChange('impoundType', v)}>
+                      <SelectTrigger id="impoundType" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="escrowed">Taxes and Insurance Escrowed</SelectItem>
+                        <SelectItem value="noescrow">No Escrow</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {formData.lienPosition !== '1st' && (
+                    <div className="space-y-1">
+                      <label htmlFor="cltv" className="block text-[11px] font-medium text-[#374151]">CLTV</label>
+                      <div id="cltv" className="h-9 px-3 py-2 bg-[#F3F4F6] border border-[#E5E7EB] rounded-md text-sm font-medium text-[#9CA3AF]">Enter 2nd Lien</div>
+                    </div>
+                  )}
+                  {showCashoutField && (
+                    <div className="space-y-1">
+                      <label htmlFor="cashoutAmount" className="block text-[11px] font-medium text-[#374151]">Cashout Amount</label>
+                      <Input id="cashoutAmount" name="cashoutAmount" value={formData.cashoutAmount} onChange={(e) => handleInputChange('cashoutAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-4 h-4" />} className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]" />
                     </div>
                   )}
                 </div>
               )}
+            </div>
 
-              {/* Error display */}
-              {error && (
-                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                  <AlertCircle className="w-4 h-4 shrink-0" />{error}
+            {/* ===== PROPERTY DETAILS SECTION ===== */}
+            <div id="section-property">
+              <button type="button" onClick={() => toggleSection('property')} className="flex items-center justify-between w-full pb-2 mb-4 border-b border-[#E5E7EB]">
+                <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Property Details</span>
+                <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('property') ? 'rotate-180' : ''}`} />
+              </button>
+              {!collapsedSections.has('property') && (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-3">
+                  <div className="space-y-1">
+                    <label htmlFor="propertyZip" className={`block text-[11px] font-medium ${hasError('propertyZip') ? 'text-red-600' : 'text-[#374151]'}`}>
+                      ZIP Code * {zipLoading && <Loader2 className="w-3 h-3 inline animate-spin ml-1" />}
+                    </label>
+                    <Input id="propertyZip" name="propertyZip" maxLength={5} value={formData.propertyZip} onChange={(e) => handleInputChange('propertyZip', e.target.value.replace(/\D/g, ''))} className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyZip') ? 'border-red-500' : ''}`} placeholder="ZIP" autoComplete="postal-code" />
+                    {hasError('propertyZip') && <p className="text-[10px] text-red-600">{validationErrors.propertyZip}</p>}
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="propertyState" className={`block text-[11px] font-medium ${hasError('propertyState') ? 'text-red-600' : 'text-[#374151]'}`}>State *</label>
+                    <Select name="propertyState" value={formData.propertyState} onValueChange={(v) => handleInputChange('propertyState', v)}>
+                      <SelectTrigger id="propertyState" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyState') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectContent>{US_STATES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    </Select>
+                    {hasError('propertyState') && <p className="text-[10px] text-red-600">{validationErrors.propertyState}</p>}
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="propertyCounty" className="block text-[11px] font-medium text-[#374151]">County</label>
+                    <Input id="propertyCounty" name="propertyCounty" value={formData.propertyCounty} onChange={(e) => handleInputChange('propertyCounty', e.target.value)} className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]" />
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="propertyCity" className="block text-[11px] font-medium text-[#374151]">City</label>
+                    <Input id="propertyCity" name="propertyCity" value={formData.propertyCity} onChange={(e) => handleInputChange('propertyCity', e.target.value)} className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]" autoComplete="address-level2" />
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="occupancyType" className={`block text-[11px] font-medium ${hasError('occupancyType') ? 'text-red-600' : 'text-[#374151]'}`}>Property Use *</label>
+                    <Select name="occupancyType" value={formData.occupancyType} onValueChange={(v) => handleInputChange('occupancyType', v)}>
+                      <SelectTrigger id="occupancyType" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('occupancyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="primary">Primary Residence</SelectItem>
+                        <SelectItem value="secondary">Second Home</SelectItem>
+                        <SelectItem value="investment">Investment</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {hasError('occupancyType') && <p className="text-[10px] text-red-600">{validationErrors.occupancyType}</p>}
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="propertyType" className={`block text-[11px] font-medium ${hasError('propertyType') ? 'text-red-600' : 'text-[#374151]'}`}>Property Type *</label>
+                    <Select name="propertyType" value={formData.propertyType} onValueChange={(v) => handleInputChange('propertyType', v)}>
+                      <SelectTrigger id="propertyType" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="sfr">Single Family</SelectItem>
+                        <SelectItem value="condo">Condo</SelectItem>
+                        <SelectItem value="townhouse">Townhouse</SelectItem>
+                        <SelectItem value="2unit">2 Unit</SelectItem>
+                        <SelectItem value="3unit">3 Unit</SelectItem>
+                        <SelectItem value="4unit">4 Unit</SelectItem>
+                        <SelectItem value="5-8unit">MultiFamily 5-8</SelectItem>
+                        <SelectItem value="blanket" disabled className="text-gray-400">Blanket Investor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {hasError('propertyType') && <p className="text-[10px] text-red-600">{validationErrors.propertyType}</p>}
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="structureType" className="block text-[11px] font-medium text-[#374151]">Structure Type</label>
+                    <Select name="structureType" value={formData.structureType} onValueChange={(v) => handleInputChange('structureType', v)}>
+                      <SelectTrigger id="structureType" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="detached">Detached</SelectItem>
+                        <SelectItem value="attached">Attached</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="col-span-full flex flex-wrap gap-2">
+                    <label htmlFor="isRuralProperty" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isRuralProperty ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                      <input type="checkbox" id="isRuralProperty" name="isRuralProperty" className="sr-only" checked={formData.isRuralProperty} onChange={(e) => handleInputChange('isRuralProperty', e.target.checked)} />
+                      Rural Property
+                    </label>
+                    <label htmlFor="isNonWarrantableProject" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isNonWarrantableProject ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                      <input type="checkbox" id="isNonWarrantableProject" name="isNonWarrantableProject" className="sr-only" checked={formData.isNonWarrantableProject} onChange={(e) => handleInputChange('isNonWarrantableProject', e.target.checked)} />
+                      Non-Warrantable
+                    </label>
+                    <label htmlFor="isMixedUsePML" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isMixedUsePML ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                      <input type="checkbox" id="isMixedUsePML" name="isMixedUsePML" className="sr-only" checked={formData.isMixedUsePML} onChange={(e) => handleInputChange('isMixedUsePML', e.target.checked)} />
+                      Mixed Use
+                    </label>
+                    <label htmlFor="is5PlusUnits" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.is5PlusUnits ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                      <input type="checkbox" id="is5PlusUnits" name="is5PlusUnits" className="sr-only" checked={formData.is5PlusUnits} onChange={(e) => handleInputChange('is5PlusUnits', e.target.checked)} />
+                      5+ Units
+                    </label>
+                    <label htmlFor="isAVMOrCDA" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isAVMOrCDA ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                      <input type="checkbox" id="isAVMOrCDA" name="isAVMOrCDA" className="sr-only" checked={formData.isAVMOrCDA} onChange={(e) => handleInputChange('isAVMOrCDA', e.target.checked)} />
+                      AVM or CDA
+                    </label>
+                  </div>
                 </div>
               )}
+            </div>
 
-              {/* Hidden submit for Enter key */}
-              <button type="submit" className="hidden" />
-            </form>
-          </div>
+            {/* ===== BORROWER DETAILS SECTION ===== */}
+            <div id="section-borrower">
+              <button type="button" onClick={() => toggleSection('borrower')} className="flex items-center justify-between w-full pb-2 mb-4 border-b border-[#E5E7EB]">
+                <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Borrower Details</span>
+                <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('borrower') ? 'rotate-180' : ''}`} />
+              </button>
+              {!collapsedSections.has('borrower') && (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-3">
+                  <div className="space-y-1">
+                    <label htmlFor="creditScore" className={`block text-[11px] font-medium ${hasError('creditScore') ? 'text-red-600' : 'text-[#374151]'}`}>Credit Score *</label>
+                    <Input id="creditScore" name="creditScore" maxLength={3} value={formData.creditScore} onChange={(e) => handleInputChange('creditScore', e.target.value.replace(/\D/g, ''))} className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('creditScore') ? 'border-red-500' : ''}`} />
+                    {hasError('creditScore') && <p className="text-[10px] text-red-600">{validationErrors.creditScore}</p>}
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="dti" className={`block text-[11px] font-medium ${hasError('dti') ? 'text-red-600' : 'text-[#374151]'}`}>DTI % *</label>
+                    <Input id="dti" name="dti" maxLength={2} value={formData.dti} onChange={(e) => handleInputChange('dti', e.target.value.replace(/\D/g, ''))} className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('dti') ? 'border-red-500' : ''}`} />
+                    {hasError('dti') && <p className="text-[10px] text-red-600">{validationErrors.dti}</p>}
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="citizenship" className="block text-[11px] font-medium text-[#374151]">Citizenship</label>
+                    <Select name="citizenship" value={formData.citizenship} onValueChange={(v) => handleInputChange('citizenship', v)}>
+                      <SelectTrigger id="citizenship" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="usCitizen">US Citizen</SelectItem>
+                        <SelectItem value="permanentResident">Permanent Resident</SelectItem>
+                        <SelectItem value="nonPermanentResident">Non-Permanent Resident</SelectItem>
+                        <SelectItem value="foreignNational">Foreign National</SelectItem>
+                        <SelectItem value="itin">ITIN</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="documentationType" className={`block text-[11px] font-medium ${hasError('documentationType') ? 'text-red-600' : 'text-[#374151]'}`}>Doc Type</label>
+                    <Select name="documentationType" value={formData.documentationType} onValueChange={(v) => handleInputChange('documentationType', v)}>
+                      <SelectTrigger id="documentationType" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('documentationType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="fullDoc">Full Document</SelectItem>
+                        <SelectItem value="dscr">Debt Service Coverage (DSCR)</SelectItem>
+                        <SelectItem value="bankStatement12">12 Mo. Bank Statements</SelectItem>
+                        <SelectItem value="bankStatement24">24 Mo. Bank Statements</SelectItem>
+                        <SelectItem value="bankStatementOther">Other Bank Statements</SelectItem>
+                        <SelectItem value="taxReturns1Yr">1 Yr. Tax Returns</SelectItem>
+                        <SelectItem value="voe">VOE</SelectItem>
+                        <SelectItem value="assetUtilization">Asset Utilization</SelectItem>
+                        <SelectItem value="noRatio">No Ratio</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {hasError('documentationType') && <p className="text-[10px] text-red-600">{validationErrors.documentationType}</p>}
+                  </div>
+                  <div className="col-span-full space-y-1">
+                    <label htmlFor="loanTerm" className={`block text-[11px] font-medium ${hasError('loanTerm') ? 'text-red-600' : 'text-[#374151]'}`}>Term *</label>
+                    <Select name="loanTerm" value={formData.loanTerm} onValueChange={(v) => handleInputChange('loanTerm', v)}>
+                      <SelectTrigger id="loanTerm" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('loanTerm') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="30">30 Year</SelectItem>
+                        <SelectItem value="25">25 Year</SelectItem>
+                        <SelectItem value="20">20 Year</SelectItem>
+                        <SelectItem value="15">15 Year</SelectItem>
+                        <SelectItem value="10">10 Year</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {hasError('loanTerm') && <p className="text-[10px] text-red-600">{validationErrors.loanTerm}</p>}
+                  </div>
+                  <div className="col-span-full flex flex-wrap gap-2">
+                    <label htmlFor="isSelfEmployed" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isSelfEmployed ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                      <input type="checkbox" id="isSelfEmployed" name="isSelfEmployed" className="sr-only" checked={formData.isSelfEmployed} onChange={(e) => handleInputChange('isSelfEmployed', e.target.checked)} />
+                      Self Employed
+                    </label>
+                    <label htmlFor="isFTHB" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isFTHB ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                      <input type="checkbox" id="isFTHB" name="isFTHB" className="sr-only" checked={formData.isFTHB} onChange={(e) => handleInputChange('isFTHB', e.target.checked)} />
+                      FTHB
+                    </label>
+                    <label htmlFor="hasITIN" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.hasITIN ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                      <input type="checkbox" id="hasITIN" name="hasITIN" className="sr-only" checked={formData.hasITIN} onChange={(e) => handleInputChange('hasITIN', e.target.checked)} />
+                      Has ITIN
+                    </label>
+                  </div>
+                </div>
+              )}
+            </div>
 
-          {/* Sticky Get Pricing button — desktop only */}
-          <div className="hidden lg:block p-4 border-t border-[#E5E7EB] bg-white shrink-0">
+            {/* ===== INVESTOR DETAILS SECTION (conditional) ===== */}
+            {showInvestorDetails && (
+              <div id="section-investor">
+                <button type="button" onClick={() => toggleSection('investor')} className="flex items-center justify-between w-full pb-2 mb-4 border-b border-[#E5E7EB]">
+                  <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Investor Details</span>
+                  <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('investor') ? 'rotate-180' : ''}`} />
+                </button>
+                {!collapsedSections.has('investor') && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-3">
+                    <div className="space-y-1">
+                      <label htmlFor="prepayPeriod" className="block text-[11px] font-medium text-[#374151]">Prepay Period</label>
+                      <Select name="prepayPeriod" value={formData.prepayPeriod} onValueChange={(v) => handleInputChange('prepayPeriod', v)}>
+                        <SelectTrigger id="prepayPeriod" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="60mo">60 Months</SelectItem>
+                          <SelectItem value="48mo">48 Months</SelectItem>
+                          <SelectItem value="36mo">36 Months</SelectItem>
+                          <SelectItem value="24mo">24 Months</SelectItem>
+                          <SelectItem value="12mo">12 Months</SelectItem>
+                          <SelectItem value="0mo">None</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <label htmlFor="prepayType" className="block text-[11px] font-medium text-[#374151]">Prepay Type</label>
+                      <Select name="prepayType" value={formData.prepayType} onValueChange={(v) => handleInputChange('prepayType', v)}>
+                        <SelectTrigger id="prepayType" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="5pct">5%</SelectItem>
+                          <SelectItem value="declining">Declining</SelectItem>
+                          <SelectItem value="6mointerest">6 Months Interest</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {formData.documentationType === 'dscr' && (
+                      <>
+                        <div className="space-y-1">
+                          <label htmlFor="dscrEntityType" className="block text-[11px] font-medium text-[#374151]">DSCR Entity Type</label>
+                          <Select name="dscrEntityType" value={formData.dscrEntityType} onValueChange={(v) => handleInputChange('dscrEntityType', v)}>
+                            <SelectTrigger id="dscrEntityType" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="individual">Individual</SelectItem>
+                              <SelectItem value="llc">LLC</SelectItem>
+                              <SelectItem value="corp">Corp.</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-1">
+                          <label htmlFor="dscrManualInput" className="block text-[11px] font-medium text-[#374151]">DSCR %</label>
+                          <Input id="dscrManualInput" name="dscrManualInput" type="text" inputMode="decimal" placeholder="1.000" value={formData.dscrManualInput}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/[^0-9.]/g, '')
+                              handleInputChange('dscrManualInput', val)
+                              const dscrNum = parseFloat(val) || 0
+                              const staticExpense = 5000
+                              const computedRent = Math.round(dscrNum * staticExpense)
+                              handleInputChange('grossRent', computedRent > 0 ? computedRent.toLocaleString() : '5,000')
+                              handleInputChange('presentHousingExpense', '5,000')
+                            }}
+                            icon={<span className="text-xs font-semibold text-gray-500">%</span>}
+                            className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"
+                          />
+                        </div>
+                        <div className="col-span-full space-y-1">
+                          <label className="block text-[11px] font-medium text-[#374151]">Range</label>
+                          <div className="h-9 px-3 py-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-md text-sm font-medium flex items-center justify-between">
+                            <span className={`${calculatedDSCR.ratio >= 1.0 ? 'text-emerald-600' : calculatedDSCR.ratio >= 0.75 ? 'text-yellow-600' : 'text-red-600'}`}>
+                              {calculatedDSCR.display}
+                            </span>
+                            <span className="text-xs text-[#9CA3AF] ml-2">
+                              ({calculatedDSCR.range === '>=1.250' ? '>=1.250' : calculatedDSCR.range === 'noRatio' ? 'No Ratio' : calculatedDSCR.range})
+                            </span>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                    <div className="col-span-full flex flex-wrap gap-2">
+                      <label htmlFor="isSeasonalProperty" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${(formData.isSeasonalProperty || formData.isShortTermRental) ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                        <input type="checkbox" id="isSeasonalProperty" name="isSeasonalProperty" className="sr-only" checked={formData.isSeasonalProperty || formData.isShortTermRental}
+                          onChange={(e) => { handleInputChange('isSeasonalProperty', e.target.checked); handleInputChange('isShortTermRental', e.target.checked) }}
+                        />
+                        Seasonal / STR
+                      </label>
+                      <label htmlFor="isCrossCollateralized" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isCrossCollateralized ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                        <input type="checkbox" id="isCrossCollateralized" name="isCrossCollateralized" className="sr-only" checked={formData.isCrossCollateralized} onChange={(e) => handleInputChange('isCrossCollateralized', e.target.checked)} />
+                        Cross-Collateralized
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Error display */}
+            {error && (
+              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                <AlertCircle className="w-4 h-4 shrink-0" />{error}
+              </div>
+            )}
+
+            {/* Hidden submit for Enter key */}
+            <button type="submit" className="hidden" />
+          </form>
+
+          {/* Get Pricing Button */}
+          <div className="mt-5 flex justify-center">
             <button
               type="submit"
               form="pricing-form"
               disabled={isLoading}
-              className="w-full h-11 bg-[#171717] text-white font-semibold rounded-lg hover:bg-[#262626] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+              className="w-full max-w-sm h-11 bg-[#171717] text-white font-semibold rounded-lg hover:bg-[#262626] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
             >
               {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" />Fetching rates...</> : 'Get Pricing'}
             </button>
           </div>
-        </aside>
+        </div>
 
-        {/* ===== RIGHT PANEL: RESULTS ===== */}
-        <main className={`flex-1 lg:h-[calc(100vh-3.5rem)] lg:overflow-y-auto ${mobileTab !== 'results' ? 'hidden lg:block' : 'block'}`}>
-          <div className="px-5 py-5 max-w-4xl mx-auto pb-28 lg:pb-8">
-            <AnimatePresence mode="wait">
-              {/* Loading skeleton */}
-              {isLoading && !result && (
-                <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-                  <div className="h-48 w-full rounded-xl bg-[#F3F4F6] animate-pulse" />
-                  <div className="h-32 w-full rounded-xl bg-[#F3F4F6] animate-pulse" />
-                  <div className="h-32 w-full rounded-xl bg-[#F3F4F6] animate-pulse" />
-                  <div className="w-full mt-4">
-                    <div className="loading-bar-track">
-                      <div className="loading-bar-fill" style={{ width: `${loadingProgress}%` }} />
-                    </div>
+        {/* ===== RESULTS SECTION ===== */}
+        <div className="mt-6 px-4 lg:px-6 pb-10 max-w-6xl mx-auto">
+          <AnimatePresence mode="wait">
+            {/* Loading skeleton */}
+            {isLoading && !result && (
+              <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+                <div className="h-48 w-full rounded-xl bg-[#F3F4F6] animate-pulse" />
+                <div className="h-32 w-full rounded-xl bg-[#F3F4F6] animate-pulse" />
+                <div className="h-32 w-full rounded-xl bg-[#F3F4F6] animate-pulse" />
+                <div className="w-full mt-4">
+                  <div className="loading-bar-track">
+                    <div className="loading-bar-fill" style={{ width: `${loadingProgress}%` }} />
                   </div>
-                </motion.div>
-              )}
+                </div>
+              </motion.div>
+            )}
 
-              {/* Empty state */}
-              {!result && !isLoading && (
-                <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-[400px]">
-                  <BarChart3 className="w-12 h-12 text-[#6B7280]/30 mb-4" />
-                  <p className="text-sm text-[#6B7280]">Enter loan details to get pricing</p>
-                </motion.div>
-              )}
+            {/* Empty state */}
+            {!result && !isLoading && (
+              <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-[200px]">
+                <BarChart3 className="w-12 h-12 text-[#6B7280]/30 mb-4" />
+                <p className="text-sm text-[#6B7280]">Enter loan details and click Get Pricing</p>
+              </motion.div>
+            )}
 
-              {/* Results */}
-              {result && (
-                <motion.div key="results" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-4">
+            {/* Results */}
+            {result && (
+              <motion.div key="results" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="space-y-4">
 
-                  {/* mlMessage / Out of scope state */}
-                  {(result as any).mlMessage && (!Array.isArray(result.programs) || result.programs.length === 0) ? (
-                    formData.isCrossCollateralized ? (
-                      <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-9 h-9 rounded-lg bg-cyan-50 flex items-center justify-center">
-                            <Zap className="w-5 h-5 text-cyan-500" />
-                          </div>
-                          <div className="text-sm font-semibold text-[#171717]">Pass to National Rate Card</div>
+                {/* mlMessage / Out of scope state */}
+                {(result as any).mlMessage && (!Array.isArray(result.programs) || result.programs.length === 0) ? (
+                  formData.isCrossCollateralized ? (
+                    <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-9 h-9 rounded-lg bg-cyan-50 flex items-center justify-center">
+                          <Zap className="w-5 h-5 text-cyan-500" />
                         </div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
-                            <ShieldCheck className="w-3 h-3" />Verified
-                          </span>
-                          <span className="text-xs text-[#6B7280]">Cross-Collateralized</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-[#6B7280]">
-                          <Globe className="w-3.5 h-3.5 text-[#9CA3AF]" />
-                          <span>We just checked all of the Industry Leading Pricing Engines for you.</span>
-                        </div>
+                        <div className="text-sm font-semibold text-[#171717]">Pass to National Rate Card</div>
                       </div>
-                    ) : (
-                      <div className="bg-white border border-amber-200 rounded-xl p-5">
-                        <div className="flex items-start gap-3">
-                          <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                          <div>
-                            <div className="text-sm font-bold text-[#171717] mb-1">Scenario Out of Scope</div>
-                            <p className="text-xs text-[#6B7280] leading-relaxed">
-                              Please check your input fields and try again. If you continue to receive this message then your details just missed our static Rate Sheet. Please fire a Scenario Details Email over to{' '}
-                              <a href="mailto:defylocks@qualr.com" className="text-[#171717] font-semibold hover:underline">defylocks@qualr.com</a>{' '}
-                              for a Fast Custom Quote.
-                            </p>
-                          </div>
-                        </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                          <ShieldCheck className="w-3 h-3" />Verified
+                        </span>
+                        <span className="text-xs text-[#6B7280]">Cross-Collateralized</span>
                       </div>
-                    )
+                      <div className="flex items-center gap-2 text-xs text-[#6B7280]">
+                        <Globe className="w-3.5 h-3.5 text-[#9CA3AF]" />
+                        <span>We just checked all of the Industry Leading Pricing Engines for you.</span>
+                      </div>
+                    </div>
                   ) : (
-                    <>
-                      {/* ===== HERO PRICING CARD ===== */}
-                      <div className="bg-white border border-[#E5E7EB] rounded-xl p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Best Available Rate</span>
-                          <span className="bg-emerald-50 text-[#10B981] border border-emerald-200 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />Live
-                          </span>
-                        </div>
-                        <div className="text-5xl font-bold text-[#171717] tabular-nums mb-1">
-                          {targetPricing ? formatPercent(targetPricing.rate) : formatPercent(safeNumber(result.rate))}
-                        </div>
-                        <div className="text-[11px] font-medium text-[#9CA3AF] uppercase tracking-widest mb-5">Interest Rate</div>
-                        {result.apiError && (
-                          <div className="inline-flex items-center gap-1 text-[11px] font-medium text-red-500 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full mb-3">
-                            <AlertCircle className="w-3 h-3" />Error
-                          </div>
-                        )}
-                        <div className="grid grid-cols-5 gap-0 border-t border-[#E5E7EB] pt-4">
-                          <div>
-                            <div className="text-base font-semibold text-[#171717] tabular-nums">{targetPricing ? targetPricing.price.toFixed(3) : '100.000'}</div>
-                            <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mt-0.5">Price</div>
-                          </div>
-                          <div className="border-l border-[#E5E7EB] pl-3">
-                            <div className="text-base font-semibold text-[#171717] tabular-nums">{targetPricing ? formatPercent(targetPricing.apr) : formatPercent(safeNumber(result.apr))}</div>
-                            <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mt-0.5">APR</div>
-                          </div>
-                          <div className="border-l border-[#E5E7EB] pl-3">
-                            <div className="text-base font-semibold text-[#171717] tabular-nums">{targetPricing && targetPricing.payment > 0 ? formatCurrency(targetPricing.payment) : formatCurrency(safeNumber(result.monthlyPayment))}</div>
-                            <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mt-0.5">Payment</div>
-                          </div>
-                          <div className="border-l border-[#E5E7EB] pl-3">
-                            <div className="text-base font-semibold text-[#171717] tabular-nums">{targetPricing ? targetPricing.points.toFixed(3) : safeNumber(result.points).toFixed(3)}</div>
-                            <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mt-0.5">Points</div>
-                          </div>
-                          <div className="border-l border-[#E5E7EB] pl-3">
-                            <div className="text-base font-semibold text-[#171717] tabular-nums">{safeNumber(result.ltvRatio).toFixed(1)}%</div>
-                            <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mt-0.5">LTV</div>
-                          </div>
+                    <div className="bg-white border border-amber-200 rounded-xl p-5">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                        <div>
+                          <div className="text-sm font-bold text-[#171717] mb-1">Scenario Out of Scope</div>
+                          <p className="text-xs text-[#6B7280] leading-relaxed">
+                            Please check your input fields and try again. If you continue to receive this message then your details just missed our static Rate Sheet. Please fire a Scenario Details Email over to{' '}
+                            <a href="mailto:defylocks@qualr.com" className="text-[#171717] font-semibold hover:underline">defylocks@qualr.com</a>{' '}
+                            for a Fast Custom Quote.
+                          </p>
                         </div>
                       </div>
-
-                      {/* ===== ADJUSTMENTS CARD ===== */}
-                      {targetPricing && targetPricing.adjustments && targetPricing.adjustments.length > 0 && (
-                        <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
-                          <div className="text-xs font-semibold uppercase tracking-widest text-[#6B7280] mb-3">Adjustments</div>
-                          <div className="space-y-1">
-                            {targetPricing.adjustments.map((adj, idx) => {
-                              const rateDisplay = adj.rateAdj !== undefined ? adj.rateAdj : (adj.percentage !== undefined ? adj.percentage : 0)
-                              const priceDisplay = adj.amount || 0
-                              return (
-                                <div key={idx} className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-[#F9FAFB] transition-colors">
-                                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                                    <span className="text-xs text-[#9CA3AF] tabular-nums w-14 shrink-0">{rateDisplay.toFixed(3)}%</span>
-                                    <span className="text-xs text-[#374151] truncate">{adj.description}</span>
-                                  </div>
-                                  <span className={`text-xs font-semibold tabular-nums ml-3 ${priceDisplay > 0 ? 'text-emerald-600' : priceDisplay < 0 ? 'text-red-500' : 'text-[#9CA3AF]'}`}>
-                                    {priceDisplay > 0 ? '+' : ''}{priceDisplay.toFixed(3)}
-                                  </span>
-                                </div>
-                              )
-                            })}
-                          </div>
+                    </div>
+                  )
+                ) : (
+                  <>
+                    {/* ===== HERO PRICING CARD ===== */}
+                    <div className="bg-white border border-[#E5E7EB] rounded-xl p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Best Available Rate</span>
+                        <span className="bg-emerald-50 text-[#10B981] border border-emerald-200 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />Live
+                        </span>
+                      </div>
+                      <div className="text-5xl font-bold text-[#171717] tabular-nums mb-1">
+                        {targetPricing ? formatPercent(targetPricing.rate) : formatPercent(safeNumber(result.rate))}
+                      </div>
+                      <div className="text-[11px] font-medium text-[#9CA3AF] uppercase tracking-widest mb-5">Interest Rate</div>
+                      {result.apiError && (
+                        <div className="inline-flex items-center gap-1 text-[11px] font-medium text-red-500 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full mb-3">
+                          <AlertCircle className="w-3 h-3" />Error
                         </div>
                       )}
-
-                      {/* ===== EMAIL FORM ===== */}
-                      {showEmailForm && (
-                        <div className="bg-white border border-[#E5E7EB] rounded-xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                          <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <Mail className="w-4 h-4 text-[#9CA3AF] shrink-0" />
-                            <input
-                              type="email"
-                              placeholder="Enter email address"
-                              value={emailTo}
-                              onChange={(e) => setEmailTo(e.target.value)}
-                              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSendEmail() } }}
-                              className="flex-1 min-w-0 text-sm bg-transparent outline-none placeholder:text-[#D1D5DB] text-[#374151]"
-                              autoFocus
-                            />
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={handleSendEmail}
-                              disabled={emailSending || !emailTo}
-                              className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold text-white bg-[#171717] rounded-lg hover:bg-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                            >
-                              {emailSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : emailStatus === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
-                              {emailSending ? 'Sending...' : emailStatus === 'success' ? 'Sent!' : 'Send'}
-                            </button>
-                            <button type="button" onClick={() => { setShowEmailForm(false); setEmailStatus('idle') }} className="p-2 text-[#9CA3AF] hover:text-[#374151] transition-colors">
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                          {emailStatus === 'error' && <p className="text-xs text-red-500 sm:ml-6">Failed to send. Please try again.</p>}
+                      <div className="grid grid-cols-5 gap-0 border-t border-[#E5E7EB] pt-4">
+                        <div>
+                          <div className="text-base font-semibold text-[#171717] tabular-nums">{targetPricing ? targetPricing.price.toFixed(3) : '100.000'}</div>
+                          <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mt-0.5">Price</div>
                         </div>
-                      )}
+                        <div className="border-l border-[#E5E7EB] pl-3">
+                          <div className="text-base font-semibold text-[#171717] tabular-nums">{targetPricing ? formatPercent(targetPricing.apr) : formatPercent(safeNumber(result.apr))}</div>
+                          <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mt-0.5">APR</div>
+                        </div>
+                        <div className="border-l border-[#E5E7EB] pl-3">
+                          <div className="text-base font-semibold text-[#171717] tabular-nums">{targetPricing && targetPricing.payment > 0 ? formatCurrency(targetPricing.payment) : formatCurrency(safeNumber(result.monthlyPayment))}</div>
+                          <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mt-0.5">Payment</div>
+                        </div>
+                        <div className="border-l border-[#E5E7EB] pl-3">
+                          <div className="text-base font-semibold text-[#171717] tabular-nums">{targetPricing ? targetPricing.points.toFixed(3) : safeNumber(result.points).toFixed(3)}</div>
+                          <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mt-0.5">Points</div>
+                        </div>
+                        <div className="border-l border-[#E5E7EB] pl-3">
+                          <div className="text-base font-semibold text-[#171717] tabular-nums">{safeNumber(result.ltvRatio).toFixed(1)}%</div>
+                          <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mt-0.5">LTV</div>
+                        </div>
+                      </div>
+                    </div>
 
-                      {/* ===== AVAILABLE PROGRAMS ===== */}
-                      {Array.isArray(result.programs) && result.programs.length > 0 ? (
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-semibold text-[#171717]">Available Programs</h3>
-                            <span className="text-[11px] font-medium text-[#6B7280] bg-[#F3F4F6] px-2 py-0.5 rounded-full">
-                              {result.programs.filter(p => p && Array.isArray(p.rateOptions) && filterRateOptionsByPrice(p.rateOptions).length > 0).length} found
-                            </span>
-                          </div>
-                          {result.programs.map((program, idx) => {
-                            if (!program || typeof program !== 'object') return null
-                            const allRateOptions = Array.isArray(program.rateOptions) ? program.rateOptions : []
-                            const filteredRateOptions = filterRateOptionsByPrice(allRateOptions)
-                            if (filteredRateOptions.length === 0) return null
-
-                            const programName = program.name || `Program ${idx + 1}`
-                            const bestRate = filteredRateOptions.reduce((best, opt) => {
-                              const price = 100 - safeNumber(opt.points)
-                              const bestPrice = best ? 100 - safeNumber(best.points) : Infinity
-                              return Math.abs(price - 100) < Math.abs(bestPrice - 100) ? opt : best
-                            }, filteredRateOptions[0])
-                            const bestPayment = bestRate ? safeNumber(bestRate.payment) : 0
-                            const isExpanded = expandedProgram === programName
-                            const isSelectedPrepay = formData.occupancyType === 'investment' && programMatchesPrepay(programName, formData.prepayPeriod)
-
+                    {/* ===== ADJUSTMENTS CARD ===== */}
+                    {targetPricing && targetPricing.adjustments && targetPricing.adjustments.length > 0 && (
+                      <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
+                        <div className="text-xs font-semibold uppercase tracking-widest text-[#6B7280] mb-3">Adjustments</div>
+                        <div className="space-y-1">
+                          {targetPricing.adjustments.map((adj, idx) => {
+                            const rateDisplay = adj.rateAdj !== undefined ? adj.rateAdj : (adj.percentage !== undefined ? adj.percentage : 0)
+                            const priceDisplay = adj.amount || 0
                             return (
-                              <div key={idx} className={`rounded-xl overflow-hidden border transition-all bg-white ${isSelectedPrepay ? 'border-[#171717] shadow-sm' : isExpanded ? 'border-[#D1D5DB] shadow-sm' : 'border-[#E5E7EB]'}`}>
-                                <div className="px-4 py-3">
-                                  <div className="flex items-center justify-between mb-2.5">
-                                    <div className="min-w-0 flex-1">
-                                      <div className="flex items-center gap-2">
-                                        <div className="font-semibold text-[13px] text-[#171717] truncate">{programName}</div>
-                                        {isSelectedPrepay && (
-                                          <span className="shrink-0 text-[9px] font-bold text-[#171717] bg-[#F3F4F6] px-1.5 py-0.5 rounded uppercase tracking-wider">Selected Prepay</span>
-                                        )}
-                                      </div>
-                                      <div className="text-[11px] text-[#9CA3AF] mt-0.5">{filteredRateOptions.length} rate option{filteredRateOptions.length !== 1 ? 's' : ''}</div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                      <button
-                                        type="button"
-                                        onClick={(e) => { e.stopPropagation(); setShowEmailForm(!showEmailForm) }}
-                                        className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-[#374151] bg-white border border-[#E5E7EB] rounded-lg hover:bg-[#F9FAFB] transition-all"
-                                      >
-                                        <Mail className="w-3 h-3" />Email Results
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={() => setExpandedProgram(isExpanded ? null : programName)}
-                                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all ${isExpanded ? 'text-[#171717] bg-[#F3F4F6] border border-[#D1D5DB]' : 'text-[#6B7280] bg-[#F9FAFB] border border-[#E5E7EB] hover:bg-[#F3F4F6]'}`}
-                                      >
-                                        MORE PRICING
-                                        {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                                      </button>
-                                    </div>
-                                  </div>
-                                  <div className="grid grid-cols-4 gap-2">
-                                    <div>
-                                      <div className="text-lg font-bold text-[#171717] tabular-nums">{bestRate ? safeNumber(bestRate.rate).toFixed(3) : '-'}%</div>
-                                      <div className="text-[10px] font-medium text-[#9CA3AF] uppercase tracking-wider">Rate</div>
-                                    </div>
-                                    <div>
-                                      <div className="text-lg font-bold text-[#374151] tabular-nums">{bestRate ? (100 - safeNumber(bestRate.points)).toFixed(3) : '-'}</div>
-                                      <div className="text-[10px] font-medium text-[#9CA3AF] uppercase tracking-wider">Price</div>
-                                    </div>
-                                    <div>
-                                      <div className="text-lg font-bold text-[#374151] tabular-nums">{bestRate ? safeNumber(bestRate.apr).toFixed(3) : '-'}%</div>
-                                      <div className="text-[10px] font-medium text-[#9CA3AF] uppercase tracking-wider">APR</div>
-                                    </div>
-                                    <div>
-                                      <div className="text-lg font-bold text-[#374151] tabular-nums">{bestPayment > 0 ? formatCurrency(bestPayment) : '-'}</div>
-                                      <div className="text-[10px] font-medium text-[#9CA3AF] uppercase tracking-wider">Payment</div>
-                                    </div>
-                                  </div>
+                              <div key={idx} className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-[#F9FAFB] transition-colors">
+                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                  <span className="text-xs text-[#9CA3AF] tabular-nums w-14 shrink-0">{rateDisplay.toFixed(3)}%</span>
+                                  <span className="text-xs text-[#374151] truncate">{adj.description}</span>
                                 </div>
-
-                                {/* Expanded Rate Options */}
-                                {isExpanded && filteredRateOptions.length > 0 && (
-                                  <div className="border-t border-[#E5E7EB]">
-                                    {/* Desktop table */}
-                                    <div className="hidden sm:block px-4 py-2 overflow-x-auto">
-                                      <table className="w-full text-xs">
-                                        <thead>
-                                          <tr className="text-[#9CA3AF] border-b border-[#E5E7EB] text-[10px] uppercase tracking-wider">
-                                            <th className="text-left py-2 pr-2 font-medium">Actions</th>
-                                            <th className="text-left py-2 pr-2 font-medium">Program/PPP</th>
-                                            <th className="text-right py-2 px-2 font-medium">Rate</th>
-                                            <th className="text-right py-2 px-2 font-medium">Price</th>
-                                            <th className="text-right py-2 px-2 font-medium">Points</th>
-                                            <th className="text-right py-2 px-2 font-medium">APR</th>
-                                            <th className="text-right py-2 px-2 font-medium">Payment</th>
-                                            <th className="text-right py-2 pl-2 font-medium">Adj</th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          {filteredRateOptions.map((opt, optIdx) => {
-                                            if (!opt || typeof opt !== 'object') return null
-                                            const points = safeNumber(opt.points)
-                                            const price = safeNumber(opt.price) || (100 - points)
-                                            const pointsDisplay = points >= 0 ? `(${points.toFixed(3)})` : `+${Math.abs(points).toFixed(3)}`
-                                            const isClosestTo100 = bestRate === opt
-                                            const payment = safeNumber(opt.payment)
-                                            const adjustments = opt.adjustments || []
-                                            const totalAdjustment = adjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0)
-                                            const isActiveRow = activeRowAction?.programName === programName && activeRowAction?.optIdx === optIdx
-                                            return (
-                                              <tr key={optIdx} className={`border-t border-[#E5E7EB] ${isClosestTo100 ? 'bg-[#F9FAFB]' : ''} ${isActiveRow ? 'bg-yellow-50/50' : ''}`}>
-                                                <td className="py-2 pr-2 text-left">
-                                                  <div className="relative">
-                                                    <button
-                                                      type="button"
-                                                      onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        const key = `${programName}-${optIdx}`
-                                                        setOpenActionDropdown(openActionDropdown === key ? null : key)
-                                                      }}
-                                                      className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-white bg-[#171717] rounded hover:bg-[#262626] transition-colors whitespace-nowrap"
-                                                    >
-                                                      Actions <ChevronDown className={`w-3 h-3 transition-transform ${openActionDropdown === `${programName}-${optIdx}` ? 'rotate-180' : ''}`} />
-                                                    </button>
-                                                    {openActionDropdown === `${programName}-${optIdx}` && (
-                                                      <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-lg shadow-lg border border-[#E5E7EB] py-1 min-w-[180px]">
-                                                        <button
-                                                          type="button"
-                                                          onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            setActiveRowAction(isActiveRow && activeRowAction?.type === 'reserve' ? null : {
-                                                              type: 'reserve', programName, optIdx,
-                                                              rate: safeNumber(opt.rate), price, payment,
-                                                              apr: safeNumber(opt.apr), description: opt.description || programName
-                                                            })
-                                                            setRowReserveFields({ name: '', email: '', scenarioName: '', confirmed: false })
-                                                            setRowStatus('idle')
-                                                            setOpenActionDropdown(null)
-                                                          }}
-                                                          className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#171717] hover:bg-[#F9FAFB] transition-colors"
-                                                        >
-                                                          Reserve Pricing
-                                                        </button>
-                                                        {isPartner && (
-                                                          <button
-                                                            type="button"
-                                                            onClick={(e) => {
-                                                              e.stopPropagation()
-                                                              setActiveRowAction(isActiveRow && activeRowAction?.type === 'lock' ? null : {
-                                                                type: 'lock', programName, optIdx,
-                                                                rate: safeNumber(opt.rate), price, payment,
-                                                                apr: safeNumber(opt.apr), description: opt.description || programName
-                                                              })
-                                                              setRowLockFields({ name: '', email: '', loanNumber: '' })
-                                                              setRowStatus('idle')
-                                                              setOpenActionDropdown(null)
-                                                            }}
-                                                            className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#374151] hover:bg-[#F9FAFB] transition-colors"
-                                                          >
-                                                            Request Lock
-                                                          </button>
-                                                        )}
-                                                        {isPartner && (
-                                                          <a
-                                                            href="https://sub.defywholesale.com/"
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            onClick={(e) => { e.stopPropagation(); setOpenActionDropdown(null) }}
-                                                            className="block w-full text-left px-3 py-2 text-[11px] font-semibold text-[#6B7280] hover:bg-[#F9FAFB] transition-colors no-underline"
-                                                          >
-                                                            Select Rate + Submit File
-                                                          </a>
-                                                        )}
-                                                      </div>
-                                                    )}
-                                                  </div>
-                                                </td>
-                                                <td className="py-2 pr-2 text-left"><div className="max-w-[220px] truncate font-medium text-[#374151]" title={opt.description || ''}>{opt.description || programName}</div></td>
-                                                <td className="py-2 px-2 text-right font-semibold text-[#171717] tabular-nums">{safeNumber(opt.rate).toFixed(3)}%</td>
-                                                <td className={`py-2 px-2 text-right tabular-nums ${price >= 100 ? 'text-emerald-600 font-medium' : 'text-[#374151]'}`}>{price.toFixed(3)}</td>
-                                                <td className={`py-2 px-2 text-right tabular-nums ${points < 0 ? 'text-emerald-600' : 'text-[#6B7280]'}`}>{pointsDisplay}</td>
-                                                <td className="py-2 px-2 text-right tabular-nums text-[#374151]">{safeNumber(opt.apr).toFixed(3)}%</td>
-                                                <td className="py-2 px-2 text-right font-medium tabular-nums text-[#374151]">{payment > 0 ? formatCurrency(payment) : '-'}</td>
-                                                <td className="py-2 pl-2 text-right tabular-nums">
-                                                  {adjustments.length > 0 ? (
-                                                    <span className={totalAdjustment >= 0 ? 'text-emerald-600' : 'text-red-500'}>
-                                                      {totalAdjustment >= 0 ? '+' : ''}{totalAdjustment.toFixed(3)}
-                                                    </span>
-                                                  ) : '-'}
-                                                </td>
-                                              </tr>
-                                            )
-                                          })}
-                                        </tbody>
-                                      </table>
-                                    </div>
-
-                                    {/* Per-row action form */}
-                                    {activeRowAction && activeRowAction.programName === programName && (
-                                      <div className="mx-4 mb-3 mt-1 border border-[#E5E7EB] rounded-xl p-4 bg-white shadow-sm">
-                                        <div className="flex items-center justify-between mb-3">
-                                          <div>
-                                            <div className="text-sm font-bold text-[#171717]">
-                                              {activeRowAction.type === 'reserve' ? 'Reserve Rate & Pricing' : 'Request Rate Lock'}
-                                            </div>
-                                            <div className="text-[11px] text-[#6B7280] mt-0.5">
-                                              {formatPercent(activeRowAction.rate)} @ {activeRowAction.price.toFixed(3)} &mdash; {activeRowAction.description}
-                                            </div>
-                                          </div>
-                                          <button type="button" onClick={() => { setActiveRowAction(null); setRowStatus('idle') }} className="p-1 text-[#9CA3AF] hover:text-[#374151] transition-colors">
-                                            <X className="w-4 h-4" />
-                                          </button>
-                                        </div>
-
-                                        {activeRowAction.type === 'reserve' ? (
-                                          <div className="space-y-3">
-                                            <p className="text-xs text-[#6B7280] leading-relaxed max-w-md">
-                                              Confirm you would like to reserve this Rate &amp; Pricing. This quote expires after 48 hours unless a full file is submitted.
-                                            </p>
-                                            <label className="flex items-start gap-2 cursor-pointer">
-                                              <input type="checkbox" checked={rowReserveFields.confirmed} onChange={(e) => setRowReserveFields(prev => ({ ...prev, confirmed: e.target.checked }))} className="mt-0.5 w-4 h-4 rounded border-[#D1D5DB] text-[#171717] focus:ring-[#171717]" />
-                                              <span className="text-xs text-[#374151] leading-relaxed">I confirm and understand the 48-hour expiration policy</span>
-                                            </label>
-                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                              <input type="text" placeholder="Your Name *" value={rowReserveFields.name} onChange={(e) => setRowReserveFields(prev => ({ ...prev, name: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
-                                              <input type="email" placeholder="Email *" value={rowReserveFields.email} onChange={(e) => setRowReserveFields(prev => ({ ...prev, email: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
-                                              <input type="text" placeholder="Scenario Name" value={rowReserveFields.scenarioName} onChange={(e) => setRowReserveFields(prev => ({ ...prev, scenarioName: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                              <button type="button" onClick={handleRowReserve} disabled={rowSending || !rowReserveFields.confirmed || !rowReserveFields.name || !rowReserveFields.email} className="inline-flex items-center gap-1.5 px-5 py-2 text-[13px] font-semibold text-white bg-[#171717] rounded-lg hover:bg-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                                                {rowSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : rowStatus === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
-                                                {rowSending ? 'Sending...' : rowStatus === 'success' ? 'Sent!' : 'Send Reservation'}
-                                              </button>
-                                              {rowStatus === 'error' && <p className="text-xs text-red-500">Failed to send. Please try again.</p>}
-                                            </div>
-                                          </div>
-                                        ) : (
-                                          <div className="space-y-3">
-                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                              <input type="text" placeholder="Your Name *" value={rowLockFields.name} onChange={(e) => setRowLockFields(prev => ({ ...prev, name: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
-                                              <input type="email" placeholder="Email *" value={rowLockFields.email} onChange={(e) => setRowLockFields(prev => ({ ...prev, email: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
-                                              <input type="text" placeholder="DEFY Loan Number *" value={rowLockFields.loanNumber} onChange={(e) => setRowLockFields(prev => ({ ...prev, loanNumber: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                              <button type="button" onClick={handleRowLock} disabled={rowSending || !rowLockFields.name || !rowLockFields.email || !rowLockFields.loanNumber} className="inline-flex items-center gap-1.5 px-5 py-2 text-[13px] font-semibold text-white bg-[#171717] rounded-lg hover:bg-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                                                {rowSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : rowStatus === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
-                                                {rowSending ? 'Sending...' : rowStatus === 'success' ? 'Sent!' : 'Send Lock Request'}
-                                              </button>
-                                              {rowStatus === 'error' && <p className="text-xs text-red-500">Failed to send. Please try again.</p>}
-                                            </div>
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
-
-                                    {/* Mobile stacked cards */}
-                                    <div className="sm:hidden divide-y divide-[#E5E7EB]">
-                                      {filteredRateOptions.map((opt, optIdx) => {
-                                        if (!opt || typeof opt !== 'object') return null
-                                        const points = safeNumber(opt.points)
-                                        const price = safeNumber(opt.price) || (100 - points)
-                                        const isClosestTo100 = bestRate === opt
-                                        const payment = safeNumber(opt.payment)
-                                        return (
-                                          <div key={optIdx} className={`px-4 py-3 ${isClosestTo100 ? 'bg-[#F9FAFB]' : ''}`}>
-                                            <div className="text-[12px] font-medium text-[#374151] truncate mb-2">{opt.description || programName}</div>
-                                            <div className="grid grid-cols-4 gap-2 text-center">
-                                              <div>
-                                                <div className="text-[13px] font-bold text-[#171717] tabular-nums">{safeNumber(opt.rate).toFixed(3)}%</div>
-                                                <div className="text-[9px] text-[#9CA3AF] uppercase">Rate</div>
-                                              </div>
-                                              <div>
-                                                <div className={`text-[13px] font-bold tabular-nums ${price >= 100 ? 'text-emerald-600' : 'text-[#374151]'}`}>{price.toFixed(3)}</div>
-                                                <div className="text-[9px] text-[#9CA3AF] uppercase">Price</div>
-                                              </div>
-                                              <div>
-                                                <div className="text-[13px] font-bold text-[#374151] tabular-nums">{safeNumber(opt.apr).toFixed(3)}%</div>
-                                                <div className="text-[9px] text-[#9CA3AF] uppercase">APR</div>
-                                              </div>
-                                              <div>
-                                                <div className="text-[13px] font-bold text-[#374151] tabular-nums">{payment > 0 ? formatCurrency(payment) : '-'}</div>
-                                                <div className="text-[9px] text-[#9CA3AF] uppercase">Pmt</div>
-                                              </div>
-                                            </div>
-                                            {/* Mobile action buttons */}
-                                            <div className="relative mt-2">
-                                              <button
-                                                type="button"
-                                                onClick={() => {
-                                                  const key = `m-${programName}-${optIdx}`
-                                                  setOpenActionDropdown(openActionDropdown === key ? null : key)
-                                                }}
-                                                className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-white bg-[#171717] rounded hover:bg-[#262626] transition-colors"
-                                              >
-                                                Actions <ChevronDown className={`w-3 h-3 transition-transform ${openActionDropdown === `m-${programName}-${optIdx}` ? 'rotate-180' : ''}`} />
-                                              </button>
-                                              {openActionDropdown === `m-${programName}-${optIdx}` && (
-                                                <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-lg shadow-lg border border-[#E5E7EB] py-1 min-w-[180px]">
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                      setActiveRowAction({
-                                                        type: 'reserve', programName, optIdx,
-                                                        rate: safeNumber(opt.rate), price, payment,
-                                                        apr: safeNumber(opt.apr), description: opt.description || programName
-                                                      })
-                                                      setRowReserveFields({ name: '', email: '', scenarioName: '', confirmed: false })
-                                                      setRowStatus('idle')
-                                                      setOpenActionDropdown(null)
-                                                    }}
-                                                    className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#171717] hover:bg-[#F9FAFB] transition-colors"
-                                                  >
-                                                    Reserve Pricing
-                                                  </button>
-                                                  {isPartner && (
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => {
-                                                        setActiveRowAction({
-                                                          type: 'lock', programName, optIdx,
-                                                          rate: safeNumber(opt.rate), price, payment,
-                                                          apr: safeNumber(opt.apr), description: opt.description || programName
-                                                        })
-                                                        setRowLockFields({ name: '', email: '', loanNumber: '' })
-                                                        setRowStatus('idle')
-                                                        setOpenActionDropdown(null)
-                                                      }}
-                                                      className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#374151] hover:bg-[#F9FAFB] transition-colors"
-                                                    >
-                                                      Request Lock
-                                                    </button>
-                                                  )}
-                                                  {isPartner && (
-                                                    <a
-                                                      href="https://sub.defywholesale.com/"
-                                                      target="_blank"
-                                                      rel="noopener noreferrer"
-                                                      onClick={() => setOpenActionDropdown(null)}
-                                                      className="block w-full text-left px-3 py-2 text-[11px] font-semibold text-[#6B7280] hover:bg-[#F9FAFB] transition-colors no-underline"
-                                                    >
-                                                      Select Rate + Submit File
-                                                    </a>
-                                                  )}
-                                                </div>
-                                              )}
-                                            </div>
-                                          </div>
-                                        )
-                                      })}
-                                    </div>
-
-                                    {/* Adjustments detail (best rate) */}
-                                    {bestRate && bestRate.adjustments && bestRate.adjustments.length > 0 && (
-                                      <div className="px-4 py-3 border-t border-[#E5E7EB] bg-[#F9FAFB]">
-                                        <div className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-2">Adjustments (Best Rate)</div>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
-                                          {bestRate.adjustments.map((adj: Adjustment, adjIdx: number) => (
-                                            <div key={adjIdx} className="flex justify-between items-center text-xs bg-white px-2.5 py-1.5 rounded-lg border border-[#E5E7EB]">
-                                              <span className="text-[#374151] truncate mr-2">{adj.description}</span>
-                                              <span className={`font-semibold tabular-nums ${adj.amount >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                                                {adj.amount >= 0 ? '+' : ''}{adj.amount.toFixed(3)}
-                                              </span>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-
-                                {isExpanded && filteredRateOptions.length === 0 && (
-                                  <div className="bg-[#F9FAFB] px-4 py-3 text-xs text-[#9CA3AF] border-t border-[#E5E7EB]">
-                                    No rate options in price range (99-101)
-                                  </div>
-                                )}
+                                <span className={`text-xs font-semibold tabular-nums ml-3 ${priceDisplay > 0 ? 'text-emerald-600' : priceDisplay < 0 ? 'text-red-500' : 'text-[#9CA3AF]'}`}>
+                                  {priceDisplay > 0 ? '+' : ''}{priceDisplay.toFixed(3)}
+                                </span>
                               </div>
                             )
                           })}
                         </div>
-                      ) : null}
+                      </div>
+                    )}
 
-                      {/* Secondary Manager Access - LP Results Gate */}
-                      {(lpLoading || lpResult) && !lpUnlocked && (
-                        <div className="mt-4 flex items-center gap-3 justify-end">
-                          <span className="text-[11px] text-[#9CA3AF] font-medium">Secondary Manager Access</span>
+                    {/* ===== EMAIL FORM ===== */}
+                    {showEmailForm && (
+                      <div className="bg-white border border-[#E5E7EB] rounded-xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <Mail className="w-4 h-4 text-[#9CA3AF] shrink-0" />
                           <input
-                            type="password"
-                            inputMode="numeric"
-                            maxLength={4}
-                            placeholder="----"
-                            value={lpPasscode}
-                            onChange={(e) => {
-                              const val = e.target.value.replace(/\D/g, '').slice(0, 4)
-                              setLpPasscode(val)
-                              if (val === '4040') setLpUnlocked(true)
-                            }}
-                            className="w-16 h-7 text-center text-[12px] font-mono bg-[#F9FAFB] border border-[#E5E7EB] rounded text-[#6B7280] outline-none focus:border-[#9CA3AF] placeholder:text-[#D1D5DB]"
+                            type="email"
+                            placeholder="Enter email address"
+                            value={emailTo}
+                            onChange={(e) => setEmailTo(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSendEmail() } }}
+                            className="flex-1 min-w-0 text-sm bg-transparent outline-none placeholder:text-[#D1D5DB] text-[#374151]"
+                            autoFocus
                           />
                         </div>
-                      )}
-
-                      {/* LP Loading */}
-                      {lpUnlocked && lpLoading && !lpResult && (
-                        <div className="mt-4 border border-slate-700 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl p-8">
-                          <div className="flex flex-col items-center justify-center gap-3">
-                            <div className="relative">
-                              <Globe className="w-8 h-8 text-cyan-400 animate-pulse" />
-                              <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full animate-ping" />
-                            </div>
-                            <span className="text-sm text-slate-300 font-medium tracking-wide">Scanning national wholesale pricing engines...</span>
-                            <div className="flex gap-1 mt-1">
-                              <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                              <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                              <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                            </div>
-                          </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={handleSendEmail}
+                            disabled={emailSending || !emailTo}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold text-white bg-[#171717] rounded-lg hover:bg-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          >
+                            {emailSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : emailStatus === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
+                            {emailSending ? 'Sending...' : emailStatus === 'success' ? 'Sent!' : 'Send'}
+                          </button>
+                          <button type="button" onClick={() => { setShowEmailForm(false); setEmailStatus('idle') }} className="p-2 text-[#9CA3AF] hover:text-[#374151] transition-colors">
+                            <X className="w-4 h-4" />
+                          </button>
                         </div>
-                      )}
+                        {emailStatus === 'error' && <p className="text-xs text-red-500 sm:ml-6">Failed to send. Please try again.</p>}
+                      </div>
+                    )}
 
-                      {/* LP Results */}
-                      {lpUnlocked && lpResult && lpResult.rateOptions && lpResult.rateOptions.length > 0 && (() => {
-                        const isInvestment = formData.occupancyType === 'investment'
-                        const prepayMonths = parseInt(formData.prepayPeriod) || 0
-                        const priceCeiling = 103.000
-                        const adjustedLpRates = lpResult.rateOptions
-                          .map((opt: any) => {
-                            const prog = (opt.program || '').toUpperCase()
-                            const needsMargin = prog.includes('TITANIUM ADVANTAGE') || prog.includes('CASH FLOW ADVANTAGE')
-                            const marginAdj = needsMargin ? 1.375 : 0
-                            return {
-                              ...opt,
-                              price: safeNumber(opt.price) - 0.125 - marginAdj,
-                              totalAdjustments: safeNumber(opt.totalAdjustments) - marginAdj,
-                            }
-                          })
-                        const filteredLpRates = (() => {
-                          const sorted = adjustedLpRates
-                            .filter((opt: any) => opt.price >= 99.500 && opt.price <= priceCeiling)
-                            .filter((opt: any, idx: number, arr: any[]) => {
-                              const rateStep = Math.round(opt.rate / 0.125) * 0.125
-                              return idx === arr.findIndex((o: any) => Math.round(o.rate / 0.125) * 0.125 === rateStep)
-                            })
-                          const result: any[] = []
-                          let lastPrice = -Infinity
-                          for (const opt of sorted) {
-                            if (result.length > 0 && opt.price <= lastPrice) break
-                            result.push(opt)
-                            lastPrice = opt.price
-                          }
-                          return result
-                        })()
-                        const closestPrice = filteredLpRates.length > 0
-                          ? Math.min(...filteredLpRates.map((o: any) => Math.abs(o.price - 100)))
-                          : 999
-                        const prepayLabel = isInvestment && prepayMonths > 0 ? ` - ${prepayMonths} Month Prepay` : ''
-                        return (
-                          <div className="mt-4 border border-slate-700 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl overflow-hidden relative">
-                            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-                            <div className="px-5 pt-5 pb-3 relative z-10">
-                              <div className="flex items-center justify-between flex-wrap gap-3 mb-2">
-                                <div className="flex items-center gap-2.5">
-                                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/30">
-                                    <Zap className="w-4 h-4 text-cyan-400" />
+                    {/* ===== AVAILABLE PROGRAMS ===== */}
+                    {Array.isArray(result.programs) && result.programs.length > 0 ? (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-sm font-semibold text-[#171717]">Available Programs</h3>
+                          <span className="text-[11px] font-medium text-[#6B7280] bg-[#F3F4F6] px-2 py-0.5 rounded-full">
+                            {result.programs.filter(p => p && Array.isArray(p.rateOptions) && filterRateOptionsByPrice(p.rateOptions).length > 0).length} found
+                          </span>
+                        </div>
+                        {result.programs.map((program, idx) => {
+                          if (!program || typeof program !== 'object') return null
+                          const allRateOptions = Array.isArray(program.rateOptions) ? program.rateOptions : []
+                          const filteredRateOptions = filterRateOptionsByPrice(allRateOptions)
+                          if (filteredRateOptions.length === 0) return null
+
+                          const programName = program.name || `Program ${idx + 1}`
+                          const bestRate = filteredRateOptions.reduce((best, opt) => {
+                            const price = 100 - safeNumber(opt.points)
+                            const bestPrice = best ? 100 - safeNumber(best.points) : Infinity
+                            return Math.abs(price - 100) < Math.abs(bestPrice - 100) ? opt : best
+                          }, filteredRateOptions[0])
+                          const bestPayment = bestRate ? safeNumber(bestRate.payment) : 0
+                          const isExpanded = expandedProgram === programName
+                          const isSelectedPrepay = formData.occupancyType === 'investment' && programMatchesPrepay(programName, formData.prepayPeriod)
+
+                          return (
+                            <div key={idx} className={`rounded-xl overflow-hidden border transition-all bg-white ${isSelectedPrepay ? 'border-[#171717] shadow-sm' : isExpanded ? 'border-[#D1D5DB] shadow-sm' : 'border-[#E5E7EB]'}`}>
+                              <div className="px-4 py-3">
+                                <div className="flex items-center justify-between mb-2.5">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex items-center gap-2">
+                                      <div className="font-semibold text-[13px] text-[#171717] truncate">{programName}</div>
+                                      {isSelectedPrepay && (
+                                        <span className="shrink-0 text-[9px] font-bold text-[#171717] bg-[#F3F4F6] px-1.5 py-0.5 rounded uppercase tracking-wider">Selected Prepay</span>
+                                      )}
+                                    </div>
+                                    <div className="text-[11px] text-[#9CA3AF] mt-0.5">{filteredRateOptions.length} rate option{filteredRateOptions.length !== 1 ? 's' : ''}</div>
                                   </div>
-                                  <div className="text-base font-semibold text-white tracking-tight">AI Reviewed - National Wholesale Rate Results{prepayLabel}</div>
+                                  <div className="flex items-center gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => { e.stopPropagation(); setShowEmailForm(!showEmailForm) }}
+                                      className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-[#374151] bg-white border border-[#E5E7EB] rounded-lg hover:bg-[#F9FAFB] transition-all"
+                                    >
+                                      <Mail className="w-3 h-3" />Email Results
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setExpandedProgram(isExpanded ? null : programName)}
+                                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all ${isExpanded ? 'text-[#171717] bg-[#F3F4F6] border border-[#D1D5DB]' : 'text-[#6B7280] bg-[#F9FAFB] border border-[#E5E7EB] hover:bg-[#F3F4F6]'}`}
+                                    >
+                                      MORE PRICING
+                                      {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                                    </button>
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  <div className="flex items-center gap-1.5 text-[11px] text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-full font-medium">
-                                    <ShieldCheck className="w-3 h-3" />Verified
+                                <div className="grid grid-cols-4 gap-2">
+                                  <div>
+                                    <div className="text-lg font-bold text-[#171717] tabular-nums">{bestRate ? safeNumber(bestRate.rate).toFixed(3) : '-'}%</div>
+                                    <div className="text-[10px] font-medium text-[#9CA3AF] uppercase tracking-wider">Rate</div>
                                   </div>
-                                  <span className="text-[11px] font-mono text-slate-400">{filteredLpRates.length} rates</span>
+                                  <div>
+                                    <div className="text-lg font-bold text-[#374151] tabular-nums">{bestRate ? (100 - safeNumber(bestRate.points)).toFixed(3) : '-'}</div>
+                                    <div className="text-[10px] font-medium text-[#9CA3AF] uppercase tracking-wider">Price</div>
+                                  </div>
+                                  <div>
+                                    <div className="text-lg font-bold text-[#374151] tabular-nums">{bestRate ? safeNumber(bestRate.apr).toFixed(3) : '-'}%</div>
+                                    <div className="text-[10px] font-medium text-[#9CA3AF] uppercase tracking-wider">APR</div>
+                                  </div>
+                                  <div>
+                                    <div className="text-lg font-bold text-[#374151] tabular-nums">{bestPayment > 0 ? formatCurrency(bestPayment) : '-'}</div>
+                                    <div className="text-[10px] font-medium text-[#9CA3AF] uppercase tracking-wider">Payment</div>
+                                  </div>
                                 </div>
                               </div>
-                              <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                                <Globe className="w-3 h-3 text-cyan-500/60" />
-                                We just checked all of the Industry Leading Pricing Engines for you.
-                              </p>
-                            </div>
-                            <div className="px-5 pb-5 relative z-10">
-                              {filteredLpRates.length > 0 ? (
-                                <div className="overflow-x-auto rounded-lg border border-slate-700/80 bg-slate-800/50">
-                                  <table className="w-full text-sm">
-                                    <thead>
-                                      <tr className="border-b border-slate-700">
-                                        <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Rate</th>
-                                        <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Price</th>
-                                        <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Payment</th>
-                                        <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Price Adj.</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {filteredLpRates.map((opt: any, idx: number) => {
-                                        const isClosest = Math.abs(opt.price - 100) === closestPrice
-                                        return (
-                                          <tr key={idx} className={`border-t border-slate-700/60 transition-colors ${isClosest ? 'bg-cyan-500/10' : 'hover:bg-slate-700/30'}`}>
-                                            <td className="py-2.5 px-4 text-right font-semibold text-cyan-300 font-mono">{safeNumber(opt.rate).toFixed(3)}%</td>
-                                            <td className={`py-2.5 px-4 text-right font-mono ${opt.price >= 100 ? 'text-emerald-400 font-semibold' : 'text-slate-300'}`}>{safeNumber(opt.price).toFixed(3)}</td>
-                                            <td className="py-2.5 px-4 text-right text-slate-300 font-mono">{opt.payment > 0 ? formatCurrency(safeNumber(opt.payment)) : '-'}</td>
-                                            <td className="py-2.5 px-4 text-right font-mono">
-                                              {opt.totalAdjustments !== 0 ? (
-                                                <span className={opt.totalAdjustments > 0 ? 'text-emerald-400' : 'text-red-400'}>
-                                                  {opt.totalAdjustments > 0 ? '+' : ''}{safeNumber(opt.totalAdjustments).toFixed(3)}
-                                                </span>
-                                              ) : <span className="text-slate-500">-</span>}
-                                            </td>
-                                          </tr>
-                                        )
-                                      })}
-                                    </tbody>
-                                  </table>
+
+                              {/* Expanded Rate Options */}
+                              {isExpanded && filteredRateOptions.length > 0 && (
+                                <div className="border-t border-[#E5E7EB]">
+                                  {/* Desktop table */}
+                                  <div className="hidden sm:block px-4 py-2 overflow-x-auto">
+                                    <table className="w-full text-xs">
+                                      <thead>
+                                        <tr className="text-[#9CA3AF] border-b border-[#E5E7EB] text-[10px] uppercase tracking-wider">
+                                          <th className="text-left py-2 pr-2 font-medium">Actions</th>
+                                          <th className="text-left py-2 pr-2 font-medium">Program/PPP</th>
+                                          <th className="text-right py-2 px-2 font-medium">Rate</th>
+                                          <th className="text-right py-2 px-2 font-medium">Price</th>
+                                          <th className="text-right py-2 px-2 font-medium">Points</th>
+                                          <th className="text-right py-2 px-2 font-medium">APR</th>
+                                          <th className="text-right py-2 px-2 font-medium">Payment</th>
+                                          <th className="text-right py-2 pl-2 font-medium">Adj</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {filteredRateOptions.map((opt, optIdx) => {
+                                          if (!opt || typeof opt !== 'object') return null
+                                          const points = safeNumber(opt.points)
+                                          const price = safeNumber(opt.price) || (100 - points)
+                                          const pointsDisplay = points >= 0 ? `(${points.toFixed(3)})` : `+${Math.abs(points).toFixed(3)}`
+                                          const isClosestTo100 = bestRate === opt
+                                          const payment = safeNumber(opt.payment)
+                                          const adjustments = opt.adjustments || []
+                                          const totalAdjustment = adjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0)
+                                          const isActiveRow = activeRowAction?.programName === programName && activeRowAction?.optIdx === optIdx
+                                          return (
+                                            <tr key={optIdx} className={`border-t border-[#E5E7EB] ${isClosestTo100 ? 'bg-[#F9FAFB]' : ''} ${isActiveRow ? 'bg-yellow-50/50' : ''}`}>
+                                              <td className="py-2 pr-2 text-left">
+                                                <div className="relative">
+                                                  <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation()
+                                                      const key = `${programName}-${optIdx}`
+                                                      setOpenActionDropdown(openActionDropdown === key ? null : key)
+                                                    }}
+                                                    className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-white bg-[#171717] rounded hover:bg-[#262626] transition-colors whitespace-nowrap"
+                                                  >
+                                                    Actions <ChevronDown className={`w-3 h-3 transition-transform ${openActionDropdown === `${programName}-${optIdx}` ? 'rotate-180' : ''}`} />
+                                                  </button>
+                                                  {openActionDropdown === `${programName}-${optIdx}` && (
+                                                    <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-lg shadow-lg border border-[#E5E7EB] py-1 min-w-[180px]">
+                                                      <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                          e.stopPropagation()
+                                                          setActiveRowAction(isActiveRow && activeRowAction?.type === 'reserve' ? null : {
+                                                            type: 'reserve', programName, optIdx,
+                                                            rate: safeNumber(opt.rate), price, payment,
+                                                            apr: safeNumber(opt.apr), description: opt.description || programName
+                                                          })
+                                                          setRowReserveFields({ name: '', email: '', scenarioName: '', confirmed: false })
+                                                          setRowStatus('idle')
+                                                          setOpenActionDropdown(null)
+                                                        }}
+                                                        className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#171717] hover:bg-[#F9FAFB] transition-colors"
+                                                      >
+                                                        Reserve Pricing
+                                                      </button>
+                                                      {isPartner && (
+                                                        <button
+                                                          type="button"
+                                                          onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            setActiveRowAction(isActiveRow && activeRowAction?.type === 'lock' ? null : {
+                                                              type: 'lock', programName, optIdx,
+                                                              rate: safeNumber(opt.rate), price, payment,
+                                                              apr: safeNumber(opt.apr), description: opt.description || programName
+                                                            })
+                                                            setRowLockFields({ name: '', email: '', loanNumber: '' })
+                                                            setRowStatus('idle')
+                                                            setOpenActionDropdown(null)
+                                                          }}
+                                                          className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#374151] hover:bg-[#F9FAFB] transition-colors"
+                                                        >
+                                                          Request Lock
+                                                        </button>
+                                                      )}
+                                                      {isPartner && (
+                                                        <a
+                                                          href="https://sub.defywholesale.com/"
+                                                          target="_blank"
+                                                          rel="noopener noreferrer"
+                                                          onClick={(e) => { e.stopPropagation(); setOpenActionDropdown(null) }}
+                                                          className="block w-full text-left px-3 py-2 text-[11px] font-semibold text-[#6B7280] hover:bg-[#F9FAFB] transition-colors no-underline"
+                                                        >
+                                                          Select Rate + Submit File
+                                                        </a>
+                                                      )}
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              </td>
+                                              <td className="py-2 pr-2 text-left"><div className="max-w-[220px] truncate font-medium text-[#374151]" title={opt.description || ''}>{opt.description || programName}</div></td>
+                                              <td className="py-2 px-2 text-right font-semibold text-[#171717] tabular-nums">{safeNumber(opt.rate).toFixed(3)}%</td>
+                                              <td className={`py-2 px-2 text-right tabular-nums ${price >= 100 ? 'text-emerald-600 font-medium' : 'text-[#374151]'}`}>{price.toFixed(3)}</td>
+                                              <td className={`py-2 px-2 text-right tabular-nums ${points < 0 ? 'text-emerald-600' : 'text-[#6B7280]'}`}>{pointsDisplay}</td>
+                                              <td className="py-2 px-2 text-right tabular-nums text-[#374151]">{safeNumber(opt.apr).toFixed(3)}%</td>
+                                              <td className="py-2 px-2 text-right font-medium tabular-nums text-[#374151]">{payment > 0 ? formatCurrency(payment) : '-'}</td>
+                                              <td className="py-2 pl-2 text-right tabular-nums">
+                                                {adjustments.length > 0 ? (
+                                                  <span className={totalAdjustment >= 0 ? 'text-emerald-600' : 'text-red-500'}>
+                                                    {totalAdjustment >= 0 ? '+' : ''}{totalAdjustment.toFixed(3)}
+                                                  </span>
+                                                ) : '-'}
+                                              </td>
+                                            </tr>
+                                          )
+                                        })}
+                                      </tbody>
+                                    </table>
+                                  </div>
+
+                                  {/* Per-row action form */}
+                                  {activeRowAction && activeRowAction.programName === programName && (
+                                    <div className="mx-4 mb-3 mt-1 border border-[#E5E7EB] rounded-xl p-4 bg-white shadow-sm">
+                                      <div className="flex items-center justify-between mb-3">
+                                        <div>
+                                          <div className="text-sm font-bold text-[#171717]">
+                                            {activeRowAction.type === 'reserve' ? 'Reserve Rate & Pricing' : 'Request Rate Lock'}
+                                          </div>
+                                          <div className="text-[11px] text-[#6B7280] mt-0.5">
+                                            {formatPercent(activeRowAction.rate)} @ {activeRowAction.price.toFixed(3)} &mdash; {activeRowAction.description}
+                                          </div>
+                                        </div>
+                                        <button type="button" onClick={() => { setActiveRowAction(null); setRowStatus('idle') }} className="p-1 text-[#9CA3AF] hover:text-[#374151] transition-colors">
+                                          <X className="w-4 h-4" />
+                                        </button>
+                                      </div>
+
+                                      {activeRowAction.type === 'reserve' ? (
+                                        <div className="space-y-3">
+                                          <p className="text-xs text-[#6B7280] leading-relaxed max-w-md">
+                                            Confirm you would like to reserve this Rate &amp; Pricing. This quote expires after 48 hours unless a full file is submitted.
+                                          </p>
+                                          <label className="flex items-start gap-2 cursor-pointer">
+                                            <input type="checkbox" checked={rowReserveFields.confirmed} onChange={(e) => setRowReserveFields(prev => ({ ...prev, confirmed: e.target.checked }))} className="mt-0.5 w-4 h-4 rounded border-[#D1D5DB] text-[#171717] focus:ring-[#171717]" />
+                                            <span className="text-xs text-[#374151] leading-relaxed">I confirm and understand the 48-hour expiration policy</span>
+                                          </label>
+                                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                            <input type="text" placeholder="Your Name *" value={rowReserveFields.name} onChange={(e) => setRowReserveFields(prev => ({ ...prev, name: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
+                                            <input type="email" placeholder="Email *" value={rowReserveFields.email} onChange={(e) => setRowReserveFields(prev => ({ ...prev, email: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
+                                            <input type="text" placeholder="Scenario Name" value={rowReserveFields.scenarioName} onChange={(e) => setRowReserveFields(prev => ({ ...prev, scenarioName: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
+                                          </div>
+                                          <div className="flex items-center gap-3">
+                                            <button type="button" onClick={handleRowReserve} disabled={rowSending || !rowReserveFields.confirmed || !rowReserveFields.name || !rowReserveFields.email} className="inline-flex items-center gap-1.5 px-5 py-2 text-[13px] font-semibold text-white bg-[#171717] rounded-lg hover:bg-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                              {rowSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : rowStatus === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
+                                              {rowSending ? 'Sending...' : rowStatus === 'success' ? 'Sent!' : 'Send Reservation'}
+                                            </button>
+                                            {rowStatus === 'error' && <p className="text-xs text-red-500">Failed to send. Please try again.</p>}
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div className="space-y-3">
+                                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                            <input type="text" placeholder="Your Name *" value={rowLockFields.name} onChange={(e) => setRowLockFields(prev => ({ ...prev, name: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
+                                            <input type="email" placeholder="Email *" value={rowLockFields.email} onChange={(e) => setRowLockFields(prev => ({ ...prev, email: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
+                                            <input type="text" placeholder="DEFY Loan Number *" value={rowLockFields.loanNumber} onChange={(e) => setRowLockFields(prev => ({ ...prev, loanNumber: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
+                                          </div>
+                                          <div className="flex items-center gap-3">
+                                            <button type="button" onClick={handleRowLock} disabled={rowSending || !rowLockFields.name || !rowLockFields.email || !rowLockFields.loanNumber} className="inline-flex items-center gap-1.5 px-5 py-2 text-[13px] font-semibold text-white bg-[#171717] rounded-lg hover:bg-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                              {rowSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : rowStatus === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
+                                              {rowSending ? 'Sending...' : rowStatus === 'success' ? 'Sent!' : 'Send Lock Request'}
+                                            </button>
+                                            {rowStatus === 'error' && <p className="text-xs text-red-500">Failed to send. Please try again.</p>}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {/* Mobile stacked cards */}
+                                  <div className="sm:hidden divide-y divide-[#E5E7EB]">
+                                    {filteredRateOptions.map((opt, optIdx) => {
+                                      if (!opt || typeof opt !== 'object') return null
+                                      const points = safeNumber(opt.points)
+                                      const price = safeNumber(opt.price) || (100 - points)
+                                      const isClosestTo100 = bestRate === opt
+                                      const payment = safeNumber(opt.payment)
+                                      return (
+                                        <div key={optIdx} className={`px-4 py-3 ${isClosestTo100 ? 'bg-[#F9FAFB]' : ''}`}>
+                                          <div className="text-[12px] font-medium text-[#374151] truncate mb-2">{opt.description || programName}</div>
+                                          <div className="grid grid-cols-4 gap-2 text-center">
+                                            <div>
+                                              <div className="text-[13px] font-bold text-[#171717] tabular-nums">{safeNumber(opt.rate).toFixed(3)}%</div>
+                                              <div className="text-[9px] text-[#9CA3AF] uppercase">Rate</div>
+                                            </div>
+                                            <div>
+                                              <div className={`text-[13px] font-bold tabular-nums ${price >= 100 ? 'text-emerald-600' : 'text-[#374151]'}`}>{price.toFixed(3)}</div>
+                                              <div className="text-[9px] text-[#9CA3AF] uppercase">Price</div>
+                                            </div>
+                                            <div>
+                                              <div className="text-[13px] font-bold text-[#374151] tabular-nums">{safeNumber(opt.apr).toFixed(3)}%</div>
+                                              <div className="text-[9px] text-[#9CA3AF] uppercase">APR</div>
+                                            </div>
+                                            <div>
+                                              <div className="text-[13px] font-bold text-[#374151] tabular-nums">{payment > 0 ? formatCurrency(payment) : '-'}</div>
+                                              <div className="text-[9px] text-[#9CA3AF] uppercase">Pmt</div>
+                                            </div>
+                                          </div>
+                                          <div className="relative mt-2">
+                                            <button
+                                              type="button"
+                                              onClick={() => {
+                                                const key = `m-${programName}-${optIdx}`
+                                                setOpenActionDropdown(openActionDropdown === key ? null : key)
+                                              }}
+                                              className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-white bg-[#171717] rounded hover:bg-[#262626] transition-colors"
+                                            >
+                                              Actions <ChevronDown className={`w-3 h-3 transition-transform ${openActionDropdown === `m-${programName}-${optIdx}` ? 'rotate-180' : ''}`} />
+                                            </button>
+                                            {openActionDropdown === `m-${programName}-${optIdx}` && (
+                                              <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-lg shadow-lg border border-[#E5E7EB] py-1 min-w-[180px]">
+                                                <button
+                                                  type="button"
+                                                  onClick={() => {
+                                                    setActiveRowAction({
+                                                      type: 'reserve', programName, optIdx,
+                                                      rate: safeNumber(opt.rate), price, payment,
+                                                      apr: safeNumber(opt.apr), description: opt.description || programName
+                                                    })
+                                                    setRowReserveFields({ name: '', email: '', scenarioName: '', confirmed: false })
+                                                    setRowStatus('idle')
+                                                    setOpenActionDropdown(null)
+                                                  }}
+                                                  className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#171717] hover:bg-[#F9FAFB] transition-colors"
+                                                >
+                                                  Reserve Pricing
+                                                </button>
+                                                {isPartner && (
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                      setActiveRowAction({
+                                                        type: 'lock', programName, optIdx,
+                                                        rate: safeNumber(opt.rate), price, payment,
+                                                        apr: safeNumber(opt.apr), description: opt.description || programName
+                                                      })
+                                                      setRowLockFields({ name: '', email: '', loanNumber: '' })
+                                                      setRowStatus('idle')
+                                                      setOpenActionDropdown(null)
+                                                    }}
+                                                    className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#374151] hover:bg-[#F9FAFB] transition-colors"
+                                                  >
+                                                    Request Lock
+                                                  </button>
+                                                )}
+                                                {isPartner && (
+                                                  <a
+                                                    href="https://sub.defywholesale.com/"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    onClick={() => setOpenActionDropdown(null)}
+                                                    className="block w-full text-left px-3 py-2 text-[11px] font-semibold text-[#6B7280] hover:bg-[#F9FAFB] transition-colors no-underline"
+                                                  >
+                                                    Select Rate + Submit File
+                                                  </a>
+                                                )}
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+
+                                  {/* Adjustments detail (best rate) */}
+                                  {bestRate && bestRate.adjustments && bestRate.adjustments.length > 0 && (
+                                    <div className="px-4 py-3 border-t border-[#E5E7EB] bg-[#F9FAFB]">
+                                      <div className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-2">Adjustments (Best Rate)</div>
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
+                                        {bestRate.adjustments.map((adj: Adjustment, adjIdx: number) => (
+                                          <div key={adjIdx} className="flex justify-between items-center text-xs bg-white px-2.5 py-1.5 rounded-lg border border-[#E5E7EB]">
+                                            <span className="text-[#374151] truncate mr-2">{adj.description}</span>
+                                            <span className={`font-semibold tabular-nums ${adj.amount >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                                              {adj.amount >= 0 ? '+' : ''}{adj.amount.toFixed(3)}
+                                            </span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
-                              ) : (
-                                <p className="text-sm text-slate-400 text-center py-3">
-                                  {adjustedLpRates.length} rates returned, none in price range
-                                </p>
+                              )}
+
+                              {isExpanded && filteredRateOptions.length === 0 && (
+                                <div className="bg-[#F9FAFB] px-4 py-3 text-xs text-[#9CA3AF] border-t border-[#E5E7EB]">
+                                  No rate options in price range (99-101)
+                                </div>
                               )}
                             </div>
-                          </div>
-                        )
-                      })()}
+                          )
+                        })}
+                      </div>
+                    ) : null}
 
-                      {/* LP empty */}
-                      {lpUnlocked && !lpLoading && lpResult && (!lpResult.rateOptions || lpResult.rateOptions.length === 0) && (
-                        <div className="mt-4 border border-slate-700 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl p-6">
-                          <div className="flex flex-col items-center gap-2">
-                            <Globe className="w-5 h-5 text-slate-500" />
-                            <p className="text-sm text-slate-400 text-center">No LP market rates available for this scenario</p>
+                    {/* Secondary Manager Access - LP Results Gate */}
+                    {(lpLoading || lpResult) && !lpUnlocked && (
+                      <div className="mt-4 flex items-center gap-3 justify-end">
+                        <span className="text-[11px] text-[#9CA3AF] font-medium">Secondary Manager Access</span>
+                        <input
+                          type="password"
+                          inputMode="numeric"
+                          maxLength={4}
+                          placeholder="----"
+                          value={lpPasscode}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '').slice(0, 4)
+                            setLpPasscode(val)
+                            if (val === '4040') setLpUnlocked(true)
+                          }}
+                          className="w-16 h-7 text-center text-[12px] font-mono bg-[#F9FAFB] border border-[#E5E7EB] rounded text-[#6B7280] outline-none focus:border-[#9CA3AF] placeholder:text-[#D1D5DB]"
+                        />
+                      </div>
+                    )}
+
+                    {/* LP Loading */}
+                    {lpUnlocked && lpLoading && !lpResult && (
+                      <div className="mt-4 border border-slate-700 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl p-8">
+                        <div className="flex flex-col items-center justify-center gap-3">
+                          <div className="relative">
+                            <Globe className="w-8 h-8 text-cyan-400 animate-pulse" />
+                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full animate-ping" />
+                          </div>
+                          <span className="text-sm text-slate-300 font-medium tracking-wide">Scanning national wholesale pricing engines...</span>
+                          <div className="flex gap-1 mt-1">
+                            <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                            <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                            <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                           </div>
                         </div>
-                      )}
-                    </>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                      </div>
+                    )}
 
-          {/* Footer inside right panel */}
-          <footer className="border-t border-[#E5E7EB] bg-[#FAFAFA] px-6 py-6">
-            <p className="text-[9px] leading-relaxed text-[#9CA3AF]">
-              &copy;OpenBroker Labs &amp; Qualr All rights reserved. We are a B2B technology platform, not a mortgage lender, broker, or loan originator. We do not make credit decisions or originate, arrange, negotiate, or fund loans. Nothing on this site is an offer or commitment to lend. By using this site, you agree to our policies. Use at your own risk. AI may be inaccurate. We are not liable for losses arising from use of this site.
-            </p>
-          </footer>
-        </main>
-      </div>
+                    {/* LP Results */}
+                    {lpUnlocked && lpResult && lpResult.rateOptions && lpResult.rateOptions.length > 0 && (() => {
+                      const isInvestment = formData.occupancyType === 'investment'
+                      const prepayMonths = parseInt(formData.prepayPeriod) || 0
+                      const priceCeiling = 103.000
+                      const adjustedLpRates = lpResult.rateOptions
+                        .map((opt: any) => {
+                          const prog = (opt.program || '').toUpperCase()
+                          const needsMargin = prog.includes('TITANIUM ADVANTAGE') || prog.includes('CASH FLOW ADVANTAGE')
+                          const marginAdj = needsMargin ? 1.375 : 0
+                          return {
+                            ...opt,
+                            price: safeNumber(opt.price) - 0.125 - marginAdj,
+                            totalAdjustments: safeNumber(opt.totalAdjustments) - marginAdj,
+                          }
+                        })
+                      const filteredLpRates = (() => {
+                        const sorted = adjustedLpRates
+                          .filter((opt: any) => opt.price >= 99.500 && opt.price <= priceCeiling)
+                          .filter((opt: any, idx: number, arr: any[]) => {
+                            const rateStep = Math.round(opt.rate / 0.125) * 0.125
+                            return idx === arr.findIndex((o: any) => Math.round(o.rate / 0.125) * 0.125 === rateStep)
+                          })
+                        const result: any[] = []
+                        let lastPrice = -Infinity
+                        for (const opt of sorted) {
+                          if (result.length > 0 && opt.price <= lastPrice) break
+                          result.push(opt)
+                          lastPrice = opt.price
+                        }
+                        return result
+                      })()
+                      const closestPrice = filteredLpRates.length > 0
+                        ? Math.min(...filteredLpRates.map((o: any) => Math.abs(o.price - 100)))
+                        : 999
+                      const prepayLabel = isInvestment && prepayMonths > 0 ? ` - ${prepayMonths} Month Prepay` : ''
+                      return (
+                        <div className="mt-4 border border-slate-700 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl overflow-hidden relative">
+                          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+                          <div className="px-5 pt-5 pb-3 relative z-10">
+                            <div className="flex items-center justify-between flex-wrap gap-3 mb-2">
+                              <div className="flex items-center gap-2.5">
+                                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/30">
+                                  <Zap className="w-4 h-4 text-cyan-400" />
+                                </div>
+                                <div className="text-base font-semibold text-white tracking-tight">AI Reviewed - National Wholesale Rate Results{prepayLabel}</div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5 text-[11px] text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-full font-medium">
+                                  <ShieldCheck className="w-3 h-3" />Verified
+                                </div>
+                                <span className="text-[11px] font-mono text-slate-400">{filteredLpRates.length} rates</span>
+                              </div>
+                            </div>
+                            <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                              <Globe className="w-3 h-3 text-cyan-500/60" />
+                              We just checked all of the Industry Leading Pricing Engines for you.
+                            </p>
+                          </div>
+                          <div className="px-5 pb-5 relative z-10">
+                            {filteredLpRates.length > 0 ? (
+                              <div className="overflow-x-auto rounded-lg border border-slate-700/80 bg-slate-800/50">
+                                <table className="w-full text-sm">
+                                  <thead>
+                                    <tr className="border-b border-slate-700">
+                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Rate</th>
+                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Price</th>
+                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Payment</th>
+                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Price Adj.</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {filteredLpRates.map((opt: any, idx: number) => {
+                                      const isClosest = Math.abs(opt.price - 100) === closestPrice
+                                      return (
+                                        <tr key={idx} className={`border-t border-slate-700/60 transition-colors ${isClosest ? 'bg-cyan-500/10' : 'hover:bg-slate-700/30'}`}>
+                                          <td className="py-2.5 px-4 text-right font-semibold text-cyan-300 font-mono">{safeNumber(opt.rate).toFixed(3)}%</td>
+                                          <td className={`py-2.5 px-4 text-right font-mono ${opt.price >= 100 ? 'text-emerald-400 font-semibold' : 'text-slate-300'}`}>{safeNumber(opt.price).toFixed(3)}</td>
+                                          <td className="py-2.5 px-4 text-right text-slate-300 font-mono">{opt.payment > 0 ? formatCurrency(safeNumber(opt.payment)) : '-'}</td>
+                                          <td className="py-2.5 px-4 text-right font-mono">
+                                            {opt.totalAdjustments !== 0 ? (
+                                              <span className={opt.totalAdjustments > 0 ? 'text-emerald-400' : 'text-red-400'}>
+                                                {opt.totalAdjustments > 0 ? '+' : ''}{safeNumber(opt.totalAdjustments).toFixed(3)}
+                                              </span>
+                                            ) : <span className="text-slate-500">-</span>}
+                                          </td>
+                                        </tr>
+                                      )
+                                    })}
+                                  </tbody>
+                                </table>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-slate-400 text-center py-3">
+                                {adjustedLpRates.length} rates returned, none in price range
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })()}
 
-      {/* ===== MOBILE BOTTOM TAB BAR ===== */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-white border-t border-[#E5E7EB]">
-        {mobileTab === 'inputs' && (
-          <div className="px-4 pt-2">
-            <button
-              type="submit"
-              form="pricing-form"
-              disabled={isLoading}
-              className="w-full h-11 bg-[#171717] text-white font-medium rounded-lg hover:bg-[#262626] transition-colors disabled:opacity-50 text-sm"
-            >
-              {isLoading ? 'Fetching rates...' : 'Get Pricing'}
-            </button>
-          </div>
-        )}
-        <div className="flex">
-          <button
-            type="button"
-            onClick={() => setMobileTab('inputs')}
-            className={`flex-1 py-3 text-center text-xs font-medium transition-colors ${mobileTab === 'inputs' ? 'text-[#171717]' : 'text-[#6B7280]'}`}
-          >
-            Loan Details
-          </button>
-          <button
-            type="button"
-            onClick={() => setMobileTab('results')}
-            className={`flex-1 py-3 text-center text-xs font-medium transition-colors ${mobileTab === 'results' ? 'text-[#171717]' : 'text-[#6B7280]'}`}
-          >
-            Pricing Results {result ? <span className="text-emerald-500">●</span> : null}
-          </button>
+                    {/* LP empty */}
+                    {lpUnlocked && !lpLoading && lpResult && (!lpResult.rateOptions || lpResult.rateOptions.length === 0) && (
+                      <div className="mt-4 border border-slate-700 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl p-6">
+                        <div className="flex flex-col items-center gap-2">
+                          <Globe className="w-5 h-5 text-slate-500" />
+                          <p className="text-sm text-slate-400 text-center">No LP market rates available for this scenario</p>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
+
+        {/* Footer */}
+        <footer className="border-t border-[#E5E7EB] bg-[#FAFAFA] px-6 py-6 mt-6">
+          <p className="text-[9px] leading-relaxed text-[#9CA3AF]">
+            &copy;OpenBroker Labs &amp; Qualr All rights reserved. We are a B2B technology platform, not a mortgage lender, broker, or loan originator. We do not make credit decisions or originate, arrange, negotiate, or fund loans. Nothing on this site is an offer or commitment to lend. By using this site, you agree to our policies. Use at your own risk. AI may be inaccurate. We are not liable for losses arising from use of this site.
+          </p>
+        </footer>
+      </main>
 
       {/* ===== HELP DESK MODAL ===== */}
       {showHelpDesk && (
