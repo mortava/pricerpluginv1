@@ -921,7 +921,6 @@ export default function App() {
 
   const hasError = (field: keyof LoanData) => !!validationErrors[field]
   const showInvestorDetails = formData.occupancyType === 'investment'
-  const showCashoutField = formData.loanPurpose === 'cashout'
 
   // Filter rate options to only show prices between 99.500 and 101.500
   const filterRateOptionsByPrice = (rateOptions: RateOption[]) => {
@@ -1317,21 +1316,22 @@ export default function App() {
         </AnimatePresence>
 
         {/* ===== FORM SECTION ===== */}
-        <div className="px-4 lg:px-6 py-5 max-w-6xl mx-auto">
-          <form id="pricing-form" onSubmit={handleSubmit} className="space-y-6">
+        <div className="px-4 lg:px-6 py-3 max-w-6xl mx-auto">
+          <form id="pricing-form" onSubmit={handleSubmit} className="space-y-3">
 
             {/* ===== LOAN INFORMATION SECTION ===== */}
             <div id="section-loan">
-              <button type="button" onClick={() => toggleSection('loan')} className="flex items-center justify-between w-full pb-2 mb-4 border-b border-[#E5E7EB]">
+              <button type="button" onClick={() => toggleSection('loan')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[#E5E7EB]">
                 <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Loan Information</span>
                 <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('loan') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('loan') && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-3">
-                  <div className="space-y-1">
-                    <label htmlFor="lienPosition" className="block text-[11px] font-medium text-[#374151]">Lien Position</label>
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-2">
+                  {/* Row 1: Lien Position, Loan Purpose, Value/Sales Price, Loan Amount, LTV, CLTV */}
+                  <div className="space-y-0.5">
+                    <label htmlFor="lienPosition" className="block text-[10px] font-medium text-[#374151]">Lien Position</label>
                     <Select name="lienPosition" value={formData.lienPosition} onValueChange={(v) => handleInputChange('lienPosition', v)}>
-                      <SelectTrigger id="lienPosition" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="lienPosition" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1st">1st</SelectItem>
                         <SelectItem value="2nd">2nd</SelectItem>
@@ -1339,20 +1339,10 @@ export default function App() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-1">
-                    <label htmlFor="lockPeriod" className="block text-[11px] font-medium text-[#374151]">Lock Period</label>
-                    <Select name="lockPeriod" value={formData.lockPeriod} onValueChange={(v) => handleInputChange('lockPeriod', v)}>
-                      <SelectTrigger id="lockPeriod" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="30">30</SelectItem>
-                        <SelectItem value="45">45</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1">
-                    <label htmlFor="loanPurpose" className={`block text-[11px] font-medium ${hasError('loanPurpose') ? 'text-red-600' : 'text-[#374151]'}`}>Loan Purpose *</label>
+                  <div className="space-y-0.5">
+                    <label htmlFor="loanPurpose" className={`block text-[10px] font-medium ${hasError('loanPurpose') ? 'text-red-600' : 'text-[#374151]'}`}>Loan Purpose *</label>
                     <Select name="loanPurpose" value={formData.loanPurpose} onValueChange={(v) => handleInputChange('loanPurpose', v)}>
-                      <SelectTrigger id="loanPurpose" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('loanPurpose') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="loanPurpose" className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('loanPurpose') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="purchase">Purchase</SelectItem>
                         <SelectItem value="refinance">Refi Rate/Term</SelectItem>
@@ -1361,27 +1351,46 @@ export default function App() {
                     </Select>
                     {hasError('loanPurpose') && <p className="text-[10px] text-red-600">{validationErrors.loanPurpose}</p>}
                   </div>
-                  <div className="space-y-1">
-                    <label htmlFor="propertyValue" className={`block text-[11px] font-medium ${hasError('propertyValue') ? 'text-red-600' : 'text-[#374151]'}`}>Value/Sales Price *</label>
-                    <Input id="propertyValue" name="propertyValue" value={formData.propertyValue} onChange={(e) => handleInputChange('propertyValue', formatNumberInput(e.target.value))} icon={<DollarSign className="w-4 h-4" />} className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyValue') ? 'border-red-500' : ''}`} />
+                  <div className="space-y-0.5">
+                    <label htmlFor="propertyValue" className={`block text-[10px] font-medium ${hasError('propertyValue') ? 'text-red-600' : 'text-[#374151]'}`}>Value/Sales Price *</label>
+                    <Input id="propertyValue" name="propertyValue" value={formData.propertyValue} onChange={(e) => handleInputChange('propertyValue', formatNumberInput(e.target.value))} icon={<DollarSign className="w-3.5 h-3.5" />} className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyValue') ? 'border-red-500' : ''}`} />
                     {hasError('propertyValue') && <p className="text-[10px] text-red-600">{validationErrors.propertyValue}</p>}
                   </div>
-                  <div className="space-y-1">
-                    <label htmlFor="loanAmount" className={`block text-[11px] font-medium ${hasError('loanAmount') ? 'text-red-600' : 'text-[#374151]'}`}>Loan Amount *</label>
-                    <Input id="loanAmount" name="loanAmount" value={formData.loanAmount} onChange={(e) => handleInputChange('loanAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-4 h-4" />} className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('loanAmount') ? 'border-red-500' : ''}`} />
+                  <div className="space-y-0.5">
+                    <label htmlFor="loanAmount" className={`block text-[10px] font-medium ${hasError('loanAmount') ? 'text-red-600' : 'text-[#374151]'}`}>Loan Amount *</label>
+                    <Input id="loanAmount" name="loanAmount" value={formData.loanAmount} onChange={(e) => handleInputChange('loanAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-3.5 h-3.5" />} className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('loanAmount') ? 'border-red-500' : ''}`} />
                     {hasError('loanAmount') && <p className="text-[10px] text-red-600">{validationErrors.loanAmount}</p>}
                   </div>
-                  <div className="space-y-1">
-                    <label htmlFor="ltv" className="block text-[11px] font-medium text-[#374151]">LTV</label>
+                  <div className="space-y-0.5">
+                    <label htmlFor="ltv" className="block text-[10px] font-medium text-[#374151]">LTV</label>
                     <div className="relative">
-                      <Input id="ltv" name="ltv" value={formData.ltv} onChange={(e) => handleInputChange('ltv', e.target.value.replace(/[^0-9.]/g, ''))} className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] pr-8 bg-[#F9FAFB]" />
+                      <Input id="ltv" name="ltv" value={formData.ltv} onChange={(e) => handleInputChange('ltv', e.target.value.replace(/[^0-9.]/g, ''))} className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] pr-6 bg-[#F9FAFB]" />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#9CA3AF] pointer-events-none">%</span>
                     </div>
                   </div>
-                  <div className="space-y-1">
-                    <label htmlFor="amortization" className="block text-[11px] font-medium text-[#374151]">Amortization</label>
+                  <div className="space-y-0.5">
+                    <label htmlFor="cltv" className="block text-[10px] font-medium text-[#374151]">CLTV</label>
+                    <div id="cltv" className="h-8 px-3 py-1.5 bg-[#F3F4F6] border border-[#E5E7EB] rounded-md text-xs font-medium text-[#9CA3AF] flex items-center">{formData.lienPosition !== '1st' ? 'Enter 2nd' : '—'}</div>
+                  </div>
+                  {/* Row 2: Term, Amortization, Payment, Impound Type, Lock Period, Cashout Amount */}
+                  <div className="space-y-0.5">
+                    <label htmlFor="loanTerm" className={`block text-[10px] font-medium ${hasError('loanTerm') ? 'text-red-600' : 'text-[#374151]'}`}>Term *</label>
+                    <Select name="loanTerm" value={formData.loanTerm} onValueChange={(v) => handleInputChange('loanTerm', v)}>
+                      <SelectTrigger id="loanTerm" className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('loanTerm') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="30">30 Year</SelectItem>
+                        <SelectItem value="25">25 Year</SelectItem>
+                        <SelectItem value="20">20 Year</SelectItem>
+                        <SelectItem value="15">15 Year</SelectItem>
+                        <SelectItem value="10">10 Year</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {hasError('loanTerm') && <p className="text-[10px] text-red-600">{validationErrors.loanTerm}</p>}
+                  </div>
+                  <div className="space-y-0.5">
+                    <label htmlFor="amortization" className="block text-[10px] font-medium text-[#374151]">Amortization</label>
                     <Select name="amortization" value={formData.amortization} onValueChange={(v) => handleInputChange('amortization', v)}>
-                      <SelectTrigger id="amortization" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="amortization" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="fixed">Fixed</SelectItem>
                         <SelectItem value="arm3">3 Year ARM</SelectItem>
@@ -1392,77 +1401,57 @@ export default function App() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-1">
-                    <label htmlFor="paymentType" className="block text-[11px] font-medium text-[#374151]">Payment</label>
+                  <div className="space-y-0.5">
+                    <label htmlFor="paymentType" className="block text-[10px] font-medium text-[#374151]">Payment</label>
                     <Select name="paymentType" value={formData.paymentType} onValueChange={(v) => handleInputChange('paymentType', v)}>
-                      <SelectTrigger id="paymentType" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="paymentType" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="pi">P&I</SelectItem>
                         <SelectItem value="io">Interest Only</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="col-span-full space-y-1">
-                    <label htmlFor="impoundType" className="block text-[11px] font-medium text-[#374151]">Impound Type</label>
+                  <div className="space-y-0.5">
+                    <label htmlFor="impoundType" className="block text-[10px] font-medium text-[#374151]">Impound Type</label>
                     <Select name="impoundType" value={formData.impoundType} onValueChange={(v) => handleInputChange('impoundType', v)}>
-                      <SelectTrigger id="impoundType" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="impoundType" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="escrowed">Taxes and Insurance Escrowed</SelectItem>
                         <SelectItem value="noescrow">No Escrow</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  {formData.lienPosition !== '1st' && (
-                    <div className="space-y-1">
-                      <label htmlFor="cltv" className="block text-[11px] font-medium text-[#374151]">CLTV</label>
-                      <div id="cltv" className="h-9 px-3 py-2 bg-[#F3F4F6] border border-[#E5E7EB] rounded-md text-sm font-medium text-[#9CA3AF]">Enter 2nd Lien</div>
-                    </div>
-                  )}
-                  {showCashoutField && (
-                    <div className="space-y-1">
-                      <label htmlFor="cashoutAmount" className="block text-[11px] font-medium text-[#374151]">Cashout Amount</label>
-                      <Input id="cashoutAmount" name="cashoutAmount" value={formData.cashoutAmount} onChange={(e) => handleInputChange('cashoutAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-4 h-4" />} className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]" />
-                    </div>
-                  )}
+                  <div className="space-y-0.5">
+                    <label htmlFor="lockPeriod" className="block text-[10px] font-medium text-[#374151]">Lock Period</label>
+                    <Select name="lockPeriod" value={formData.lockPeriod} onValueChange={(v) => handleInputChange('lockPeriod', v)}>
+                      <SelectTrigger id="lockPeriod" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="30">30</SelectItem>
+                        <SelectItem value="45">45</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-0.5">
+                    <label htmlFor="cashoutAmount" className="block text-[10px] font-medium text-[#374151]">Cashout Amount</label>
+                    <Input id="cashoutAmount" name="cashoutAmount" value={formData.cashoutAmount} onChange={(e) => handleInputChange('cashoutAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-3.5 h-3.5" />} className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]" />
+                  </div>
                 </div>
               )}
             </div>
 
             {/* ===== PROPERTY DETAILS SECTION ===== */}
             <div id="section-property">
-              <button type="button" onClick={() => toggleSection('property')} className="flex items-center justify-between w-full pb-2 mb-4 border-b border-[#E5E7EB]">
+              <button type="button" onClick={() => toggleSection('property')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[#E5E7EB]">
                 <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Property Details</span>
                 <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('property') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('property') && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-3">
-                  <div className="space-y-1">
-                    <label htmlFor="propertyZip" className={`block text-[11px] font-medium ${hasError('propertyZip') ? 'text-red-600' : 'text-[#374151]'}`}>
-                      ZIP Code * {zipLoading && <Loader2 className="w-3 h-3 inline animate-spin ml-1" />}
-                    </label>
-                    <Input id="propertyZip" name="propertyZip" maxLength={5} value={formData.propertyZip} onChange={(e) => handleInputChange('propertyZip', e.target.value.replace(/\D/g, ''))} className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyZip') ? 'border-red-500' : ''}`} placeholder="ZIP" autoComplete="postal-code" />
-                    {hasError('propertyZip') && <p className="text-[10px] text-red-600">{validationErrors.propertyZip}</p>}
-                  </div>
-                  <div className="space-y-1">
-                    <label htmlFor="propertyState" className={`block text-[11px] font-medium ${hasError('propertyState') ? 'text-red-600' : 'text-[#374151]'}`}>State *</label>
-                    <Select name="propertyState" value={formData.propertyState} onValueChange={(v) => handleInputChange('propertyState', v)}>
-                      <SelectTrigger id="propertyState" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyState') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
-                      <SelectContent>{US_STATES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                    </Select>
-                    {hasError('propertyState') && <p className="text-[10px] text-red-600">{validationErrors.propertyState}</p>}
-                  </div>
-                  <div className="space-y-1">
-                    <label htmlFor="propertyCounty" className="block text-[11px] font-medium text-[#374151]">County</label>
-                    <Input id="propertyCounty" name="propertyCounty" value={formData.propertyCounty} onChange={(e) => handleInputChange('propertyCounty', e.target.value)} className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]" />
-                  </div>
-                  <div className="space-y-1">
-                    <label htmlFor="propertyCity" className="block text-[11px] font-medium text-[#374151]">City</label>
-                    <Input id="propertyCity" name="propertyCity" value={formData.propertyCity} onChange={(e) => handleInputChange('propertyCity', e.target.value)} className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]" autoComplete="address-level2" />
-                  </div>
-                  <div className="space-y-1">
-                    <label htmlFor="occupancyType" className={`block text-[11px] font-medium ${hasError('occupancyType') ? 'text-red-600' : 'text-[#374151]'}`}>Property Use *</label>
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-2">
+                  {/* Row 1: Property Use, Property Type, ZIP Code, State, County, City */}
+                  <div className="space-y-0.5">
+                    <label htmlFor="occupancyType" className={`block text-[10px] font-medium ${hasError('occupancyType') ? 'text-red-600' : 'text-[#374151]'}`}>Property Use *</label>
                     <Select name="occupancyType" value={formData.occupancyType} onValueChange={(v) => handleInputChange('occupancyType', v)}>
-                      <SelectTrigger id="occupancyType" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('occupancyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="occupancyType" className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('occupancyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="primary">Primary Residence</SelectItem>
                         <SelectItem value="secondary">Second Home</SelectItem>
@@ -1471,10 +1460,10 @@ export default function App() {
                     </Select>
                     {hasError('occupancyType') && <p className="text-[10px] text-red-600">{validationErrors.occupancyType}</p>}
                   </div>
-                  <div className="space-y-1">
-                    <label htmlFor="propertyType" className={`block text-[11px] font-medium ${hasError('propertyType') ? 'text-red-600' : 'text-[#374151]'}`}>Property Type *</label>
+                  <div className="space-y-0.5">
+                    <label htmlFor="propertyType" className={`block text-[10px] font-medium ${hasError('propertyType') ? 'text-red-600' : 'text-[#374151]'}`}>Property Type *</label>
                     <Select name="propertyType" value={formData.propertyType} onValueChange={(v) => handleInputChange('propertyType', v)}>
-                      <SelectTrigger id="propertyType" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="propertyType" className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="sfr">Single Family</SelectItem>
                         <SelectItem value="condo">Condo</SelectItem>
@@ -1488,10 +1477,34 @@ export default function App() {
                     </Select>
                     {hasError('propertyType') && <p className="text-[10px] text-red-600">{validationErrors.propertyType}</p>}
                   </div>
-                  <div className="space-y-1">
-                    <label htmlFor="structureType" className="block text-[11px] font-medium text-[#374151]">Structure Type</label>
+                  <div className="space-y-0.5">
+                    <label htmlFor="propertyZip" className={`block text-[10px] font-medium ${hasError('propertyZip') ? 'text-red-600' : 'text-[#374151]'}`}>
+                      ZIP Code * {zipLoading && <Loader2 className="w-3 h-3 inline animate-spin ml-1" />}
+                    </label>
+                    <Input id="propertyZip" name="propertyZip" maxLength={5} value={formData.propertyZip} onChange={(e) => handleInputChange('propertyZip', e.target.value.replace(/\D/g, ''))} className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyZip') ? 'border-red-500' : ''}`} placeholder="ZIP" autoComplete="postal-code" />
+                    {hasError('propertyZip') && <p className="text-[10px] text-red-600">{validationErrors.propertyZip}</p>}
+                  </div>
+                  <div className="space-y-0.5">
+                    <label htmlFor="propertyState" className={`block text-[10px] font-medium ${hasError('propertyState') ? 'text-red-600' : 'text-[#374151]'}`}>State *</label>
+                    <Select name="propertyState" value={formData.propertyState} onValueChange={(v) => handleInputChange('propertyState', v)}>
+                      <SelectTrigger id="propertyState" className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyState') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectContent>{US_STATES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    </Select>
+                    {hasError('propertyState') && <p className="text-[10px] text-red-600">{validationErrors.propertyState}</p>}
+                  </div>
+                  <div className="space-y-0.5">
+                    <label htmlFor="propertyCounty" className="block text-[10px] font-medium text-[#374151]">County</label>
+                    <Input id="propertyCounty" name="propertyCounty" value={formData.propertyCounty} onChange={(e) => handleInputChange('propertyCounty', e.target.value)} className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <label htmlFor="propertyCity" className="block text-[10px] font-medium text-[#374151]">City</label>
+                    <Input id="propertyCity" name="propertyCity" value={formData.propertyCity} onChange={(e) => handleInputChange('propertyCity', e.target.value)} className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]" autoComplete="address-level2" />
+                  </div>
+                  {/* Row 2: Structure Type + chips */}
+                  <div className="space-y-0.5">
+                    <label htmlFor="structureType" className="block text-[10px] font-medium text-[#374151]">Structure Type</label>
                     <Select name="structureType" value={formData.structureType} onValueChange={(v) => handleInputChange('structureType', v)}>
-                      <SelectTrigger id="structureType" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="structureType" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="detached">Detached</SelectItem>
                         <SelectItem value="attached">Attached</SelectItem>
@@ -1499,23 +1512,23 @@ export default function App() {
                     </Select>
                   </div>
                   <div className="col-span-full flex flex-wrap gap-2">
-                    <label htmlFor="isRuralProperty" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isRuralProperty ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="isRuralProperty" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isRuralProperty ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
                       <input type="checkbox" id="isRuralProperty" name="isRuralProperty" className="sr-only" checked={formData.isRuralProperty} onChange={(e) => handleInputChange('isRuralProperty', e.target.checked)} />
                       Rural Property
                     </label>
-                    <label htmlFor="isNonWarrantableProject" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isNonWarrantableProject ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="isNonWarrantableProject" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isNonWarrantableProject ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
                       <input type="checkbox" id="isNonWarrantableProject" name="isNonWarrantableProject" className="sr-only" checked={formData.isNonWarrantableProject} onChange={(e) => handleInputChange('isNonWarrantableProject', e.target.checked)} />
                       Non-Warrantable
                     </label>
-                    <label htmlFor="isMixedUsePML" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isMixedUsePML ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="isMixedUsePML" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isMixedUsePML ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
                       <input type="checkbox" id="isMixedUsePML" name="isMixedUsePML" className="sr-only" checked={formData.isMixedUsePML} onChange={(e) => handleInputChange('isMixedUsePML', e.target.checked)} />
                       Mixed Use
                     </label>
-                    <label htmlFor="is5PlusUnits" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.is5PlusUnits ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="is5PlusUnits" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.is5PlusUnits ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
                       <input type="checkbox" id="is5PlusUnits" name="is5PlusUnits" className="sr-only" checked={formData.is5PlusUnits} onChange={(e) => handleInputChange('is5PlusUnits', e.target.checked)} />
                       5+ Units
                     </label>
-                    <label htmlFor="isAVMOrCDA" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isAVMOrCDA ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="isAVMOrCDA" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isAVMOrCDA ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
                       <input type="checkbox" id="isAVMOrCDA" name="isAVMOrCDA" className="sr-only" checked={formData.isAVMOrCDA} onChange={(e) => handleInputChange('isAVMOrCDA', e.target.checked)} />
                       AVM or CDA
                     </label>
@@ -1526,26 +1539,26 @@ export default function App() {
 
             {/* ===== BORROWER DETAILS SECTION ===== */}
             <div id="section-borrower">
-              <button type="button" onClick={() => toggleSection('borrower')} className="flex items-center justify-between w-full pb-2 mb-4 border-b border-[#E5E7EB]">
+              <button type="button" onClick={() => toggleSection('borrower')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[#E5E7EB]">
                 <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Borrower Details</span>
                 <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('borrower') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('borrower') && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-3">
-                  <div className="space-y-1">
-                    <label htmlFor="creditScore" className={`block text-[11px] font-medium ${hasError('creditScore') ? 'text-red-600' : 'text-[#374151]'}`}>Credit Score *</label>
-                    <Input id="creditScore" name="creditScore" maxLength={3} value={formData.creditScore} onChange={(e) => handleInputChange('creditScore', e.target.value.replace(/\D/g, ''))} className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('creditScore') ? 'border-red-500' : ''}`} />
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-2">
+                  <div className="space-y-0.5">
+                    <label htmlFor="creditScore" className={`block text-[10px] font-medium ${hasError('creditScore') ? 'text-red-600' : 'text-[#374151]'}`}>Credit Score *</label>
+                    <Input id="creditScore" name="creditScore" maxLength={3} value={formData.creditScore} onChange={(e) => handleInputChange('creditScore', e.target.value.replace(/\D/g, ''))} className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('creditScore') ? 'border-red-500' : ''}`} />
                     {hasError('creditScore') && <p className="text-[10px] text-red-600">{validationErrors.creditScore}</p>}
                   </div>
-                  <div className="space-y-1">
-                    <label htmlFor="dti" className={`block text-[11px] font-medium ${hasError('dti') ? 'text-red-600' : 'text-[#374151]'}`}>DTI % *</label>
-                    <Input id="dti" name="dti" maxLength={2} value={formData.dti} onChange={(e) => handleInputChange('dti', e.target.value.replace(/\D/g, ''))} className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('dti') ? 'border-red-500' : ''}`} />
+                  <div className="space-y-0.5">
+                    <label htmlFor="dti" className={`block text-[10px] font-medium ${hasError('dti') ? 'text-red-600' : 'text-[#374151]'}`}>DTI % *</label>
+                    <Input id="dti" name="dti" maxLength={2} value={formData.dti} onChange={(e) => handleInputChange('dti', e.target.value.replace(/\D/g, ''))} className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('dti') ? 'border-red-500' : ''}`} />
                     {hasError('dti') && <p className="text-[10px] text-red-600">{validationErrors.dti}</p>}
                   </div>
-                  <div className="space-y-1">
-                    <label htmlFor="citizenship" className="block text-[11px] font-medium text-[#374151]">Citizenship</label>
+                  <div className="space-y-0.5">
+                    <label htmlFor="citizenship" className="block text-[10px] font-medium text-[#374151]">Citizenship</label>
                     <Select name="citizenship" value={formData.citizenship} onValueChange={(v) => handleInputChange('citizenship', v)}>
-                      <SelectTrigger id="citizenship" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="citizenship" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="usCitizen">US Citizen</SelectItem>
                         <SelectItem value="permanentResident">Permanent Resident</SelectItem>
@@ -1555,10 +1568,10 @@ export default function App() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-1">
-                    <label htmlFor="documentationType" className={`block text-[11px] font-medium ${hasError('documentationType') ? 'text-red-600' : 'text-[#374151]'}`}>Doc Type</label>
+                  <div className="space-y-0.5">
+                    <label htmlFor="documentationType" className={`block text-[10px] font-medium ${hasError('documentationType') ? 'text-red-600' : 'text-[#374151]'}`}>Doc Type</label>
                     <Select name="documentationType" value={formData.documentationType} onValueChange={(v) => handleInputChange('documentationType', v)}>
-                      <SelectTrigger id="documentationType" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('documentationType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="documentationType" className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('documentationType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="fullDoc">Full Document</SelectItem>
                         <SelectItem value="dscr">Debt Service Coverage (DSCR)</SelectItem>
@@ -1573,30 +1586,16 @@ export default function App() {
                     </Select>
                     {hasError('documentationType') && <p className="text-[10px] text-red-600">{validationErrors.documentationType}</p>}
                   </div>
-                  <div className="col-span-full space-y-1">
-                    <label htmlFor="loanTerm" className={`block text-[11px] font-medium ${hasError('loanTerm') ? 'text-red-600' : 'text-[#374151]'}`}>Term *</label>
-                    <Select name="loanTerm" value={formData.loanTerm} onValueChange={(v) => handleInputChange('loanTerm', v)}>
-                      <SelectTrigger id="loanTerm" className={`h-9 text-sm border-[#E5E7EB] focus:ring-[#171717] ${hasError('loanTerm') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="30">30 Year</SelectItem>
-                        <SelectItem value="25">25 Year</SelectItem>
-                        <SelectItem value="20">20 Year</SelectItem>
-                        <SelectItem value="15">15 Year</SelectItem>
-                        <SelectItem value="10">10 Year</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {hasError('loanTerm') && <p className="text-[10px] text-red-600">{validationErrors.loanTerm}</p>}
-                  </div>
                   <div className="col-span-full flex flex-wrap gap-2">
-                    <label htmlFor="isSelfEmployed" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isSelfEmployed ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="isSelfEmployed" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isSelfEmployed ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
                       <input type="checkbox" id="isSelfEmployed" name="isSelfEmployed" className="sr-only" checked={formData.isSelfEmployed} onChange={(e) => handleInputChange('isSelfEmployed', e.target.checked)} />
                       Self Employed
                     </label>
-                    <label htmlFor="isFTHB" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isFTHB ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="isFTHB" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isFTHB ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
                       <input type="checkbox" id="isFTHB" name="isFTHB" className="sr-only" checked={formData.isFTHB} onChange={(e) => handleInputChange('isFTHB', e.target.checked)} />
                       FTHB
                     </label>
-                    <label htmlFor="hasITIN" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.hasITIN ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="hasITIN" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.hasITIN ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
                       <input type="checkbox" id="hasITIN" name="hasITIN" className="sr-only" checked={formData.hasITIN} onChange={(e) => handleInputChange('hasITIN', e.target.checked)} />
                       Has ITIN
                     </label>
@@ -1608,16 +1607,16 @@ export default function App() {
             {/* ===== INVESTOR DETAILS SECTION (conditional) ===== */}
             {showInvestorDetails && (
               <div id="section-investor">
-                <button type="button" onClick={() => toggleSection('investor')} className="flex items-center justify-between w-full pb-2 mb-4 border-b border-[#E5E7EB]">
+                <button type="button" onClick={() => toggleSection('investor')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[#E5E7EB]">
                   <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Investor Details</span>
                   <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('investor') ? 'rotate-180' : ''}`} />
                 </button>
                 {!collapsedSections.has('investor') && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-3">
-                    <div className="space-y-1">
-                      <label htmlFor="prepayPeriod" className="block text-[11px] font-medium text-[#374151]">Prepay Period</label>
+                  <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-2">
+                    <div className="space-y-0.5">
+                      <label htmlFor="prepayPeriod" className="block text-[10px] font-medium text-[#374151]">Prepay Period</label>
                       <Select name="prepayPeriod" value={formData.prepayPeriod} onValueChange={(v) => handleInputChange('prepayPeriod', v)}>
-                        <SelectTrigger id="prepayPeriod" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger id="prepayPeriod" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="60mo">60 Months</SelectItem>
                           <SelectItem value="48mo">48 Months</SelectItem>
@@ -1628,10 +1627,10 @@ export default function App() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-1">
-                      <label htmlFor="prepayType" className="block text-[11px] font-medium text-[#374151]">Prepay Type</label>
+                    <div className="space-y-0.5">
+                      <label htmlFor="prepayType" className="block text-[10px] font-medium text-[#374151]">Prepay Type</label>
                       <Select name="prepayType" value={formData.prepayType} onValueChange={(v) => handleInputChange('prepayType', v)}>
-                        <SelectTrigger id="prepayType" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger id="prepayType" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="5pct">5%</SelectItem>
                           <SelectItem value="declining">Declining</SelectItem>
@@ -1641,10 +1640,10 @@ export default function App() {
                     </div>
                     {formData.documentationType === 'dscr' && (
                       <>
-                        <div className="space-y-1">
-                          <label htmlFor="dscrEntityType" className="block text-[11px] font-medium text-[#374151]">DSCR Entity Type</label>
+                        <div className="space-y-0.5">
+                          <label htmlFor="dscrEntityType" className="block text-[10px] font-medium text-[#374151]">DSCR Entity Type</label>
                           <Select name="dscrEntityType" value={formData.dscrEntityType} onValueChange={(v) => handleInputChange('dscrEntityType', v)}>
-                            <SelectTrigger id="dscrEntityType" className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                            <SelectTrigger id="dscrEntityType" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
                             <SelectContent>
                               <SelectItem value="individual">Individual</SelectItem>
                               <SelectItem value="llc">LLC</SelectItem>
@@ -1653,8 +1652,8 @@ export default function App() {
                             </SelectContent>
                           </Select>
                         </div>
-                        <div className="space-y-1">
-                          <label htmlFor="dscrManualInput" className="block text-[11px] font-medium text-[#374151]">DSCR %</label>
+                        <div className="space-y-0.5">
+                          <label htmlFor="dscrManualInput" className="block text-[10px] font-medium text-[#374151]">DSCR %</label>
                           <Input id="dscrManualInput" name="dscrManualInput" type="text" inputMode="decimal" placeholder="1.000" value={formData.dscrManualInput}
                             onChange={(e) => {
                               const val = e.target.value.replace(/[^0-9.]/g, '')
@@ -1666,16 +1665,16 @@ export default function App() {
                               handleInputChange('presentHousingExpense', '5,000')
                             }}
                             icon={<span className="text-xs font-semibold text-gray-500">%</span>}
-                            className="h-9 text-sm border-[#E5E7EB] focus:ring-[#171717]"
+                            className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"
                           />
                         </div>
-                        <div className="col-span-full space-y-1">
-                          <label className="block text-[11px] font-medium text-[#374151]">Range</label>
-                          <div className="h-9 px-3 py-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-md text-sm font-medium flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <label className="block text-[10px] font-medium text-[#374151]">Range</label>
+                          <div className="h-8 px-3 py-1.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-md text-xs font-medium flex items-center justify-between">
                             <span className={`${calculatedDSCR.ratio >= 1.0 ? 'text-emerald-600' : calculatedDSCR.ratio >= 0.75 ? 'text-yellow-600' : 'text-red-600'}`}>
                               {calculatedDSCR.display}
                             </span>
-                            <span className="text-xs text-[#9CA3AF] ml-2">
+                            <span className="text-[10px] text-[#9CA3AF] ml-2">
                               ({calculatedDSCR.range === '>=1.250' ? '>=1.250' : calculatedDSCR.range === 'noRatio' ? 'No Ratio' : calculatedDSCR.range})
                             </span>
                           </div>
@@ -1683,13 +1682,13 @@ export default function App() {
                       </>
                     )}
                     <div className="col-span-full flex flex-wrap gap-2">
-                      <label htmlFor="isSeasonalProperty" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${(formData.isSeasonalProperty || formData.isShortTermRental) ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                      <label htmlFor="isSeasonalProperty" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${(formData.isSeasonalProperty || formData.isShortTermRental) ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
                         <input type="checkbox" id="isSeasonalProperty" name="isSeasonalProperty" className="sr-only" checked={formData.isSeasonalProperty || formData.isShortTermRental}
                           onChange={(e) => { handleInputChange('isSeasonalProperty', e.target.checked); handleInputChange('isShortTermRental', e.target.checked) }}
                         />
                         Seasonal / STR
                       </label>
-                      <label htmlFor="isCrossCollateralized" className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors border ${formData.isCrossCollateralized ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                      <label htmlFor="isCrossCollateralized" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isCrossCollateralized ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
                         <input type="checkbox" id="isCrossCollateralized" name="isCrossCollateralized" className="sr-only" checked={formData.isCrossCollateralized} onChange={(e) => handleInputChange('isCrossCollateralized', e.target.checked)} />
                         Cross-Collateralized
                       </label>
