@@ -1,0 +1,538 @@
+import { useState } from "react";
+
+const colors = {
+  bg: "#FFFFFF",
+  primary: "#000000",
+  secondary: "#A1A1AA",
+  border: "#27272A",
+  success: "#22C55E",
+  error: "#EF4444",
+  surface: "#FAFAFA",
+  brandText: "#71717A",
+};
+
+// OpenBroker Labs — Hub/network: open circle with connecting nodes radiating out
+const OpenBrokerLabsLogo = ({ size = 40 }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+    {/* Center open circle — the "broker hub" */}
+    <circle cx="24" cy="24" r="8" stroke="#000" strokeWidth="2.5" />
+    {/* Inner open dot */}
+    <circle cx="24" cy="24" r="2.5" fill="#000" />
+    {/* Radiating connection lines to outer nodes */}
+    <line x1="24" y1="16" x2="24" y2="6" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+    <line x1="30.5" y1="19.5" x2="37.5" y2="12.5" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+    <line x1="32" y1="24" x2="42" y2="24" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+    <line x1="30.5" y1="28.5" x2="37.5" y2="35.5" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+    <line x1="24" y1="32" x2="24" y2="42" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+    <line x1="17.5" y1="28.5" x2="10.5" y2="35.5" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+    <line x1="16" y1="24" x2="6" y2="24" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+    <line x1="17.5" y1="19.5" x2="10.5" y2="12.5" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+    {/* Outer nodes — the connected products */}
+    <circle cx="24" cy="5" r="3" fill="#000" />
+    <circle cx="38" cy="12" r="3" fill="#000" />
+    <circle cx="43" cy="24" r="3" fill="#000" />
+    <circle cx="38" cy="36" r="3" fill="#000" />
+    <circle cx="24" cy="43" r="3" fill="#000" />
+    <circle cx="10" cy="36" r="3" fill="#000" />
+    <circle cx="5" cy="24" r="3" fill="#000" />
+    <circle cx="10" cy="12" r="3" fill="#000" />
+  </svg>
+);
+
+// OpenPrice — Clean bold P
+const OpenPriceLogo = ({ size = 36 }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+    <text x="24" y="36" fontSize="36" fontWeight="800" fill="#000" fontFamily='-apple-system, BlinkMacSystemFont, "Inter", sans-serif' textAnchor="middle" letterSpacing="-0.04em">P</text>
+  </svg>
+);
+
+// VeriQual — keeping the V chevron, it's strong for this brand
+const VeriqualLogo = ({ size = 36 }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+    <path d="M4 12l20 24L44 12" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M12 12l12 14.4L36 12" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="24" cy="8" r="3" fill="#000" />
+  </svg>
+);
+
+// OpenBroker LOS — Folder/pipeline with stages flowing through
+const OpenBrokerLOSLogo = ({ size = 36 }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+    {/* Folder shape */}
+    <path d="M6 14V38a3 3 0 003 3h30a3 3 0 003-3V18a3 3 0 00-3-3H25l-3-4H9a3 3 0 00-3 3z" stroke="#000" strokeWidth="2.5" strokeLinejoin="round" />
+    {/* Pipeline stages inside — three connected dots */}
+    <circle cx="16" cy="28" r="3" fill="#000" />
+    <circle cx="24" cy="28" r="3" fill="#000" />
+    <circle cx="32" cy="28" r="3" fill="#000" />
+    <line x1="19" y1="28" x2="21" y2="28" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+    <line x1="27" y1="28" x2="29" y2="28" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+    {/* Arrow out */}
+    <path d="M35 28l3 0" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+    <path d="M36 25.5l2.5 2.5-2.5 2.5" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+// Marketing Mgr — Megaphone/broadcast with signal waves
+const MarketingMgrLogo = ({ size = 36 }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
+    {/* Megaphone body */}
+    <path d="M8 20v8h5l10 8V12L13 20H8z" fill="#000" />
+    {/* Sound waves */}
+    <path d="M30 18c2 2 3 4 3 6s-1 4-3 6" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+    <path d="M35 14c3 3.5 5 6.5 5 10s-2 6.5-5 10" stroke="#000" strokeWidth="2.5" strokeLinecap="round" />
+    {/* Small stand/base */}
+    <line x1="12" y1="28" x2="10" y2="36" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+    <line x1="16" y1="28" x2="14" y2="36" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+    <line x1="8" y1="36" x2="18" y2="36" stroke="#000" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
+const products = [
+  {
+    name: "OpenPrice",
+    desc: "Mortgage Pricing Engine",
+    logo: OpenPriceLogo,
+    tag: "Pricing",
+  },
+  {
+    name: "VeriQual",
+    desc: "AVM / AUS Platform",
+    logo: VeriqualLogo,
+    tag: "Underwriting",
+  },
+  {
+    name: "OpenBroker LOS",
+    desc: "Loan Origination System",
+    logo: OpenBrokerLOSLogo,
+    tag: "Origination",
+  },
+  {
+    name: "Marketing Mgr",
+    desc: "Campaign & Content Hub",
+    logo: MarketingMgrLogo,
+    tag: "Marketing",
+  },
+];
+
+export default function App() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [hoveredProduct, setHoveredProduct] = useState(null);
+  const [loginError, setLoginError] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const handleLogin = () => {
+    if (!email || !password) {
+      setLoginError("Please enter your credentials");
+      return;
+    }
+    setLoginError("");
+    setIsLoggedIn(true);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") handleLogin();
+  };
+
+  const handleProductClick = (name) => {
+    setSelectedProduct(name);
+    setTimeout(() => setSelectedProduct(null), 1500);
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", backgroundColor: colors.bg, fontFamily: '-apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif' }}>
+      {/* Nav */}
+      <nav style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "16px 40px",
+        borderBottom: `1px solid ${colors.border}15`,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <OpenBrokerLabsLogo size={30} />
+          <span style={{ fontSize: 15, fontWeight: 600, color: colors.brandText, letterSpacing: "-0.02em" }}>
+            OpenBroker Labs
+          </span>
+        </div>
+        {isLoggedIn && (
+          <button
+            onClick={() => { setIsLoggedIn(false); setEmail(""); setPassword(""); }}
+            style={{
+              background: "none",
+              border: "none",
+              color: colors.secondary,
+              fontSize: 13,
+              cursor: "pointer",
+              padding: "6px 12px",
+              borderRadius: 6,
+              transition: "all 0.15s",
+            }}
+            onMouseEnter={(e) => e.target.style.color = colors.primary}
+            onMouseLeave={(e) => e.target.style.color = colors.secondary}
+          >
+            Sign out
+          </button>
+        )}
+      </nav>
+
+      <div style={{
+        maxWidth: 520,
+        margin: "0 auto",
+        padding: "60px 24px",
+      }}>
+        {!isLoggedIn ? (
+          <>
+            {/* Hero */}
+            <div style={{ textAlign: "center", marginBottom: 48 }}>
+              <div style={{ marginBottom: 24 }}>
+                <OpenBrokerLabsLogo size={56} />
+              </div>
+              <h1 style={{
+                fontSize: 28,
+                fontWeight: 700,
+                color: colors.primary,
+                letterSpacing: "-0.04em",
+                margin: "0 0 8px 0",
+              }}>
+                Welcome back
+              </h1>
+              <p style={{
+                fontSize: 15,
+                color: colors.brandText,
+                margin: 0,
+                letterSpacing: "-0.01em",
+              }}>
+                Sign in to your <span style={{ fontWeight: 600, color: colors.brandText }}>OpenBroker Labs</span> account
+              </p>
+            </div>
+
+            {/* Login */}
+            <div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{
+                  display: "block",
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: colors.primary,
+                  marginBottom: 6,
+                }}>
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="you@company.com"
+                  style={{
+                    width: "100%",
+                    padding: "10px 12px",
+                    fontSize: 14,
+                    border: `1px solid ${colors.border}30`,
+                    borderRadius: 8,
+                    outline: "none",
+                    backgroundColor: colors.bg,
+                    color: colors.primary,
+                    boxSizing: "border-box",
+                    transition: "border-color 0.15s",
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = colors.primary}
+                  onBlur={(e) => e.target.style.borderColor = `${colors.border}30`}
+                />
+              </div>
+              <div style={{ marginBottom: 8 }}>
+                <label style={{
+                  display: "block",
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: colors.primary,
+                  marginBottom: 6,
+                }}>
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="••••••••"
+                  style={{
+                    width: "100%",
+                    padding: "10px 12px",
+                    fontSize: 14,
+                    border: `1px solid ${colors.border}30`,
+                    borderRadius: 8,
+                    outline: "none",
+                    backgroundColor: colors.bg,
+                    color: colors.primary,
+                    boxSizing: "border-box",
+                    transition: "border-color 0.15s",
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = colors.primary}
+                  onBlur={(e) => e.target.style.borderColor = `${colors.border}30`}
+                />
+              </div>
+              <div style={{ textAlign: "right", marginBottom: 24 }}>
+                <a href="#" style={{ fontSize: 13, color: colors.secondary, textDecoration: "none" }}
+                  onMouseEnter={(e) => e.target.style.color = colors.primary}
+                  onMouseLeave={(e) => e.target.style.color = colors.secondary}
+                >
+                  Forgot password?
+                </a>
+              </div>
+
+              {loginError && (
+                <div style={{
+                  padding: "10px 14px",
+                  backgroundColor: `${colors.error}08`,
+                  border: `1px solid ${colors.error}20`,
+                  borderRadius: 8,
+                  marginBottom: 16,
+                  fontSize: 13,
+                  color: colors.error,
+                }}>
+                  {loginError}
+                </div>
+              )}
+
+              <button
+                onClick={handleLogin}
+                style={{
+                  width: "100%",
+                  padding: "11px 0",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: "#FFFFFF",
+                  backgroundColor: colors.primary,
+                  border: "none",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  transition: "opacity 0.15s",
+                  letterSpacing: "-0.01em",
+                }}
+                onMouseEnter={(e) => e.target.style.opacity = 0.85}
+                onMouseLeave={(e) => e.target.style.opacity = 1}
+              >
+                Sign in
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div style={{ display: "flex", alignItems: "center", margin: "28px 0", gap: 16 }}>
+              <div style={{ flex: 1, height: 1, backgroundColor: `${colors.border}15` }} />
+              <span style={{ fontSize: 12, color: colors.secondary }}>OR</span>
+              <div style={{ flex: 1, height: 1, backgroundColor: `${colors.border}15` }} />
+            </div>
+
+            {/* SSO */}
+            <button
+              style={{
+                width: "100%",
+                padding: "11px 0",
+                fontSize: 14,
+                fontWeight: 500,
+                color: colors.primary,
+                backgroundColor: colors.bg,
+                border: `1px solid ${colors.border}25`,
+                borderRadius: 8,
+                cursor: "pointer",
+                transition: "all 0.15s",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.surface}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.bg}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              Continue with SSO
+            </button>
+
+            {/* Footer */}
+            <p style={{ textAlign: "center", fontSize: 13, color: colors.secondary, marginTop: 32 }}>
+              Don't have an account?{" "}
+              <a href="#" style={{ color: colors.primary, textDecoration: "none", fontWeight: 500 }}>Request access</a>
+            </p>
+          </>
+        ) : (
+          <>
+            {/* Product Selector */}
+            <div style={{ textAlign: "center", marginBottom: 48 }}>
+              <div style={{ marginBottom: 20 }}>
+                <OpenBrokerLabsLogo size={48} />
+              </div>
+              <h1 style={{
+                fontSize: 26,
+                fontWeight: 700,
+                color: colors.primary,
+                letterSpacing: "-0.04em",
+                margin: "0 0 8px 0",
+              }}>
+                Take me to:
+              </h1>
+              <p style={{ fontSize: 14, color: colors.brandText, margin: 0 }}>
+                Select a product to launch
+              </p>
+            </div>
+
+            {/* Product Grid */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {products.map((product) => {
+                const Logo = product.logo;
+                const isHovered = hoveredProduct === product.name;
+                const isSelected = selectedProduct === product.name;
+                return (
+                  <button
+                    key={product.name}
+                    onClick={() => handleProductClick(product.name)}
+                    onMouseEnter={() => setHoveredProduct(product.name)}
+                    onMouseLeave={() => setHoveredProduct(null)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 16,
+                      padding: "18px 20px",
+                      backgroundColor: isSelected ? `${colors.success}08` : isHovered ? colors.surface : colors.bg,
+                      border: `1px solid ${isSelected ? `${colors.success}40` : isHovered ? `${colors.border}30` : `${colors.border}15`}`,
+                      borderRadius: 12,
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      textAlign: "left",
+                      width: "100%",
+                      boxSizing: "border-box",
+                    }}
+                  >
+                    <div style={{
+                      width: 48,
+                      height: 48,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: isHovered ? `${colors.primary}08` : colors.surface,
+                      borderRadius: 10,
+                      transition: "all 0.2s",
+                      flexShrink: 0,
+                    }}>
+                      <Logo size={28} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        fontSize: 15,
+                        fontWeight: 600,
+                        color: colors.primary,
+                        letterSpacing: "-0.02em",
+                        marginBottom: 2,
+                      }}>
+                        {product.name}
+                      </div>
+                      <div style={{ fontSize: 13, color: colors.secondary }}>
+                        {product.desc}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{
+                        fontSize: 11,
+                        fontWeight: 500,
+                        color: colors.secondary,
+                        backgroundColor: colors.surface,
+                        padding: "3px 8px",
+                        borderRadius: 4,
+                        letterSpacing: "0.02em",
+                      }}>
+                        {product.tag}
+                      </span>
+                      {isSelected ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={colors.success} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      ) : (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={isHovered ? colors.primary : colors.secondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "all 0.15s" }}>
+                          <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Ecosystem Footer */}
+            <div style={{
+              marginTop: 48,
+              paddingTop: 32,
+              borderTop: `1px solid ${colors.border}12`,
+            }}>
+              <p style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: colors.brandText,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                marginBottom: 20,
+                textAlign: "center",
+              }}>
+                The <span style={{ color: colors.brandText }}>OpenBroker Labs</span> Ecosystem
+              </p>
+              <div style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 28,
+                flexWrap: "wrap",
+              }}>
+                {products.map((p) => {
+                  const Logo = p.logo;
+                  return (
+                    <div key={p.name} style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 6,
+                      opacity: 0.45,
+                      transition: "opacity 0.2s",
+                      cursor: "default",
+                    }}
+                      onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
+                      onMouseLeave={(e) => e.currentTarget.style.opacity = 0.45}
+                    >
+                      <Logo size={22} />
+                      <span style={{ fontSize: 10, color: colors.brandText, fontWeight: 500 }}>
+                        {p.name}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Bottom Bar */}
+      <div style={{
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: "12px 40px",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        fontSize: 12,
+        color: colors.secondary,
+        borderTop: `1px solid ${colors.border}10`,
+        backgroundColor: colors.bg,
+      }}>
+        <span style={{ color: colors.brandText }}>© 2026 <span style={{ fontWeight: 500, color: colors.brandText }}>OpenBroker Labs</span></span>
+        <div style={{ display: "flex", gap: 20 }}>
+          <a href="#" style={{ color: colors.secondary, textDecoration: "none" }}>Privacy</a>
+          <a href="#" style={{ color: colors.secondary, textDecoration: "none" }}>Terms</a>
+          <a href="#" style={{ color: colors.secondary, textDecoration: "none" }}>Support</a>
+        </div>
+      </div>
+    </div>
+  );
+}

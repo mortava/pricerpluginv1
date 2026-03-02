@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatCurrency, formatPercent } from '@/lib/utils'
 import { validateFormBeforeSubmit } from '@/lib/PricingLogic'
+import { LiveChat } from '@/components/live-chat'
 
 const OpenPriceLogo = ({ size = 36 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
@@ -277,7 +278,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState<'pricing' | 'login' | 'signup'>('pricing')
   // Help Desk state
   const [showHelpDesk, setShowHelpDesk] = useState(false)
-  const [helpDeskFields, setHelpDeskFields] = useState({ name: '', email: '', topic: '' })
+  const [helpDeskFields, setHelpDeskFields] = useState({ name: '', email: '', topic: '', message: '' })
   const [helpDeskSending, setHelpDeskSending] = useState(false)
   const [helpDeskStatus, setHelpDeskStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
@@ -288,7 +289,7 @@ export default function App() {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
   const [expandedProgram, setExpandedProgram] = useState<string | null>(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  // loadingProgress removed — wave animation replaces progress bar
+  const [loadingProgress, setLoadingProgress] = useState(0)
   const [lpResult, setLpResult] = useState<any>(null)
   const [lpLoading, setLpLoading] = useState(false)
   const [lpUnlocked, setLpUnlocked] = useState(false)
@@ -325,7 +326,28 @@ export default function App() {
     })
   }
 
-  // Loading progress bar removed — replaced by wave animation
+  // Loading progress simulation
+  useEffect(() => {
+    if (!isLoading) { setLoadingProgress(0); return }
+    setLoadingProgress(0)
+    const steps = [
+      { target: 15, delay: 200 },
+      { target: 30, delay: 600 },
+      { target: 50, delay: 1200 },
+      { target: 65, delay: 2000 },
+      { target: 78, delay: 3000 },
+      { target: 88, delay: 4500 },
+      { target: 94, delay: 6000 },
+    ]
+    const timers = steps.map(s => setTimeout(() => setLoadingProgress(s.target), s.delay))
+    return () => timers.forEach(clearTimeout)
+  }, [isLoading])
+
+  // Jump to 100% when result arrives
+  useEffect(() => {
+    if (result && isLoading) setLoadingProgress(100)
+    if (result && !isLoading) setLoadingProgress(100)
+  }, [result, isLoading])
 
   // Close action dropdown on outside click
   useEffect(() => {
@@ -343,19 +365,26 @@ export default function App() {
     return () => document.removeEventListener('click', handler)
   }, [showUserMenu])
 
-  // Sticky results bar: hide on scroll down, show on scroll up
+  // Sticky results bar: hide on scroll down, show on scroll up (debounced)
   useEffect(() => {
     if (!result) { setStickyBarVisible(false); return }
     setStickyBarVisible(true)
     let lastScrollY = window.scrollY
+    let ticking = false
     const handler = () => {
-      const currentY = window.scrollY
-      if (currentY > lastScrollY && currentY > 120) {
-        setStickyBarVisible(false)
-      } else {
-        setStickyBarVisible(true)
-      }
-      lastScrollY = currentY
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(() => {
+        const currentY = window.scrollY
+        const delta = currentY - lastScrollY
+        if (delta > 10 && currentY > 120) {
+          setStickyBarVisible(false)
+        } else if (delta < -10) {
+          setStickyBarVisible(true)
+        }
+        lastScrollY = currentY
+        ticking = false
+      })
     }
     window.addEventListener('scroll', handler, { passive: true })
     return () => window.removeEventListener('scroll', handler)
@@ -816,6 +845,7 @@ export default function App() {
             <tr><td style="padding:8px 10px;color:#64748b;font-weight:600;">Name</td><td style="padding:8px 10px;color:#0f172a;font-weight:700;">${helpDeskFields.name}</td></tr>
             <tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 10px;color:#64748b;font-weight:600;">Email</td><td style="padding:8px 10px;color:#0f172a;font-weight:700;">${helpDeskFields.email}</td></tr>
             <tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 10px;color:#64748b;font-weight:600;">Help Topic</td><td style="padding:8px 10px;color:#0f172a;font-weight:700;">${helpDeskFields.topic}</td></tr>
+            ${helpDeskFields.message ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 10px;color:#64748b;font-weight:600;vertical-align:top;">Message</td><td style="padding:8px 10px;color:#0f172a;font-weight:500;white-space:pre-wrap;">${helpDeskFields.message}</td></tr>` : ''}
             ${profile ? `<tr style="border-top:1px solid #f1f5f9;"><td style="padding:8px 10px;color:#64748b;font-weight:600;">Company</td><td style="padding:8px 10px;color:#0f172a;font-weight:700;">${profile.company_name} (NMLS# ${profile.company_nmls})</td></tr>` : ''}
           </table>
         </div>
@@ -828,7 +858,7 @@ export default function App() {
       })
       if (res.ok) {
         setHelpDeskStatus('success')
-        setTimeout(() => { setShowHelpDesk(false); setHelpDeskStatus('idle'); setHelpDeskFields({ name: '', email: '', topic: '' }) }, 2500)
+        setTimeout(() => { setShowHelpDesk(false); setHelpDeskStatus('idle'); setHelpDeskFields({ name: '', email: '', topic: '', message: '' }) }, 2500)
       } else { setHelpDeskStatus('error') }
     } catch { setHelpDeskStatus('error') }
     finally { setHelpDeskSending(false) }
@@ -1088,25 +1118,29 @@ export default function App() {
     <div className="min-h-screen bg-[#FAFAFA]">
 
       {/* ===== DESKTOP SIDEBAR (fixed, 200px) ===== */}
-      <aside className="hidden lg:flex flex-col fixed left-0 top-0 h-screen w-[200px] bg-white border-r border-[#E5E7EB] z-50">
+      <aside className="hidden lg:flex flex-col fixed left-0 top-0 h-screen w-[200px] bg-white border-r border-[rgba(39,39,42,0.15)] z-50">
         {/* Brand */}
-        <div className="px-4 pt-5 pb-4 border-b border-[#E5E7EB]">
+        <div className="px-4 pt-5 pb-4 border-b border-[rgba(39,39,42,0.15)]">
           <div className="flex items-center gap-1">
             <OpenPriceLogo size={28} />
-            <span className="text-[15px] font-bold text-[#171717] leading-tight">OpenPrice</span>
+            <span className="text-[15px] font-semibold text-[#71717A] leading-tight tracking-[-0.02em]">OpenBroker Labs · OpenPrice</span>
           </div>
-          <div className="text-[10px] text-[#9CA3AF] mt-0.5 pl-1">powered by DEFY TPO</div>
         </div>
 
         {/* Nav */}
         <nav className="flex-1 px-3 py-4 space-y-0.5">
           <div className="px-2 py-1 mb-2">
-            <span className="text-[9px] font-bold uppercase tracking-widest text-[#9CA3AF]">Tools</span>
+            <span className="text-[9px] font-bold uppercase tracking-widest text-[#A1A1AA]">Tools</span>
           </div>
           {/* Deal Desk — active */}
-          <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-[#171717] text-white">
+          <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-[#000000] text-white">
             <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0" />
             <span className="text-[13px] font-semibold truncate">Deal Desk</span>
+          </div>
+          {/* TRINITY AI Agent — disabled */}
+          <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
+            <span className="text-[13px] text-[#D1D5DB] truncate">TRINITY AI Agent</span>
           </div>
           {/* Pipeline — disabled */}
           <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
@@ -1114,24 +1148,24 @@ export default function App() {
             <span className="text-[13px] text-[#D1D5DB] truncate">Pipeline</span>
           </div>
           {/* QuickAVM */}
-          <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] transition-colors">
+          <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors">
             <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-            <span className="text-[13px] text-[#374151] truncate">QuickAVM</span>
+            <span className="text-[13px] text-[#000000] truncate">QuickAVM</span>
           </a>
           {/* Veriqual */}
-          <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] transition-colors">
+          <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors">
             <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-            <span className="text-[13px] text-[#374151] truncate">Veriqual AUS</span>
+            <span className="text-[13px] text-[#000000] truncate">Veriqual AUS</span>
           </a>
           {/* Help Desk — partner only */}
           {isPartner && (
             <button
               type="button"
-              onClick={() => { setHelpDeskFields({ name: helpDeskDefaults.name, email: helpDeskDefaults.email, topic: '' }); setHelpDeskStatus('idle'); setShowHelpDesk(true) }}
-              className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] transition-colors text-left"
+              onClick={() => { setHelpDeskFields({ name: helpDeskDefaults.name, email: helpDeskDefaults.email, topic: '', message: '' }); setHelpDeskStatus('idle'); setShowHelpDesk(true) }}
+              className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-              <span className="text-[13px] text-[#374151] truncate">Help Desk</span>
+              <span className="text-[13px] text-[#000000] truncate">Help Desk</span>
             </button>
           )}
           {/* Exception — disabled */}
@@ -1139,51 +1173,56 @@ export default function App() {
             <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
             <span className="text-[13px] text-[#D1D5DB] truncate">Exception</span>
           </div>
+          {/* Launch OpenLOS — disabled */}
+          <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
+            <span className="text-[13px] text-[#D1D5DB] truncate">Launch OpenLOS</span>
+          </div>
         </nav>
 
         {/* Partner Login / User Info */}
-        <div className="px-3 py-4 border-t border-[#E5E7EB]">
+        <div className="px-3 py-4 border-t border-[rgba(39,39,42,0.15)]">
           {isPartner && profile ? (
             <div className="space-y-2">
               <div className="px-2">
-                <div className="text-[12px] font-semibold text-[#171717] truncate">{profile.first_name} {profile.last_name}</div>
-                <div className="text-[10px] text-[#9CA3AF] truncate">{profile.company_name}</div>
+                <div className="text-[12px] font-semibold text-[#000000] truncate">{profile.first_name} {profile.last_name}</div>
+                <div className="text-[10px] text-[#A1A1AA] truncate">{profile.company_name}</div>
               </div>
               <button
                 type="button"
                 onClick={() => signOut()}
-                className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] text-left transition-colors"
+                className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] text-left transition-colors"
               >
-                <LogOut className="w-3.5 h-3.5 text-[#9CA3AF]" />
-                <span className="text-[12px] text-[#6B7280]">Sign Out</span>
+                <LogOut className="w-3.5 h-3.5 text-[#A1A1AA]" />
+                <span className="text-[12px] text-[#71717A]">Sign Out</span>
               </button>
             </div>
           ) : (
             <button
               type="button"
               onClick={() => setCurrentView('login')}
-              className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] text-left transition-colors"
+              className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] text-left transition-colors"
             >
-              <User className="w-3.5 h-3.5 text-[#9CA3AF]" />
-              <span className="text-[12px] font-semibold text-[#171717]">Partner Login</span>
+              <User className="w-3.5 h-3.5 text-[#A1A1AA]" />
+              <span className="text-[12px] font-semibold text-[#000000]">Partner Login</span>
             </button>
           )}
         </div>
       </aside>
 
       {/* ===== MOBILE HEADER (lg:hidden) ===== */}
-      <header className="lg:hidden sticky top-0 z-40 h-12 bg-white/90 backdrop-blur-xl border-b border-[#E5E7EB] flex items-center justify-between px-4">
+      <header className="lg:hidden sticky top-0 z-40 h-12 bg-white/90 backdrop-blur-xl border-b border-[rgba(39,39,42,0.15)] flex items-center justify-between px-4">
         <button
           type="button"
           onClick={() => setMobileMenuOpen(true)}
-          className="w-8 h-8 flex items-center justify-center text-[#374151] hover:text-[#171717]"
+          className="w-8 h-8 flex items-center justify-center text-[#000000] hover:text-[#000000]"
           aria-label="Open menu"
         >
           <Menu className="w-5 h-5" />
         </button>
         <div className="flex items-center gap-1">
           <OpenPriceLogo size={24} />
-          <span className="text-[15px] font-bold text-[#171717]">OpenPrice</span>
+          <span className="text-[14px] font-semibold text-[#71717A] tracking-[-0.02em]">OpenBroker Labs · OpenPrice</span>
         </div>
         <div className="w-8" />
       </header>
@@ -1192,70 +1231,77 @@ export default function App() {
       {mobileMenuOpen && (
         <>
           <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm lg:hidden" onClick={() => setMobileMenuOpen(false)} />
-          <div className="fixed left-0 top-0 h-full w-[260px] bg-white z-[201] flex flex-col shadow-2xl lg:hidden">
-            <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[#E5E7EB]">
+          <div className="fixed left-0 top-0 h-full w-[260px] bg-white z-[201] flex flex-col shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:hidden">
+            <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[rgba(39,39,42,0.15)]">
               <div>
                 <div className="flex items-center gap-1">
                   <OpenPriceLogo size={24} />
-                  <span className="text-[15px] font-bold text-[#171717]">OpenPrice</span>
+                  <span className="text-[14px] font-semibold text-[#71717A] tracking-[-0.02em]">OpenBroker Labs · OpenPrice</span>
                 </div>
-                <div className="text-[10px] text-[#9CA3AF] mt-0.5 pl-1">powered by DEFY TPO</div>
               </div>
-              <button type="button" onClick={() => setMobileMenuOpen(false)} className="p-1 text-[#9CA3AF] hover:text-[#374151]">
+              <button type="button" onClick={() => setMobileMenuOpen(false)} className="p-1 text-[#A1A1AA] hover:text-[#000000]">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
               <div className="px-2 py-1 mb-2">
-                <span className="text-[9px] font-bold uppercase tracking-widest text-[#9CA3AF]">Tools</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-[#A1A1AA]">Tools</span>
               </div>
-              <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-[#171717] text-white">
+              <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-[#000000] text-white">
                 <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0" />
                 <span className="text-[13px] font-semibold">Deal Desk</span>
               </div>
               <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
+                <span className="text-[13px] text-[#D1D5DB]">TRINITY AI Agent</span>
+              </div>
+              <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
                 <span className="text-[13px] text-[#D1D5DB]">Pipeline</span>
               </div>
-              <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] transition-colors" onClick={() => setMobileMenuOpen(false)}>
+              <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors" onClick={() => setMobileMenuOpen(false)}>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-                <span className="text-[13px] text-[#374151]">QuickAVM</span>
+                <span className="text-[13px] text-[#000000]">QuickAVM</span>
               </a>
-              <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] transition-colors" onClick={() => setMobileMenuOpen(false)}>
+              <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors" onClick={() => setMobileMenuOpen(false)}>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-                <span className="text-[13px] text-[#374151]">Veriqual AUS</span>
+                <span className="text-[13px] text-[#000000]">Veriqual AUS</span>
               </a>
               {isPartner && (
                 <button
                   type="button"
-                  onClick={() => { setMobileMenuOpen(false); setHelpDeskFields({ name: helpDeskDefaults.name, email: helpDeskDefaults.email, topic: '' }); setHelpDeskStatus('idle'); setShowHelpDesk(true) }}
-                  className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] transition-colors text-left"
+                  onClick={() => { setMobileMenuOpen(false); setHelpDeskFields({ name: helpDeskDefaults.name, email: helpDeskDefaults.email, topic: '', message: '' }); setHelpDeskStatus('idle'); setShowHelpDesk(true) }}
+                  className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-                  <span className="text-[13px] text-[#374151]">Help Desk</span>
+                  <span className="text-[13px] text-[#000000]">Help Desk</span>
                 </button>
               )}
               <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
                 <span className="text-[13px] text-[#D1D5DB]">Exception</span>
               </div>
+              <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
+                <span className="text-[13px] text-[#D1D5DB]">Launch OpenLOS</span>
+              </div>
             </nav>
-            <div className="px-3 py-4 border-t border-[#E5E7EB]">
+            <div className="px-3 py-4 border-t border-[rgba(39,39,42,0.15)]">
               {isPartner && profile ? (
                 <div className="space-y-2">
                   <div className="px-2">
-                    <div className="text-[12px] font-semibold text-[#171717] truncate">{profile.first_name} {profile.last_name}</div>
-                    <div className="text-[10px] text-[#9CA3AF] truncate">{profile.company_name}</div>
+                    <div className="text-[12px] font-semibold text-[#000000] truncate">{profile.first_name} {profile.last_name}</div>
+                    <div className="text-[10px] text-[#A1A1AA] truncate">{profile.company_name}</div>
                   </div>
-                  <button type="button" onClick={() => { setMobileMenuOpen(false); signOut() }} className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] text-left transition-colors">
-                    <LogOut className="w-3.5 h-3.5 text-[#9CA3AF]" />
-                    <span className="text-[12px] text-[#6B7280]">Sign Out</span>
+                  <button type="button" onClick={() => { setMobileMenuOpen(false); signOut() }} className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] text-left transition-colors">
+                    <LogOut className="w-3.5 h-3.5 text-[#A1A1AA]" />
+                    <span className="text-[12px] text-[#71717A]">Sign Out</span>
                   </button>
                 </div>
               ) : (
-                <button type="button" onClick={() => { setMobileMenuOpen(false); setCurrentView('login') }} className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#F9FAFB] text-left transition-colors">
-                  <User className="w-3.5 h-3.5 text-[#9CA3AF]" />
-                  <span className="text-[12px] font-semibold text-[#171717]">Partner Login</span>
+                <button type="button" onClick={() => { setMobileMenuOpen(false); setCurrentView('login') }} className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] text-left transition-colors">
+                  <User className="w-3.5 h-3.5 text-[#A1A1AA]" />
+                  <span className="text-[12px] font-semibold text-[#000000]">Partner Login</span>
                 </button>
               )}
             </div>
@@ -1267,48 +1313,42 @@ export default function App() {
       <main className="lg:ml-[200px] min-h-screen">
 
         {/* ===== STICKY RESULTS SUMMARY BAR ===== */}
-        <AnimatePresence>
-          {result && stickyBarVisible && targetPricing && (
-            <motion.div
-              key="sticky-bar"
-              initial={{ y: -48, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -48, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-[#E5E7EB] px-4 lg:px-6 py-2.5"
+        {result && targetPricing && (
+            <div
+              className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-[rgba(39,39,42,0.15)] px-4 lg:px-6 py-2.5 transition-all duration-200"
+              style={{ transform: stickyBarVisible ? 'translateY(0)' : 'translateY(-100%)', opacity: stickyBarVisible ? 1 : 0 }}
             >
               <div className="max-w-6xl mx-auto flex items-center gap-4 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />Live
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#22C55E] bg-[rgba(34,197,94,0.08)] border border-[rgba(34,197,94,0.2)] px-2 py-0.5 rounded-[4px] shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />Live
                 </span>
                 <div className="flex items-center gap-4 flex-wrap text-sm">
                   <div>
-                    <span className="font-bold text-[#171717] tabular-nums">{formatPercent(targetPricing.rate)}</span>
-                    <span className="text-[10px] text-[#9CA3AF] ml-1 uppercase">Rate</span>
+                    <span className="font-bold text-[#000000] tabular-nums">{formatPercent(targetPricing.rate)}</span>
+                    <span className="text-[10px] text-[#A1A1AA] ml-1 uppercase">Rate</span>
                   </div>
                   <div>
-                    <span className="font-semibold text-[#374151] tabular-nums">{targetPricing.price.toFixed(3)}</span>
-                    <span className="text-[10px] text-[#9CA3AF] ml-1 uppercase">Price</span>
+                    <span className="font-semibold text-[#000000] tabular-nums">{targetPricing.price.toFixed(3)}</span>
+                    <span className="text-[10px] text-[#A1A1AA] ml-1 uppercase">Price</span>
                   </div>
                   <div>
-                    <span className="font-semibold text-[#374151] tabular-nums">{formatPercent(targetPricing.apr)}</span>
-                    <span className="text-[10px] text-[#9CA3AF] ml-1 uppercase">APR</span>
+                    <span className="font-semibold text-[#000000] tabular-nums">{formatPercent(targetPricing.apr)}</span>
+                    <span className="text-[10px] text-[#A1A1AA] ml-1 uppercase">APR</span>
                   </div>
                   {targetPricing.payment > 0 && (
                     <div>
-                      <span className="font-semibold text-[#374151] tabular-nums">{formatCurrency(targetPricing.payment)}</span>
-                      <span className="text-[10px] text-[#9CA3AF] ml-1 uppercase">Pmt</span>
+                      <span className="font-semibold text-[#000000] tabular-nums">{formatCurrency(targetPricing.payment)}</span>
+                      <span className="text-[10px] text-[#A1A1AA] ml-1 uppercase">Pmt</span>
                     </div>
                   )}
                   <div>
-                    <span className="font-semibold text-[#374151] tabular-nums">{safeNumber(result.ltvRatio).toFixed(1)}%</span>
-                    <span className="text-[10px] text-[#9CA3AF] ml-1 uppercase">LTV</span>
+                    <span className="font-semibold text-[#000000] tabular-nums">{safeNumber(result.ltvRatio).toFixed(1)}%</span>
+                    <span className="text-[10px] text-[#A1A1AA] ml-1 uppercase">LTV</span>
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
 
         {/* ===== FORM SECTION ===== */}
         <div className="px-4 lg:px-6 py-3 max-w-6xl mx-auto">
@@ -1316,17 +1356,17 @@ export default function App() {
 
             {/* ===== LOAN INFORMATION SECTION ===== */}
             <div id="section-loan">
-              <button type="button" onClick={() => toggleSection('loan')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[#E5E7EB]">
-                <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Loan Information</span>
-                <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('loan') ? 'rotate-180' : ''}`} />
+              <button type="button" onClick={() => toggleSection('loan')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[rgba(39,39,42,0.15)]">
+                <span className="text-xs font-semibold uppercase tracking-widest text-[#71717A]">Loan Information</span>
+                <ChevronDown className={`w-4 h-4 text-[#A1A1AA] transition-transform ${!collapsedSections.has('loan') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('loan') && (
                 <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-2">
                   {/* Row 1: Lien Position, Loan Purpose, Value/Sales Price, Loan Amount, LTV, CLTV */}
                   <div className="space-y-0.5">
-                    <label htmlFor="lienPosition" className="block text-[10px] font-medium text-[#374151]">Lien Position</label>
+                    <label htmlFor="lienPosition" className="block text-[10px] font-medium text-[#000000]">Lien Position</label>
                     <Select name="lienPosition" value={formData.lienPosition} onValueChange={(v) => handleInputChange('lienPosition', v)}>
-                      <SelectTrigger id="lienPosition" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="lienPosition" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1st">1st</SelectItem>
                         <SelectItem value="2nd">2nd</SelectItem>
@@ -1335,43 +1375,43 @@ export default function App() {
                     </Select>
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="loanPurpose" className={`block text-[10px] font-medium ${hasError('loanPurpose') ? 'text-red-600' : 'text-[#374151]'}`}>Loan Purpose *</label>
+                    <label htmlFor="loanPurpose" className={`block text-[10px] font-medium ${hasError('loanPurpose') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Loan Purpose *</label>
                     <Select name="loanPurpose" value={formData.loanPurpose} onValueChange={(v) => handleInputChange('loanPurpose', v)}>
-                      <SelectTrigger id="loanPurpose" className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('loanPurpose') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="loanPurpose" className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('loanPurpose') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="purchase">Purchase</SelectItem>
                         <SelectItem value="refinance">Refi Rate/Term</SelectItem>
                         <SelectItem value="cashout">Refinance Cashout</SelectItem>
                       </SelectContent>
                     </Select>
-                    {hasError('loanPurpose') && <p className="text-[10px] text-red-600">{validationErrors.loanPurpose}</p>}
+                    {hasError('loanPurpose') && <p className="text-[10px] text-[#EF4444]">{validationErrors.loanPurpose}</p>}
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="propertyValue" className={`block text-[10px] font-medium ${hasError('propertyValue') ? 'text-red-600' : 'text-[#374151]'}`}>Value/Sales Price *</label>
-                    <Input id="propertyValue" name="propertyValue" value={formData.propertyValue} onChange={(e) => handleInputChange('propertyValue', formatNumberInput(e.target.value))} icon={<DollarSign className="w-3.5 h-3.5" />} className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyValue') ? 'border-red-500' : ''}`} />
-                    {hasError('propertyValue') && <p className="text-[10px] text-red-600">{validationErrors.propertyValue}</p>}
+                    <label htmlFor="propertyValue" className={`block text-[10px] font-medium ${hasError('propertyValue') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Value/Sales Price *</label>
+                    <Input id="propertyValue" name="propertyValue" value={formData.propertyValue} onChange={(e) => handleInputChange('propertyValue', formatNumberInput(e.target.value))} icon={<DollarSign className="w-3.5 h-3.5" />} className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('propertyValue') ? 'border-red-500' : ''}`} />
+                    {hasError('propertyValue') && <p className="text-[10px] text-[#EF4444]">{validationErrors.propertyValue}</p>}
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="loanAmount" className={`block text-[10px] font-medium ${hasError('loanAmount') ? 'text-red-600' : 'text-[#374151]'}`}>Loan Amount *</label>
-                    <Input id="loanAmount" name="loanAmount" value={formData.loanAmount} onChange={(e) => handleInputChange('loanAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-3.5 h-3.5" />} className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('loanAmount') ? 'border-red-500' : ''}`} />
-                    {hasError('loanAmount') && <p className="text-[10px] text-red-600">{validationErrors.loanAmount}</p>}
+                    <label htmlFor="loanAmount" className={`block text-[10px] font-medium ${hasError('loanAmount') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Loan Amount *</label>
+                    <Input id="loanAmount" name="loanAmount" value={formData.loanAmount} onChange={(e) => handleInputChange('loanAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-3.5 h-3.5" />} className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('loanAmount') ? 'border-red-500' : ''}`} />
+                    {hasError('loanAmount') && <p className="text-[10px] text-[#EF4444]">{validationErrors.loanAmount}</p>}
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="ltv" className="block text-[10px] font-medium text-[#374151]">LTV</label>
+                    <label htmlFor="ltv" className="block text-[10px] font-medium text-[#000000]">LTV</label>
                     <div className="relative">
-                      <Input id="ltv" name="ltv" value={formData.ltv} onChange={(e) => handleInputChange('ltv', e.target.value.replace(/[^0-9.]/g, ''))} className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] pr-6 bg-[#F9FAFB]" />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#9CA3AF] pointer-events-none">%</span>
+                      <Input id="ltv" name="ltv" value={formData.ltv} onChange={(e) => handleInputChange('ltv', e.target.value.replace(/[^0-9.]/g, ''))} className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] pr-6 bg-[#FAFAFA]" />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#A1A1AA] pointer-events-none">%</span>
                     </div>
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="cltv" className="block text-[10px] font-medium text-[#374151]">CLTV</label>
-                    <div id="cltv" className="h-8 px-3 py-1.5 bg-[#F3F4F6] border border-[#E5E7EB] rounded-md text-xs font-medium text-[#9CA3AF] flex items-center">{formData.lienPosition !== '1st' ? 'Enter 2nd' : '—'}</div>
+                    <label htmlFor="cltv" className="block text-[10px] font-medium text-[#000000]">CLTV</label>
+                    <div id="cltv" className="h-8 px-3 py-1.5 bg-[#F3F4F6] border border-[rgba(39,39,42,0.15)] rounded-md text-xs font-medium text-[#A1A1AA] flex items-center">{formData.lienPosition !== '1st' ? 'Enter 2nd' : '—'}</div>
                   </div>
                   {/* Row 2: Term, Amortization, Payment, Impound Type, Lock Period, Cashout Amount */}
                   <div className="space-y-0.5">
-                    <label htmlFor="loanTerm" className={`block text-[10px] font-medium ${hasError('loanTerm') ? 'text-red-600' : 'text-[#374151]'}`}>Term *</label>
+                    <label htmlFor="loanTerm" className={`block text-[10px] font-medium ${hasError('loanTerm') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Term *</label>
                     <Select name="loanTerm" value={formData.loanTerm} onValueChange={(v) => handleInputChange('loanTerm', v)}>
-                      <SelectTrigger id="loanTerm" className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('loanTerm') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="loanTerm" className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('loanTerm') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="30">30 Year</SelectItem>
                         <SelectItem value="25">25 Year</SelectItem>
@@ -1380,12 +1420,12 @@ export default function App() {
                         <SelectItem value="10">10 Year</SelectItem>
                       </SelectContent>
                     </Select>
-                    {hasError('loanTerm') && <p className="text-[10px] text-red-600">{validationErrors.loanTerm}</p>}
+                    {hasError('loanTerm') && <p className="text-[10px] text-[#EF4444]">{validationErrors.loanTerm}</p>}
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="amortization" className="block text-[10px] font-medium text-[#374151]">Amortization</label>
+                    <label htmlFor="amortization" className="block text-[10px] font-medium text-[#000000]">Amortization</label>
                     <Select name="amortization" value={formData.amortization} onValueChange={(v) => handleInputChange('amortization', v)}>
-                      <SelectTrigger id="amortization" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="amortization" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="fixed">Fixed</SelectItem>
                         <SelectItem value="arm3">3 Year ARM</SelectItem>
@@ -1397,9 +1437,9 @@ export default function App() {
                     </Select>
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="paymentType" className="block text-[10px] font-medium text-[#374151]">Payment</label>
+                    <label htmlFor="paymentType" className="block text-[10px] font-medium text-[#000000]">Payment</label>
                     <Select name="paymentType" value={formData.paymentType} onValueChange={(v) => handleInputChange('paymentType', v)}>
-                      <SelectTrigger id="paymentType" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="paymentType" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="pi">P&I</SelectItem>
                         <SelectItem value="io">Interest Only</SelectItem>
@@ -1407,9 +1447,9 @@ export default function App() {
                     </Select>
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="impoundType" className="block text-[10px] font-medium text-[#374151]">Impound Type</label>
+                    <label htmlFor="impoundType" className="block text-[10px] font-medium text-[#000000]">Impound Type</label>
                     <Select name="impoundType" value={formData.impoundType} onValueChange={(v) => handleInputChange('impoundType', v)}>
-                      <SelectTrigger id="impoundType" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="impoundType" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="escrowed">Taxes and Insurance Escrowed</SelectItem>
                         <SelectItem value="noescrow">No Escrow</SelectItem>
@@ -1417,9 +1457,9 @@ export default function App() {
                     </Select>
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="lockPeriod" className="block text-[10px] font-medium text-[#374151]">Lock Period</label>
+                    <label htmlFor="lockPeriod" className="block text-[10px] font-medium text-[#000000]">Lock Period</label>
                     <Select name="lockPeriod" value={formData.lockPeriod} onValueChange={(v) => handleInputChange('lockPeriod', v)}>
-                      <SelectTrigger id="lockPeriod" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="lockPeriod" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="30">30</SelectItem>
                         <SelectItem value="45">45</SelectItem>
@@ -1427,8 +1467,8 @@ export default function App() {
                     </Select>
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="cashoutAmount" className="block text-[10px] font-medium text-[#374151]">Cashout Amount</label>
-                    <Input id="cashoutAmount" name="cashoutAmount" value={formData.cashoutAmount} onChange={(e) => handleInputChange('cashoutAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-3.5 h-3.5" />} className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]" />
+                    <label htmlFor="cashoutAmount" className="block text-[10px] font-medium text-[#000000]">Cashout Amount</label>
+                    <Input id="cashoutAmount" name="cashoutAmount" value={formData.cashoutAmount} onChange={(e) => handleInputChange('cashoutAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-3.5 h-3.5" />} className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]" />
                   </div>
                 </div>
               )}
@@ -1436,29 +1476,29 @@ export default function App() {
 
             {/* ===== PROPERTY DETAILS SECTION ===== */}
             <div id="section-property">
-              <button type="button" onClick={() => toggleSection('property')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[#E5E7EB]">
-                <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Property Details</span>
-                <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('property') ? 'rotate-180' : ''}`} />
+              <button type="button" onClick={() => toggleSection('property')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[rgba(39,39,42,0.15)]">
+                <span className="text-xs font-semibold uppercase tracking-widest text-[#71717A]">Property Details</span>
+                <ChevronDown className={`w-4 h-4 text-[#A1A1AA] transition-transform ${!collapsedSections.has('property') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('property') && (
                 <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-2">
                   {/* Row 1: Property Use, Property Type, ZIP Code, State, County, City */}
                   <div className="space-y-0.5">
-                    <label htmlFor="occupancyType" className={`block text-[10px] font-medium ${hasError('occupancyType') ? 'text-red-600' : 'text-[#374151]'}`}>Property Use *</label>
+                    <label htmlFor="occupancyType" className={`block text-[10px] font-medium ${hasError('occupancyType') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Property Use *</label>
                     <Select name="occupancyType" value={formData.occupancyType} onValueChange={(v) => handleInputChange('occupancyType', v)}>
-                      <SelectTrigger id="occupancyType" className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('occupancyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="occupancyType" className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('occupancyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="primary">Primary Residence</SelectItem>
                         <SelectItem value="secondary">Second Home</SelectItem>
                         <SelectItem value="investment">Investment</SelectItem>
                       </SelectContent>
                     </Select>
-                    {hasError('occupancyType') && <p className="text-[10px] text-red-600">{validationErrors.occupancyType}</p>}
+                    {hasError('occupancyType') && <p className="text-[10px] text-[#EF4444]">{validationErrors.occupancyType}</p>}
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="propertyType" className={`block text-[10px] font-medium ${hasError('propertyType') ? 'text-red-600' : 'text-[#374151]'}`}>Property Type *</label>
+                    <label htmlFor="propertyType" className={`block text-[10px] font-medium ${hasError('propertyType') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Property Type *</label>
                     <Select name="propertyType" value={formData.propertyType} onValueChange={(v) => handleInputChange('propertyType', v)}>
-                      <SelectTrigger id="propertyType" className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="propertyType" className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('propertyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="sfr">Single Family</SelectItem>
                         <SelectItem value="condo">Condo</SelectItem>
@@ -1470,36 +1510,36 @@ export default function App() {
                         <SelectItem value="blanket" disabled className="text-gray-400">Blanket Investor</SelectItem>
                       </SelectContent>
                     </Select>
-                    {hasError('propertyType') && <p className="text-[10px] text-red-600">{validationErrors.propertyType}</p>}
+                    {hasError('propertyType') && <p className="text-[10px] text-[#EF4444]">{validationErrors.propertyType}</p>}
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="propertyZip" className={`block text-[10px] font-medium ${hasError('propertyZip') ? 'text-red-600' : 'text-[#374151]'}`}>
+                    <label htmlFor="propertyZip" className={`block text-[10px] font-medium ${hasError('propertyZip') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>
                       ZIP Code * {zipLoading && <Loader2 className="w-3 h-3 inline animate-spin ml-1" />}
                     </label>
-                    <Input id="propertyZip" name="propertyZip" maxLength={5} value={formData.propertyZip} onChange={(e) => handleInputChange('propertyZip', e.target.value.replace(/\D/g, ''))} className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyZip') ? 'border-red-500' : ''}`} placeholder="ZIP" autoComplete="postal-code" />
-                    {hasError('propertyZip') && <p className="text-[10px] text-red-600">{validationErrors.propertyZip}</p>}
+                    <Input id="propertyZip" name="propertyZip" maxLength={5} value={formData.propertyZip} onChange={(e) => handleInputChange('propertyZip', e.target.value.replace(/\D/g, ''))} className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('propertyZip') ? 'border-red-500' : ''}`} placeholder="ZIP" autoComplete="postal-code" />
+                    {hasError('propertyZip') && <p className="text-[10px] text-[#EF4444]">{validationErrors.propertyZip}</p>}
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="propertyState" className={`block text-[10px] font-medium ${hasError('propertyState') ? 'text-red-600' : 'text-[#374151]'}`}>State *</label>
+                    <label htmlFor="propertyState" className={`block text-[10px] font-medium ${hasError('propertyState') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>State *</label>
                     <Select name="propertyState" value={formData.propertyState} onValueChange={(v) => handleInputChange('propertyState', v)}>
-                      <SelectTrigger id="propertyState" className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('propertyState') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="propertyState" className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('propertyState') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>{US_STATES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                     </Select>
-                    {hasError('propertyState') && <p className="text-[10px] text-red-600">{validationErrors.propertyState}</p>}
+                    {hasError('propertyState') && <p className="text-[10px] text-[#EF4444]">{validationErrors.propertyState}</p>}
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="propertyCounty" className="block text-[10px] font-medium text-[#374151]">County</label>
-                    <Input id="propertyCounty" name="propertyCounty" value={formData.propertyCounty} onChange={(e) => handleInputChange('propertyCounty', e.target.value)} className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]" />
+                    <label htmlFor="propertyCounty" className="block text-[10px] font-medium text-[#000000]">County</label>
+                    <Input id="propertyCounty" name="propertyCounty" value={formData.propertyCounty} onChange={(e) => handleInputChange('propertyCounty', e.target.value)} className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]" />
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="propertyCity" className="block text-[10px] font-medium text-[#374151]">City</label>
-                    <Input id="propertyCity" name="propertyCity" value={formData.propertyCity} onChange={(e) => handleInputChange('propertyCity', e.target.value)} className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]" autoComplete="address-level2" />
+                    <label htmlFor="propertyCity" className="block text-[10px] font-medium text-[#000000]">City</label>
+                    <Input id="propertyCity" name="propertyCity" value={formData.propertyCity} onChange={(e) => handleInputChange('propertyCity', e.target.value)} className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]" autoComplete="address-level2" />
                   </div>
                   {/* Row 2: Structure Type + chips */}
                   <div className="space-y-0.5">
-                    <label htmlFor="structureType" className="block text-[10px] font-medium text-[#374151]">Structure Type</label>
+                    <label htmlFor="structureType" className="block text-[10px] font-medium text-[#000000]">Structure Type</label>
                     <Select name="structureType" value={formData.structureType} onValueChange={(v) => handleInputChange('structureType', v)}>
-                      <SelectTrigger id="structureType" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="structureType" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="detached">Detached</SelectItem>
                         <SelectItem value="attached">Attached</SelectItem>
@@ -1507,23 +1547,23 @@ export default function App() {
                     </Select>
                   </div>
                   <div className="col-span-full flex flex-wrap gap-2">
-                    <label htmlFor="isRuralProperty" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isRuralProperty ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="isRuralProperty" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isRuralProperty ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
                       <input type="checkbox" id="isRuralProperty" name="isRuralProperty" className="sr-only" checked={formData.isRuralProperty} onChange={(e) => handleInputChange('isRuralProperty', e.target.checked)} />
                       Rural Property
                     </label>
-                    <label htmlFor="isNonWarrantableProject" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isNonWarrantableProject ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="isNonWarrantableProject" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isNonWarrantableProject ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
                       <input type="checkbox" id="isNonWarrantableProject" name="isNonWarrantableProject" className="sr-only" checked={formData.isNonWarrantableProject} onChange={(e) => handleInputChange('isNonWarrantableProject', e.target.checked)} />
                       Non-Warrantable
                     </label>
-                    <label htmlFor="isMixedUsePML" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isMixedUsePML ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="isMixedUsePML" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isMixedUsePML ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
                       <input type="checkbox" id="isMixedUsePML" name="isMixedUsePML" className="sr-only" checked={formData.isMixedUsePML} onChange={(e) => handleInputChange('isMixedUsePML', e.target.checked)} />
                       Mixed Use
                     </label>
-                    <label htmlFor="is5PlusUnits" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.is5PlusUnits ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="is5PlusUnits" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.is5PlusUnits ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
                       <input type="checkbox" id="is5PlusUnits" name="is5PlusUnits" className="sr-only" checked={formData.is5PlusUnits} onChange={(e) => handleInputChange('is5PlusUnits', e.target.checked)} />
                       5+ Units
                     </label>
-                    <label htmlFor="isAVMOrCDA" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isAVMOrCDA ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="isAVMOrCDA" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isAVMOrCDA ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
                       <input type="checkbox" id="isAVMOrCDA" name="isAVMOrCDA" className="sr-only" checked={formData.isAVMOrCDA} onChange={(e) => handleInputChange('isAVMOrCDA', e.target.checked)} />
                       AVM or CDA
                     </label>
@@ -1534,26 +1574,26 @@ export default function App() {
 
             {/* ===== BORROWER DETAILS SECTION ===== */}
             <div id="section-borrower">
-              <button type="button" onClick={() => toggleSection('borrower')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[#E5E7EB]">
-                <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Borrower Details</span>
-                <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('borrower') ? 'rotate-180' : ''}`} />
+              <button type="button" onClick={() => toggleSection('borrower')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[rgba(39,39,42,0.15)]">
+                <span className="text-xs font-semibold uppercase tracking-widest text-[#71717A]">Borrower Details</span>
+                <ChevronDown className={`w-4 h-4 text-[#A1A1AA] transition-transform ${!collapsedSections.has('borrower') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('borrower') && (
                 <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-2">
                   <div className="space-y-0.5">
-                    <label htmlFor="creditScore" className={`block text-[10px] font-medium ${hasError('creditScore') ? 'text-red-600' : 'text-[#374151]'}`}>Credit Score *</label>
-                    <Input id="creditScore" name="creditScore" maxLength={3} value={formData.creditScore} onChange={(e) => handleInputChange('creditScore', e.target.value.replace(/\D/g, ''))} className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('creditScore') ? 'border-red-500' : ''}`} />
-                    {hasError('creditScore') && <p className="text-[10px] text-red-600">{validationErrors.creditScore}</p>}
+                    <label htmlFor="creditScore" className={`block text-[10px] font-medium ${hasError('creditScore') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Credit Score *</label>
+                    <Input id="creditScore" name="creditScore" maxLength={3} value={formData.creditScore} onChange={(e) => handleInputChange('creditScore', e.target.value.replace(/\D/g, ''))} className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('creditScore') ? 'border-red-500' : ''}`} />
+                    {hasError('creditScore') && <p className="text-[10px] text-[#EF4444]">{validationErrors.creditScore}</p>}
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="dti" className={`block text-[10px] font-medium ${hasError('dti') ? 'text-red-600' : 'text-[#374151]'}`}>DTI % *</label>
-                    <Input id="dti" name="dti" maxLength={2} value={formData.dti} onChange={(e) => handleInputChange('dti', e.target.value.replace(/\D/g, ''))} className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('dti') ? 'border-red-500' : ''}`} />
-                    {hasError('dti') && <p className="text-[10px] text-red-600">{validationErrors.dti}</p>}
+                    <label htmlFor="dti" className={`block text-[10px] font-medium ${hasError('dti') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>DTI % *</label>
+                    <Input id="dti" name="dti" maxLength={2} value={formData.dti} onChange={(e) => handleInputChange('dti', e.target.value.replace(/\D/g, ''))} className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('dti') ? 'border-red-500' : ''}`} />
+                    {hasError('dti') && <p className="text-[10px] text-[#EF4444]">{validationErrors.dti}</p>}
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="citizenship" className="block text-[10px] font-medium text-[#374151]">Citizenship</label>
+                    <label htmlFor="citizenship" className="block text-[10px] font-medium text-[#000000]">Citizenship</label>
                     <Select name="citizenship" value={formData.citizenship} onValueChange={(v) => handleInputChange('citizenship', v)}>
-                      <SelectTrigger id="citizenship" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="citizenship" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="usCitizen">US Citizen</SelectItem>
                         <SelectItem value="permanentResident">Permanent Resident</SelectItem>
@@ -1564,9 +1604,9 @@ export default function App() {
                     </Select>
                   </div>
                   <div className="space-y-0.5">
-                    <label htmlFor="documentationType" className={`block text-[10px] font-medium ${hasError('documentationType') ? 'text-red-600' : 'text-[#374151]'}`}>Doc Type</label>
+                    <label htmlFor="documentationType" className={`block text-[10px] font-medium ${hasError('documentationType') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Doc Type</label>
                     <Select name="documentationType" value={formData.documentationType} onValueChange={(v) => handleInputChange('documentationType', v)}>
-                      <SelectTrigger id="documentationType" className={`h-8 text-xs border-[#E5E7EB] focus:ring-[#171717] ${hasError('documentationType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="documentationType" className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('documentationType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="fullDoc">Full Document</SelectItem>
                         <SelectItem value="dscr">Debt Service Coverage (DSCR)</SelectItem>
@@ -1579,18 +1619,18 @@ export default function App() {
                         <SelectItem value="noRatio">No Ratio</SelectItem>
                       </SelectContent>
                     </Select>
-                    {hasError('documentationType') && <p className="text-[10px] text-red-600">{validationErrors.documentationType}</p>}
+                    {hasError('documentationType') && <p className="text-[10px] text-[#EF4444]">{validationErrors.documentationType}</p>}
                   </div>
                   <div className="col-span-full flex flex-wrap gap-2">
-                    <label htmlFor="isSelfEmployed" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isSelfEmployed ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="isSelfEmployed" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isSelfEmployed ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
                       <input type="checkbox" id="isSelfEmployed" name="isSelfEmployed" className="sr-only" checked={formData.isSelfEmployed} onChange={(e) => handleInputChange('isSelfEmployed', e.target.checked)} />
                       Self Employed
                     </label>
-                    <label htmlFor="isFTHB" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isFTHB ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="isFTHB" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isFTHB ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
                       <input type="checkbox" id="isFTHB" name="isFTHB" className="sr-only" checked={formData.isFTHB} onChange={(e) => handleInputChange('isFTHB', e.target.checked)} />
                       FTHB
                     </label>
-                    <label htmlFor="hasITIN" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.hasITIN ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                    <label htmlFor="hasITIN" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.hasITIN ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
                       <input type="checkbox" id="hasITIN" name="hasITIN" className="sr-only" checked={formData.hasITIN} onChange={(e) => handleInputChange('hasITIN', e.target.checked)} />
                       Has ITIN
                     </label>
@@ -1602,16 +1642,16 @@ export default function App() {
             {/* ===== INVESTOR DETAILS SECTION (conditional) ===== */}
             {showInvestorDetails && (
               <div id="section-investor">
-                <button type="button" onClick={() => toggleSection('investor')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[#E5E7EB]">
-                  <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Investor Details</span>
-                  <ChevronDown className={`w-4 h-4 text-[#9CA3AF] transition-transform ${!collapsedSections.has('investor') ? 'rotate-180' : ''}`} />
+                <button type="button" onClick={() => toggleSection('investor')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[rgba(39,39,42,0.15)]">
+                  <span className="text-xs font-semibold uppercase tracking-widest text-[#71717A]">Investor Details</span>
+                  <ChevronDown className={`w-4 h-4 text-[#A1A1AA] transition-transform ${!collapsedSections.has('investor') ? 'rotate-180' : ''}`} />
                 </button>
                 {!collapsedSections.has('investor') && (
                   <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-2">
                     <div className="space-y-0.5">
-                      <label htmlFor="prepayPeriod" className="block text-[10px] font-medium text-[#374151]">Prepay Period</label>
+                      <label htmlFor="prepayPeriod" className="block text-[10px] font-medium text-[#000000]">Prepay Period</label>
                       <Select name="prepayPeriod" value={formData.prepayPeriod} onValueChange={(v) => handleInputChange('prepayPeriod', v)}>
-                        <SelectTrigger id="prepayPeriod" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger id="prepayPeriod" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="60mo">60 Months</SelectItem>
                           <SelectItem value="48mo">48 Months</SelectItem>
@@ -1623,9 +1663,9 @@ export default function App() {
                       </Select>
                     </div>
                     <div className="space-y-0.5">
-                      <label htmlFor="prepayType" className="block text-[10px] font-medium text-[#374151]">Prepay Type</label>
+                      <label htmlFor="prepayType" className="block text-[10px] font-medium text-[#000000]">Prepay Type</label>
                       <Select name="prepayType" value={formData.prepayType} onValueChange={(v) => handleInputChange('prepayType', v)}>
-                        <SelectTrigger id="prepayType" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger id="prepayType" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="5pct">5%</SelectItem>
                           <SelectItem value="declining">Declining</SelectItem>
@@ -1636,9 +1676,9 @@ export default function App() {
                     {formData.documentationType === 'dscr' && (
                       <>
                         <div className="space-y-0.5">
-                          <label htmlFor="dscrEntityType" className="block text-[10px] font-medium text-[#374151]">DSCR Entity Type</label>
+                          <label htmlFor="dscrEntityType" className="block text-[10px] font-medium text-[#000000]">DSCR Entity Type</label>
                           <Select name="dscrEntityType" value={formData.dscrEntityType} onValueChange={(v) => handleInputChange('dscrEntityType', v)}>
-                            <SelectTrigger id="dscrEntityType" className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"><SelectValue /></SelectTrigger>
+                            <SelectTrigger id="dscrEntityType" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
                             <SelectContent>
                               <SelectItem value="individual">Individual</SelectItem>
                               <SelectItem value="llc">LLC</SelectItem>
@@ -1648,7 +1688,7 @@ export default function App() {
                           </Select>
                         </div>
                         <div className="space-y-0.5">
-                          <label htmlFor="dscrManualInput" className="block text-[10px] font-medium text-[#374151]">DSCR %</label>
+                          <label htmlFor="dscrManualInput" className="block text-[10px] font-medium text-[#000000]">DSCR %</label>
                           <Input id="dscrManualInput" name="dscrManualInput" type="text" inputMode="decimal" placeholder="1.000" value={formData.dscrManualInput}
                             onChange={(e) => {
                               const val = e.target.value.replace(/[^0-9.]/g, '')
@@ -1660,16 +1700,16 @@ export default function App() {
                               handleInputChange('presentHousingExpense', '5,000')
                             }}
                             icon={<span className="text-xs font-semibold text-gray-500">%</span>}
-                            className="h-8 text-xs border-[#E5E7EB] focus:ring-[#171717]"
+                            className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"
                           />
                         </div>
                         <div className="space-y-0.5">
-                          <label className="block text-[10px] font-medium text-[#374151]">Range</label>
-                          <div className="h-8 px-3 py-1.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-md text-xs font-medium flex items-center justify-between">
-                            <span className={`${calculatedDSCR.ratio >= 1.0 ? 'text-emerald-600' : calculatedDSCR.ratio >= 0.75 ? 'text-yellow-600' : 'text-red-600'}`}>
+                          <label className="block text-[10px] font-medium text-[#000000]">Range</label>
+                          <div className="h-8 px-3 py-1.5 bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded-md text-xs font-medium flex items-center justify-between">
+                            <span className={`${calculatedDSCR.ratio >= 1.0 ? 'text-[#22C55E]' : calculatedDSCR.ratio >= 0.75 ? 'text-[#F59E0B]' : 'text-[#EF4444]'}`}>
                               {calculatedDSCR.display}
                             </span>
-                            <span className="text-[10px] text-[#9CA3AF] ml-2">
+                            <span className="text-[10px] text-[#A1A1AA] ml-2">
                               ({calculatedDSCR.range === '>=1.250' ? '>=1.250' : calculatedDSCR.range === 'noRatio' ? 'No Ratio' : calculatedDSCR.range})
                             </span>
                           </div>
@@ -1677,13 +1717,13 @@ export default function App() {
                       </>
                     )}
                     <div className="col-span-full flex flex-wrap gap-2">
-                      <label htmlFor="isSeasonalProperty" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${(formData.isSeasonalProperty || formData.isShortTermRental) ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                      <label htmlFor="isSeasonalProperty" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${(formData.isSeasonalProperty || formData.isShortTermRental) ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
                         <input type="checkbox" id="isSeasonalProperty" name="isSeasonalProperty" className="sr-only" checked={formData.isSeasonalProperty || formData.isShortTermRental}
                           onChange={(e) => { handleInputChange('isSeasonalProperty', e.target.checked); handleInputChange('isShortTermRental', e.target.checked) }}
                         />
                         Seasonal / STR
                       </label>
-                      <label htmlFor="isCrossCollateralized" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isCrossCollateralized ? 'bg-[#171717] text-white border-[#171717]' : 'bg-transparent text-[#6B7280] border-[#E5E7EB] hover:border-[#171717]'}`}>
+                      <label htmlFor="isCrossCollateralized" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isCrossCollateralized ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
                         <input type="checkbox" id="isCrossCollateralized" name="isCrossCollateralized" className="sr-only" checked={formData.isCrossCollateralized} onChange={(e) => handleInputChange('isCrossCollateralized', e.target.checked)} />
                         Cross-Collateralized
                       </label>
@@ -1695,7 +1735,7 @@ export default function App() {
 
             {/* Error display */}
             {error && (
-              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              <div className="flex items-center gap-2 p-3 bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] rounded-lg text-[#EF4444] text-sm">
                 <AlertCircle className="w-4 h-4 shrink-0" />{error}
               </div>
             )}
@@ -1706,27 +1746,55 @@ export default function App() {
 
           {/* Get Pricing Button */}
           <div className="mt-5 flex justify-center">
-            <button
-              type="submit"
-              form="pricing-form"
-              disabled={isLoading}
-              className="w-full max-w-sm h-11 bg-[#171717] text-white font-semibold rounded-lg hover:bg-[#262626] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
-            >
-              {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" />Fetching Pricing</> : 'Get Pricing'}
-            </button>
+            {isLoading ? (
+              <div className="w-full max-w-sm">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[11px] font-semibold text-[#71717A] uppercase tracking-wider">Processing</span>
+                  <span className="text-[11px] font-bold text-[#000000] tabular-nums">{loadingProgress}%</span>
+                </div>
+                <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(39,39,42,0.1)' }}>
+                  <div
+                    className="h-full rounded-full transition-all duration-700 ease-out"
+                    style={{
+                      width: `${loadingProgress}%`,
+                      background: `linear-gradient(90deg, #D1D5DB ${0}%, #71717A ${50}%, #27272A ${100}%)`,
+                    }}
+                  />
+                </div>
+              </div>
+            ) : (
+              <button
+                type="submit"
+                form="pricing-form"
+                className="w-full max-w-sm h-11 bg-[#000000] text-white font-semibold rounded-lg hover:opacity-85 transition-colors flex items-center justify-center gap-2 text-sm"
+              >
+                Get Pricing
+              </button>
+            )}
           </div>
         </div>
 
         {/* ===== RESULTS SECTION ===== */}
         <div className="mt-6 px-4 lg:px-6 pb-10 max-w-6xl mx-auto">
           <AnimatePresence mode="wait">
-            {/* Loading — flowing grey gradient wave */}
+            {/* Loading — progress bar */}
             {isLoading && !result && (
               <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <div className="relative overflow-hidden rounded-xl border border-[#E5E7EB] bg-white">
-                  <div className="pricing-wave-bg h-40 flex flex-col items-center justify-center gap-3">
-                    <Loader2 className="w-6 h-6 text-[#6B7280] animate-spin" />
-                    <span className="text-sm font-medium text-[#6B7280] tracking-wide">Fetching Pricing</span>
+                <div className="rounded-xl border border-[rgba(39,39,42,0.15)] bg-white p-8 flex flex-col items-center justify-center min-h-[200px]">
+                  <div className="w-full max-w-xs">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[12px] font-semibold text-[#71717A] uppercase tracking-wider">Processing</span>
+                      <span className="text-[12px] font-bold text-[#000000] tabular-nums">{loadingProgress}%</span>
+                    </div>
+                    <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(39,39,42,0.1)' }}>
+                      <div
+                        className="h-full rounded-full transition-all duration-700 ease-out"
+                        style={{
+                          width: `${loadingProgress}%`,
+                          background: `linear-gradient(90deg, #D1D5DB ${0}%, #71717A ${50}%, #27272A ${100}%)`,
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -1735,8 +1803,8 @@ export default function App() {
             {/* Empty state */}
             {!result && !isLoading && (
               <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-[200px]">
-                <BarChart3 className="w-12 h-12 text-[#6B7280]/30 mb-4" />
-                <p className="text-sm text-[#6B7280]">Enter loan details and click Get Pricing</p>
+                <BarChart3 className="w-12 h-12 text-[#71717A]/30 mb-4" />
+                <p className="text-sm text-[#71717A]">Enter loan details and click Get Pricing</p>
               </motion.div>
             )}
 
@@ -1747,21 +1815,21 @@ export default function App() {
                 {/* mlMessage / Out of scope state */}
                 {(result as any).mlMessage && (!Array.isArray(result.programs) || result.programs.length === 0) ? (
                   formData.isCrossCollateralized ? (
-                    <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
+                    <div className="bg-white border border-[rgba(39,39,42,0.15)] rounded-xl p-5">
                       <div className="flex items-center gap-3 mb-3">
-                        <div className="w-9 h-9 rounded-lg bg-cyan-50 flex items-center justify-center">
-                          <Zap className="w-5 h-5 text-cyan-500" />
+                        <div className="w-9 h-9 rounded-[10px] bg-[#FAFAFA] flex items-center justify-center">
+                          <Zap className="w-5 h-5 text-[#000000]" />
                         </div>
-                        <div className="text-sm font-semibold text-[#171717]">Pass to National Rate Card</div>
+                        <div className="text-sm font-semibold text-[#000000]">Pass to National Rate Card</div>
                       </div>
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-[#22C55E] bg-[rgba(34,197,94,0.08)] border border-[rgba(34,197,94,0.2)] px-2.5 py-0.5 rounded-full">
                           <ShieldCheck className="w-3 h-3" />Verified
                         </span>
-                        <span className="text-xs text-[#6B7280]">Cross-Collateralized</span>
+                        <span className="text-xs text-[#71717A]">Cross-Collateralized</span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-[#6B7280]">
-                        <Globe className="w-3.5 h-3.5 text-[#9CA3AF]" />
+                      <div className="flex items-center gap-2 text-xs text-[#71717A]">
+                        <Globe className="w-3.5 h-3.5 text-[#A1A1AA]" />
                         <span>We just checked all of the Industry Leading Pricing Engines for you.</span>
                       </div>
                     </div>
@@ -1770,10 +1838,10 @@ export default function App() {
                       <div className="flex items-start gap-3">
                         <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                         <div>
-                          <div className="text-sm font-bold text-[#171717] mb-1">Scenario Out of Scope</div>
-                          <p className="text-xs text-[#6B7280] leading-relaxed">
+                          <div className="text-sm font-bold text-[#000000] mb-1">Scenario Out of Scope</div>
+                          <p className="text-xs text-[#71717A] leading-relaxed">
                             Please check your input fields and try again. If you continue to receive this message then your details just missed our static Rate Sheet. Please fire a Scenario Details Email over to{' '}
-                            <a href="mailto:defylocks@qualr.com" className="text-[#171717] font-semibold hover:underline">defylocks@qualr.com</a>{' '}
+                            <a href="mailto:defylocks@qualr.com" className="text-[#000000] font-semibold hover:underline">defylocks@qualr.com</a>{' '}
                             for a Fast Custom Quote.
                           </p>
                         </div>
@@ -1783,61 +1851,61 @@ export default function App() {
                 ) : (
                   <>
                     {/* ===== HERO PRICING CARD ===== */}
-                    <div className="bg-white border border-[#E5E7EB] rounded-xl p-6">
+                    <div className="bg-white border border-[rgba(39,39,42,0.15)] rounded-xl p-6">
                       <div className="flex items-center justify-between mb-4">
-                        <span className="text-xs font-semibold uppercase tracking-widest text-[#6B7280]">Best Available Rate</span>
-                        <span className="bg-emerald-50 text-[#10B981] border border-emerald-200 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />Live
+                        <span className="text-xs font-semibold uppercase tracking-widest text-[#71717A]">Best Available Rate</span>
+                        <span className="bg-[rgba(34,197,94,0.08)] text-[#22C55E] border border-[rgba(34,197,94,0.2)] text-xs font-medium px-2.5 py-0.5 rounded-[4px] flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />Live
                         </span>
                       </div>
-                      <div className="text-5xl font-bold text-[#171717] tabular-nums mb-1">
+                      <div className="text-5xl font-bold text-[#000000] tabular-nums mb-1">
                         {targetPricing ? formatPercent(targetPricing.rate) : formatPercent(safeNumber(result.rate))}
                       </div>
-                      <div className="text-[11px] font-medium text-[#9CA3AF] uppercase tracking-widest mb-5">Interest Rate</div>
+                      <div className="text-[11px] font-medium text-[#A1A1AA] uppercase tracking-widest mb-5">Interest Rate</div>
                       {result.apiError && (
-                        <div className="inline-flex items-center gap-1 text-[11px] font-medium text-red-500 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full mb-3">
+                        <div className="inline-flex items-center gap-1 text-[11px] font-medium text-[#EF4444] bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] px-2 py-0.5 rounded-[4px] mb-3">
                           <AlertCircle className="w-3 h-3" />Error
                         </div>
                       )}
-                      <div className="grid grid-cols-5 gap-0 border-t border-[#E5E7EB] pt-4">
+                      <div className="grid grid-cols-5 gap-0 border-t border-[rgba(39,39,42,0.15)] pt-4">
                         <div>
-                          <div className="text-base font-semibold text-[#171717] tabular-nums">{targetPricing ? targetPricing.price.toFixed(3) : '100.000'}</div>
-                          <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mt-0.5">Price</div>
+                          <div className="text-base font-semibold text-[#000000] tabular-nums">{targetPricing ? targetPricing.price.toFixed(3) : '100.000'}</div>
+                          <div className="text-[10px] text-[#A1A1AA] uppercase tracking-wider mt-0.5">Price</div>
                         </div>
-                        <div className="border-l border-[#E5E7EB] pl-3">
-                          <div className="text-base font-semibold text-[#171717] tabular-nums">{targetPricing ? formatPercent(targetPricing.apr) : formatPercent(safeNumber(result.apr))}</div>
-                          <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mt-0.5">APR</div>
+                        <div className="border-l border-[rgba(39,39,42,0.15)] pl-3">
+                          <div className="text-base font-semibold text-[#000000] tabular-nums">{targetPricing ? formatPercent(targetPricing.apr) : formatPercent(safeNumber(result.apr))}</div>
+                          <div className="text-[10px] text-[#A1A1AA] uppercase tracking-wider mt-0.5">APR</div>
                         </div>
-                        <div className="border-l border-[#E5E7EB] pl-3">
-                          <div className="text-base font-semibold text-[#171717] tabular-nums">{targetPricing && targetPricing.payment > 0 ? formatCurrency(targetPricing.payment) : formatCurrency(safeNumber(result.monthlyPayment))}</div>
-                          <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mt-0.5">Payment</div>
+                        <div className="border-l border-[rgba(39,39,42,0.15)] pl-3">
+                          <div className="text-base font-semibold text-[#000000] tabular-nums">{targetPricing && targetPricing.payment > 0 ? formatCurrency(targetPricing.payment) : formatCurrency(safeNumber(result.monthlyPayment))}</div>
+                          <div className="text-[10px] text-[#A1A1AA] uppercase tracking-wider mt-0.5">Payment</div>
                         </div>
-                        <div className="border-l border-[#E5E7EB] pl-3">
-                          <div className="text-base font-semibold text-[#171717] tabular-nums">{targetPricing ? targetPricing.points.toFixed(3) : safeNumber(result.points).toFixed(3)}</div>
-                          <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mt-0.5">Points</div>
+                        <div className="border-l border-[rgba(39,39,42,0.15)] pl-3">
+                          <div className="text-base font-semibold text-[#000000] tabular-nums">{targetPricing ? targetPricing.points.toFixed(3) : safeNumber(result.points).toFixed(3)}</div>
+                          <div className="text-[10px] text-[#A1A1AA] uppercase tracking-wider mt-0.5">Points</div>
                         </div>
-                        <div className="border-l border-[#E5E7EB] pl-3">
-                          <div className="text-base font-semibold text-[#171717] tabular-nums">{safeNumber(result.ltvRatio).toFixed(1)}%</div>
-                          <div className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mt-0.5">LTV</div>
+                        <div className="border-l border-[rgba(39,39,42,0.15)] pl-3">
+                          <div className="text-base font-semibold text-[#000000] tabular-nums">{safeNumber(result.ltvRatio).toFixed(1)}%</div>
+                          <div className="text-[10px] text-[#A1A1AA] uppercase tracking-wider mt-0.5">LTV</div>
                         </div>
                       </div>
                     </div>
 
                     {/* ===== ADJUSTMENTS CARD ===== */}
                     {targetPricing && targetPricing.adjustments && targetPricing.adjustments.length > 0 && (
-                      <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
-                        <div className="text-xs font-semibold uppercase tracking-widest text-[#6B7280] mb-3">Adjustments</div>
+                      <div className="bg-white border border-[rgba(39,39,42,0.15)] rounded-xl p-5">
+                        <div className="text-xs font-semibold uppercase tracking-widest text-[#71717A] mb-3">Adjustments</div>
                         <div className="space-y-1">
                           {targetPricing.adjustments.map((adj, idx) => {
                             const rateDisplay = adj.rateAdj !== undefined ? adj.rateAdj : (adj.percentage !== undefined ? adj.percentage : 0)
                             const priceDisplay = adj.amount || 0
                             return (
-                              <div key={idx} className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-[#F9FAFB] transition-colors">
+                              <div key={idx} className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-[#FAFAFA] transition-colors">
                                 <div className="flex items-center gap-3 min-w-0 flex-1">
-                                  <span className="text-xs text-[#9CA3AF] tabular-nums w-14 shrink-0">{rateDisplay.toFixed(3)}%</span>
-                                  <span className="text-xs text-[#374151] truncate">{adj.description}</span>
+                                  <span className="text-xs text-[#A1A1AA] tabular-nums w-14 shrink-0">{rateDisplay.toFixed(3)}%</span>
+                                  <span className="text-xs text-[#000000] truncate">{adj.description}</span>
                                 </div>
-                                <span className={`text-xs font-semibold tabular-nums ml-3 ${priceDisplay > 0 ? 'text-emerald-600' : priceDisplay < 0 ? 'text-red-500' : 'text-[#9CA3AF]'}`}>
+                                <span className={`text-xs font-semibold tabular-nums ml-3 ${priceDisplay > 0 ? 'text-[#22C55E]' : priceDisplay < 0 ? 'text-[#EF4444]' : 'text-[#A1A1AA]'}`}>
                                   {priceDisplay > 0 ? '+' : ''}{priceDisplay.toFixed(3)}
                                 </span>
                               </div>
@@ -1849,16 +1917,16 @@ export default function App() {
 
                     {/* ===== EMAIL FORM ===== */}
                     {showEmailForm && (
-                      <div className="bg-white border border-[#E5E7EB] rounded-xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                      <div className="bg-white border border-[rgba(39,39,42,0.15)] rounded-xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <Mail className="w-4 h-4 text-[#9CA3AF] shrink-0" />
+                          <Mail className="w-4 h-4 text-[#A1A1AA] shrink-0" />
                           <input
                             type="email"
                             placeholder="Enter email address"
                             value={emailTo}
                             onChange={(e) => setEmailTo(e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSendEmail() } }}
-                            className="flex-1 min-w-0 text-sm bg-transparent outline-none placeholder:text-[#D1D5DB] text-[#374151]"
+                            className="flex-1 min-w-0 text-sm bg-transparent outline-none placeholder:text-[#D1D5DB] text-[#000000]"
                             autoFocus
                           />
                         </div>
@@ -1867,16 +1935,16 @@ export default function App() {
                             type="button"
                             onClick={handleSendEmail}
                             disabled={emailSending || !emailTo}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold text-white bg-[#171717] rounded-lg hover:bg-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold text-white bg-[#000000] rounded-lg hover:opacity-85 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                           >
                             {emailSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : emailStatus === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
                             {emailSending ? 'Sending...' : emailStatus === 'success' ? 'Sent!' : 'Send'}
                           </button>
-                          <button type="button" onClick={() => { setShowEmailForm(false); setEmailStatus('idle') }} className="p-2 text-[#9CA3AF] hover:text-[#374151] transition-colors">
+                          <button type="button" onClick={() => { setShowEmailForm(false); setEmailStatus('idle') }} className="p-2 text-[#A1A1AA] hover:text-[#000000] transition-colors">
                             <X className="w-4 h-4" />
                           </button>
                         </div>
-                        {emailStatus === 'error' && <p className="text-xs text-red-500 sm:ml-6">Failed to send. Please try again.</p>}
+                        {emailStatus === 'error' && <p className="text-xs text-[#EF4444] sm:ml-6">Failed to send. Please try again.</p>}
                       </div>
                     )}
 
@@ -1884,8 +1952,8 @@ export default function App() {
                     {Array.isArray(result.programs) && result.programs.length > 0 ? (
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-sm font-semibold text-[#171717]">Available Programs</h3>
-                          <span className="text-[11px] font-medium text-[#6B7280] bg-[#F3F4F6] px-2 py-0.5 rounded-full">
+                          <h3 className="text-sm font-semibold text-[#000000]">Available Programs</h3>
+                          <span className="text-[11px] font-medium text-[#71717A] bg-[#F3F4F6] px-2 py-0.5 rounded-full">
                             {result.programs.filter(p => p && Array.isArray(p.rateOptions) && filterRateOptionsByPrice(p.rateOptions).length > 0).length} found
                           </span>
                         </div>
@@ -1906,30 +1974,30 @@ export default function App() {
                           const isSelectedPrepay = formData.occupancyType === 'investment' && programMatchesPrepay(programName, formData.prepayPeriod)
 
                           return (
-                            <div key={idx} className={`rounded-xl overflow-hidden border transition-all bg-white ${isSelectedPrepay ? 'border-[#171717] shadow-sm' : isExpanded ? 'border-[#D1D5DB] shadow-sm' : 'border-[#E5E7EB]'}`}>
+                            <div key={idx} className={`rounded-xl overflow-hidden border transition-all bg-white ${isSelectedPrepay ? 'border-[#000000] shadow-[0_1px_3px_rgba(0,0,0,0.04)]' : isExpanded ? 'border-[#D1D5DB] shadow-[0_1px_3px_rgba(0,0,0,0.04)]' : 'border-[rgba(39,39,42,0.15)]'}`}>
                               <div className="px-4 py-3">
                                 <div className="flex items-center justify-between mb-2.5">
                                   <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-2">
-                                      <div className="font-semibold text-[13px] text-[#171717] truncate">{programName}</div>
+                                      <div className="font-semibold text-[13px] text-[#000000] truncate">{programName}</div>
                                       {isSelectedPrepay && (
-                                        <span className="shrink-0 text-[9px] font-bold text-[#171717] bg-[#F3F4F6] px-1.5 py-0.5 rounded uppercase tracking-wider">Selected Prepay</span>
+                                        <span className="shrink-0 text-[9px] font-bold text-[#000000] bg-[#F3F4F6] px-1.5 py-0.5 rounded uppercase tracking-wider">Selected Prepay</span>
                                       )}
                                     </div>
-                                    <div className="text-[11px] text-[#9CA3AF] mt-0.5">{filteredRateOptions.length} rate option{filteredRateOptions.length !== 1 ? 's' : ''}</div>
+                                    <div className="text-[11px] text-[#A1A1AA] mt-0.5">{filteredRateOptions.length} rate option{filteredRateOptions.length !== 1 ? 's' : ''}</div>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <button
                                       type="button"
                                       onClick={(e) => { e.stopPropagation(); setShowEmailForm(!showEmailForm) }}
-                                      className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-[#374151] bg-white border border-[#E5E7EB] rounded-lg hover:bg-[#F9FAFB] transition-all"
+                                      className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-[#000000] bg-white border border-[rgba(39,39,42,0.15)] rounded-lg hover:bg-[#FAFAFA] transition-all"
                                     >
                                       <Mail className="w-3 h-3" />Email Results
                                     </button>
                                     <button
                                       type="button"
                                       onClick={() => setExpandedProgram(isExpanded ? null : programName)}
-                                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all ${isExpanded ? 'text-[#171717] bg-[#F3F4F6] border border-[#D1D5DB]' : 'text-[#6B7280] bg-[#F9FAFB] border border-[#E5E7EB] hover:bg-[#F3F4F6]'}`}
+                                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all ${isExpanded ? 'text-[#000000] bg-[#F3F4F6] border border-[#D1D5DB]' : 'text-[#71717A] bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] hover:bg-[#F3F4F6]'}`}
                                     >
                                       MORE PRICING
                                       {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -1938,32 +2006,32 @@ export default function App() {
                                 </div>
                                 <div className="grid grid-cols-4 gap-2">
                                   <div>
-                                    <div className="text-lg font-bold text-[#171717] tabular-nums">{bestRate ? safeNumber(bestRate.rate).toFixed(3) : '-'}%</div>
-                                    <div className="text-[10px] font-medium text-[#9CA3AF] uppercase tracking-wider">Rate</div>
+                                    <div className="text-lg font-bold text-[#000000] tabular-nums">{bestRate ? safeNumber(bestRate.rate).toFixed(3) : '-'}%</div>
+                                    <div className="text-[10px] font-medium text-[#A1A1AA] uppercase tracking-wider">Rate</div>
                                   </div>
                                   <div>
-                                    <div className="text-lg font-bold text-[#374151] tabular-nums">{bestRate ? (100 - safeNumber(bestRate.points)).toFixed(3) : '-'}</div>
-                                    <div className="text-[10px] font-medium text-[#9CA3AF] uppercase tracking-wider">Price</div>
+                                    <div className="text-lg font-bold text-[#000000] tabular-nums">{bestRate ? (100 - safeNumber(bestRate.points)).toFixed(3) : '-'}</div>
+                                    <div className="text-[10px] font-medium text-[#A1A1AA] uppercase tracking-wider">Price</div>
                                   </div>
                                   <div>
-                                    <div className="text-lg font-bold text-[#374151] tabular-nums">{bestRate ? safeNumber(bestRate.apr).toFixed(3) : '-'}%</div>
-                                    <div className="text-[10px] font-medium text-[#9CA3AF] uppercase tracking-wider">APR</div>
+                                    <div className="text-lg font-bold text-[#000000] tabular-nums">{bestRate ? safeNumber(bestRate.apr).toFixed(3) : '-'}%</div>
+                                    <div className="text-[10px] font-medium text-[#A1A1AA] uppercase tracking-wider">APR</div>
                                   </div>
                                   <div>
-                                    <div className="text-lg font-bold text-[#374151] tabular-nums">{bestPayment > 0 ? formatCurrency(bestPayment) : '-'}</div>
-                                    <div className="text-[10px] font-medium text-[#9CA3AF] uppercase tracking-wider">Payment</div>
+                                    <div className="text-lg font-bold text-[#000000] tabular-nums">{bestPayment > 0 ? formatCurrency(bestPayment) : '-'}</div>
+                                    <div className="text-[10px] font-medium text-[#A1A1AA] uppercase tracking-wider">Payment</div>
                                   </div>
                                 </div>
                               </div>
 
                               {/* Expanded Rate Options */}
                               {isExpanded && filteredRateOptions.length > 0 && (
-                                <div className="border-t border-[#E5E7EB]">
+                                <div className="border-t border-[rgba(39,39,42,0.15)]">
                                   {/* Desktop table */}
                                   <div className="hidden sm:block px-4 py-2 overflow-x-auto">
                                     <table className="w-full text-xs">
                                       <thead>
-                                        <tr className="text-[#9CA3AF] border-b border-[#E5E7EB] text-[10px] uppercase tracking-wider">
+                                        <tr className="text-[#A1A1AA] border-b border-[rgba(39,39,42,0.15)] text-[10px] uppercase tracking-wider">
                                           <th className="text-left py-2 pr-2 font-medium">Actions</th>
                                           <th className="text-left py-2 pr-2 font-medium">Program/PPP</th>
                                           <th className="text-right py-2 px-2 font-medium">Rate</th>
@@ -1986,7 +2054,7 @@ export default function App() {
                                           const totalAdjustment = adjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0)
                                           const isActiveRow = activeRowAction?.programName === programName && activeRowAction?.optIdx === optIdx
                                           return (
-                                            <tr key={optIdx} className={`border-t border-[#E5E7EB] ${isClosestTo100 ? 'bg-[#F9FAFB]' : ''} ${isActiveRow ? 'bg-yellow-50/50' : ''}`}>
+                                            <tr key={optIdx} className={`border-t border-[rgba(39,39,42,0.15)] ${isClosestTo100 ? 'bg-[#FAFAFA]' : ''} ${isActiveRow ? 'bg-yellow-50/50' : ''}`}>
                                               <td className="py-2 pr-2 text-left">
                                                 <div className="relative">
                                                   <button
@@ -1996,12 +2064,12 @@ export default function App() {
                                                       const key = `${programName}-${optIdx}`
                                                       setOpenActionDropdown(openActionDropdown === key ? null : key)
                                                     }}
-                                                    className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-white bg-[#171717] rounded hover:bg-[#262626] transition-colors whitespace-nowrap"
+                                                    className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-white bg-[#000000] rounded hover:opacity-85 transition-colors whitespace-nowrap"
                                                   >
                                                     Actions <ChevronDown className={`w-3 h-3 transition-transform ${openActionDropdown === `${programName}-${optIdx}` ? 'rotate-180' : ''}`} />
                                                   </button>
                                                   {openActionDropdown === `${programName}-${optIdx}` && (
-                                                    <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-lg shadow-lg border border-[#E5E7EB] py-1 min-w-[180px]">
+                                                    <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-[rgba(39,39,42,0.15)] py-1 min-w-[180px]">
                                                       <button
                                                         type="button"
                                                         onClick={(e) => {
@@ -2015,7 +2083,7 @@ export default function App() {
                                                           setRowStatus('idle')
                                                           setOpenActionDropdown(null)
                                                         }}
-                                                        className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#171717] hover:bg-[#F9FAFB] transition-colors"
+                                                        className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#000000] hover:bg-[#FAFAFA] transition-colors"
                                                       >
                                                         Reserve Pricing
                                                       </button>
@@ -2033,7 +2101,7 @@ export default function App() {
                                                             setRowStatus('idle')
                                                             setOpenActionDropdown(null)
                                                           }}
-                                                          className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#374151] hover:bg-[#F9FAFB] transition-colors"
+                                                          className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#000000] hover:bg-[#FAFAFA] transition-colors"
                                                         >
                                                           Request Lock
                                                         </button>
@@ -2044,7 +2112,7 @@ export default function App() {
                                                           target="_blank"
                                                           rel="noopener noreferrer"
                                                           onClick={(e) => { e.stopPropagation(); setOpenActionDropdown(null) }}
-                                                          className="block w-full text-left px-3 py-2 text-[11px] font-semibold text-[#6B7280] hover:bg-[#F9FAFB] transition-colors no-underline"
+                                                          className="block w-full text-left px-3 py-2 text-[11px] font-semibold text-[#71717A] hover:bg-[#FAFAFA] transition-colors no-underline"
                                                         >
                                                           Select Rate + Submit File
                                                         </a>
@@ -2053,15 +2121,15 @@ export default function App() {
                                                   )}
                                                 </div>
                                               </td>
-                                              <td className="py-2 pr-2 text-left"><div className="max-w-[220px] truncate font-medium text-[#374151]" title={opt.description || ''}>{opt.description || programName}</div></td>
-                                              <td className="py-2 px-2 text-right font-semibold text-[#171717] tabular-nums">{safeNumber(opt.rate).toFixed(3)}%</td>
-                                              <td className={`py-2 px-2 text-right tabular-nums ${price >= 100 ? 'text-emerald-600 font-medium' : 'text-[#374151]'}`}>{price.toFixed(3)}</td>
-                                              <td className={`py-2 px-2 text-right tabular-nums ${points < 0 ? 'text-emerald-600' : 'text-[#6B7280]'}`}>{pointsDisplay}</td>
-                                              <td className="py-2 px-2 text-right tabular-nums text-[#374151]">{safeNumber(opt.apr).toFixed(3)}%</td>
-                                              <td className="py-2 px-2 text-right font-medium tabular-nums text-[#374151]">{payment > 0 ? formatCurrency(payment) : '-'}</td>
+                                              <td className="py-2 pr-2 text-left"><div className="max-w-[220px] truncate font-medium text-[#000000]" title={opt.description || ''}>{opt.description || programName}</div></td>
+                                              <td className="py-2 px-2 text-right font-semibold text-[#000000] tabular-nums">{safeNumber(opt.rate).toFixed(3)}%</td>
+                                              <td className={`py-2 px-2 text-right tabular-nums ${price >= 100 ? 'text-[#22C55E] font-medium' : 'text-[#000000]'}`}>{price.toFixed(3)}</td>
+                                              <td className={`py-2 px-2 text-right tabular-nums ${points < 0 ? 'text-[#22C55E]' : 'text-[#71717A]'}`}>{pointsDisplay}</td>
+                                              <td className="py-2 px-2 text-right tabular-nums text-[#000000]">{safeNumber(opt.apr).toFixed(3)}%</td>
+                                              <td className="py-2 px-2 text-right font-medium tabular-nums text-[#000000]">{payment > 0 ? formatCurrency(payment) : '-'}</td>
                                               <td className="py-2 pl-2 text-right tabular-nums">
                                                 {adjustments.length > 0 ? (
-                                                  <span className={totalAdjustment >= 0 ? 'text-emerald-600' : 'text-red-500'}>
+                                                  <span className={totalAdjustment >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}>
                                                     {totalAdjustment >= 0 ? '+' : ''}{totalAdjustment.toFixed(3)}
                                                   </span>
                                                 ) : '-'}
@@ -2075,56 +2143,56 @@ export default function App() {
 
                                   {/* Per-row action form */}
                                   {activeRowAction && activeRowAction.programName === programName && (
-                                    <div className="mx-4 mb-3 mt-1 border border-[#E5E7EB] rounded-xl p-4 bg-white shadow-sm">
+                                    <div className="mx-4 mb-3 mt-1 border border-[rgba(39,39,42,0.15)] rounded-xl p-4 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
                                       <div className="flex items-center justify-between mb-3">
                                         <div>
-                                          <div className="text-sm font-bold text-[#171717]">
+                                          <div className="text-sm font-bold text-[#000000]">
                                             {activeRowAction.type === 'reserve' ? 'Reserve Rate & Pricing' : 'Request Rate Lock'}
                                           </div>
-                                          <div className="text-[11px] text-[#6B7280] mt-0.5">
+                                          <div className="text-[11px] text-[#71717A] mt-0.5">
                                             {formatPercent(activeRowAction.rate)} @ {activeRowAction.price.toFixed(3)} &mdash; {activeRowAction.description}
                                           </div>
                                         </div>
-                                        <button type="button" onClick={() => { setActiveRowAction(null); setRowStatus('idle') }} className="p-1 text-[#9CA3AF] hover:text-[#374151] transition-colors">
+                                        <button type="button" onClick={() => { setActiveRowAction(null); setRowStatus('idle') }} className="p-1 text-[#A1A1AA] hover:text-[#000000] transition-colors">
                                           <X className="w-4 h-4" />
                                         </button>
                                       </div>
 
                                       {activeRowAction.type === 'reserve' ? (
                                         <div className="space-y-3">
-                                          <p className="text-xs text-[#6B7280] leading-relaxed max-w-md">
+                                          <p className="text-xs text-[#71717A] leading-relaxed max-w-md">
                                             Confirm you would like to reserve this Rate &amp; Pricing. This quote expires after 48 hours unless a full file is submitted.
                                           </p>
                                           <label className="flex items-start gap-2 cursor-pointer">
-                                            <input type="checkbox" checked={rowReserveFields.confirmed} onChange={(e) => setRowReserveFields(prev => ({ ...prev, confirmed: e.target.checked }))} className="mt-0.5 w-4 h-4 rounded border-[#D1D5DB] text-[#171717] focus:ring-[#171717]" />
-                                            <span className="text-xs text-[#374151] leading-relaxed">I confirm and understand the 48-hour expiration policy</span>
+                                            <input type="checkbox" checked={rowReserveFields.confirmed} onChange={(e) => setRowReserveFields(prev => ({ ...prev, confirmed: e.target.checked }))} className="mt-0.5 w-4 h-4 rounded border-[#D1D5DB] text-[#000000] focus:ring-[#000000]" />
+                                            <span className="text-xs text-[#000000] leading-relaxed">I confirm and understand the 48-hour expiration policy</span>
                                           </label>
                                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                            <input type="text" placeholder="Your Name *" value={rowReserveFields.name} onChange={(e) => setRowReserveFields(prev => ({ ...prev, name: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
-                                            <input type="email" placeholder="Email *" value={rowReserveFields.email} onChange={(e) => setRowReserveFields(prev => ({ ...prev, email: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
-                                            <input type="text" placeholder="Scenario Name" value={rowReserveFields.scenarioName} onChange={(e) => setRowReserveFields(prev => ({ ...prev, scenarioName: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
+                                            <input type="text" placeholder="Your Name *" value={rowReserveFields.name} onChange={(e) => setRowReserveFields(prev => ({ ...prev, name: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[rgba(39,39,42,0.15)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
+                                            <input type="email" placeholder="Email *" value={rowReserveFields.email} onChange={(e) => setRowReserveFields(prev => ({ ...prev, email: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[rgba(39,39,42,0.15)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
+                                            <input type="text" placeholder="Scenario Name" value={rowReserveFields.scenarioName} onChange={(e) => setRowReserveFields(prev => ({ ...prev, scenarioName: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[rgba(39,39,42,0.15)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
                                           </div>
                                           <div className="flex items-center gap-3">
-                                            <button type="button" onClick={handleRowReserve} disabled={rowSending || !rowReserveFields.confirmed || !rowReserveFields.name || !rowReserveFields.email} className="inline-flex items-center gap-1.5 px-5 py-2 text-[13px] font-semibold text-white bg-[#171717] rounded-lg hover:bg-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                            <button type="button" onClick={handleRowReserve} disabled={rowSending || !rowReserveFields.confirmed || !rowReserveFields.name || !rowReserveFields.email} className="inline-flex items-center gap-1.5 px-5 py-2 text-[13px] font-semibold text-white bg-[#000000] rounded-lg hover:opacity-85 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                                               {rowSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : rowStatus === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
                                               {rowSending ? 'Sending...' : rowStatus === 'success' ? 'Sent!' : 'Send Reservation'}
                                             </button>
-                                            {rowStatus === 'error' && <p className="text-xs text-red-500">Failed to send. Please try again.</p>}
+                                            {rowStatus === 'error' && <p className="text-xs text-[#EF4444]">Failed to send. Please try again.</p>}
                                           </div>
                                         </div>
                                       ) : (
                                         <div className="space-y-3">
                                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                            <input type="text" placeholder="Your Name *" value={rowLockFields.name} onChange={(e) => setRowLockFields(prev => ({ ...prev, name: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
-                                            <input type="email" placeholder="Email *" value={rowLockFields.email} onChange={(e) => setRowLockFields(prev => ({ ...prev, email: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
-                                            <input type="text" placeholder="DEFY Loan Number *" value={rowLockFields.loanNumber} onChange={(e) => setRowLockFields(prev => ({ ...prev, loanNumber: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
+                                            <input type="text" placeholder="Your Name *" value={rowLockFields.name} onChange={(e) => setRowLockFields(prev => ({ ...prev, name: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[rgba(39,39,42,0.15)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
+                                            <input type="email" placeholder="Email *" value={rowLockFields.email} onChange={(e) => setRowLockFields(prev => ({ ...prev, email: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[rgba(39,39,42,0.15)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
+                                            <input type="text" placeholder="DEFY Loan Number *" value={rowLockFields.loanNumber} onChange={(e) => setRowLockFields(prev => ({ ...prev, loanNumber: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[rgba(39,39,42,0.15)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
                                           </div>
                                           <div className="flex items-center gap-3">
-                                            <button type="button" onClick={handleRowLock} disabled={rowSending || !rowLockFields.name || !rowLockFields.email || !rowLockFields.loanNumber} className="inline-flex items-center gap-1.5 px-5 py-2 text-[13px] font-semibold text-white bg-[#171717] rounded-lg hover:bg-[#262626] disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                            <button type="button" onClick={handleRowLock} disabled={rowSending || !rowLockFields.name || !rowLockFields.email || !rowLockFields.loanNumber} className="inline-flex items-center gap-1.5 px-5 py-2 text-[13px] font-semibold text-white bg-[#000000] rounded-lg hover:opacity-85 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                                               {rowSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : rowStatus === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
                                               {rowSending ? 'Sending...' : rowStatus === 'success' ? 'Sent!' : 'Send Lock Request'}
                                             </button>
-                                            {rowStatus === 'error' && <p className="text-xs text-red-500">Failed to send. Please try again.</p>}
+                                            {rowStatus === 'error' && <p className="text-xs text-[#EF4444]">Failed to send. Please try again.</p>}
                                           </div>
                                         </div>
                                       )}
@@ -2132,7 +2200,7 @@ export default function App() {
                                   )}
 
                                   {/* Mobile stacked cards */}
-                                  <div className="sm:hidden divide-y divide-[#E5E7EB]">
+                                  <div className="sm:hidden divide-y divide-[rgba(39,39,42,0.15)]">
                                     {filteredRateOptions.map((opt, optIdx) => {
                                       if (!opt || typeof opt !== 'object') return null
                                       const points = safeNumber(opt.points)
@@ -2140,24 +2208,24 @@ export default function App() {
                                       const isClosestTo100 = bestRate === opt
                                       const payment = safeNumber(opt.payment)
                                       return (
-                                        <div key={optIdx} className={`px-4 py-3 ${isClosestTo100 ? 'bg-[#F9FAFB]' : ''}`}>
-                                          <div className="text-[12px] font-medium text-[#374151] truncate mb-2">{opt.description || programName}</div>
+                                        <div key={optIdx} className={`px-4 py-3 ${isClosestTo100 ? 'bg-[#FAFAFA]' : ''}`}>
+                                          <div className="text-[12px] font-medium text-[#000000] truncate mb-2">{opt.description || programName}</div>
                                           <div className="grid grid-cols-4 gap-2 text-center">
                                             <div>
-                                              <div className="text-[13px] font-bold text-[#171717] tabular-nums">{safeNumber(opt.rate).toFixed(3)}%</div>
-                                              <div className="text-[9px] text-[#9CA3AF] uppercase">Rate</div>
+                                              <div className="text-[13px] font-bold text-[#000000] tabular-nums">{safeNumber(opt.rate).toFixed(3)}%</div>
+                                              <div className="text-[9px] text-[#A1A1AA] uppercase">Rate</div>
                                             </div>
                                             <div>
-                                              <div className={`text-[13px] font-bold tabular-nums ${price >= 100 ? 'text-emerald-600' : 'text-[#374151]'}`}>{price.toFixed(3)}</div>
-                                              <div className="text-[9px] text-[#9CA3AF] uppercase">Price</div>
+                                              <div className={`text-[13px] font-bold tabular-nums ${price >= 100 ? 'text-[#22C55E]' : 'text-[#000000]'}`}>{price.toFixed(3)}</div>
+                                              <div className="text-[9px] text-[#A1A1AA] uppercase">Price</div>
                                             </div>
                                             <div>
-                                              <div className="text-[13px] font-bold text-[#374151] tabular-nums">{safeNumber(opt.apr).toFixed(3)}%</div>
-                                              <div className="text-[9px] text-[#9CA3AF] uppercase">APR</div>
+                                              <div className="text-[13px] font-bold text-[#000000] tabular-nums">{safeNumber(opt.apr).toFixed(3)}%</div>
+                                              <div className="text-[9px] text-[#A1A1AA] uppercase">APR</div>
                                             </div>
                                             <div>
-                                              <div className="text-[13px] font-bold text-[#374151] tabular-nums">{payment > 0 ? formatCurrency(payment) : '-'}</div>
-                                              <div className="text-[9px] text-[#9CA3AF] uppercase">Pmt</div>
+                                              <div className="text-[13px] font-bold text-[#000000] tabular-nums">{payment > 0 ? formatCurrency(payment) : '-'}</div>
+                                              <div className="text-[9px] text-[#A1A1AA] uppercase">Pmt</div>
                                             </div>
                                           </div>
                                           <div className="relative mt-2">
@@ -2167,12 +2235,12 @@ export default function App() {
                                                 const key = `m-${programName}-${optIdx}`
                                                 setOpenActionDropdown(openActionDropdown === key ? null : key)
                                               }}
-                                              className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-white bg-[#171717] rounded hover:bg-[#262626] transition-colors"
+                                              className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-white bg-[#000000] rounded hover:opacity-85 transition-colors"
                                             >
                                               Actions <ChevronDown className={`w-3 h-3 transition-transform ${openActionDropdown === `m-${programName}-${optIdx}` ? 'rotate-180' : ''}`} />
                                             </button>
                                             {openActionDropdown === `m-${programName}-${optIdx}` && (
-                                              <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-lg shadow-lg border border-[#E5E7EB] py-1 min-w-[180px]">
+                                              <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-[rgba(39,39,42,0.15)] py-1 min-w-[180px]">
                                                 <button
                                                   type="button"
                                                   onClick={() => {
@@ -2185,7 +2253,7 @@ export default function App() {
                                                     setRowStatus('idle')
                                                     setOpenActionDropdown(null)
                                                   }}
-                                                  className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#171717] hover:bg-[#F9FAFB] transition-colors"
+                                                  className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#000000] hover:bg-[#FAFAFA] transition-colors"
                                                 >
                                                   Reserve Pricing
                                                 </button>
@@ -2202,7 +2270,7 @@ export default function App() {
                                                       setRowStatus('idle')
                                                       setOpenActionDropdown(null)
                                                     }}
-                                                    className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#374151] hover:bg-[#F9FAFB] transition-colors"
+                                                    className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#000000] hover:bg-[#FAFAFA] transition-colors"
                                                   >
                                                     Request Lock
                                                   </button>
@@ -2213,7 +2281,7 @@ export default function App() {
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     onClick={() => setOpenActionDropdown(null)}
-                                                    className="block w-full text-left px-3 py-2 text-[11px] font-semibold text-[#6B7280] hover:bg-[#F9FAFB] transition-colors no-underline"
+                                                    className="block w-full text-left px-3 py-2 text-[11px] font-semibold text-[#71717A] hover:bg-[#FAFAFA] transition-colors no-underline"
                                                   >
                                                     Select Rate + Submit File
                                                   </a>
@@ -2228,13 +2296,13 @@ export default function App() {
 
                                   {/* Adjustments detail (best rate) */}
                                   {bestRate && bestRate.adjustments && bestRate.adjustments.length > 0 && (
-                                    <div className="px-4 py-3 border-t border-[#E5E7EB] bg-[#F9FAFB]">
-                                      <div className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-2">Adjustments (Best Rate)</div>
+                                    <div className="px-4 py-3 border-t border-[rgba(39,39,42,0.15)] bg-[#FAFAFA]">
+                                      <div className="text-[10px] font-semibold text-[#A1A1AA] uppercase tracking-widest mb-2">Adjustments (Best Rate)</div>
                                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
                                         {bestRate.adjustments.map((adj: Adjustment, adjIdx: number) => (
-                                          <div key={adjIdx} className="flex justify-between items-center text-xs bg-white px-2.5 py-1.5 rounded-lg border border-[#E5E7EB]">
-                                            <span className="text-[#374151] truncate mr-2">{adj.description}</span>
-                                            <span className={`font-semibold tabular-nums ${adj.amount >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                                          <div key={adjIdx} className="flex justify-between items-center text-xs bg-white px-2.5 py-1.5 rounded-lg border border-[rgba(39,39,42,0.15)]">
+                                            <span className="text-[#000000] truncate mr-2">{adj.description}</span>
+                                            <span className={`font-semibold tabular-nums ${adj.amount >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
                                               {adj.amount >= 0 ? '+' : ''}{adj.amount.toFixed(3)}
                                             </span>
                                           </div>
@@ -2246,7 +2314,7 @@ export default function App() {
                               )}
 
                               {isExpanded && filteredRateOptions.length === 0 && (
-                                <div className="bg-[#F9FAFB] px-4 py-3 text-xs text-[#9CA3AF] border-t border-[#E5E7EB]">
+                                <div className="bg-[#FAFAFA] px-4 py-3 text-xs text-[#A1A1AA] border-t border-[rgba(39,39,42,0.15)]">
                                   No rate options in price range (99-101)
                                 </div>
                               )}
@@ -2259,7 +2327,7 @@ export default function App() {
                     {/* National Rate Access - LP Results Gate */}
                     {(lpLoading || lpResult) && !lpUnlocked && (
                       <div className="mt-4 flex items-center gap-3 justify-end">
-                        <span className="text-[11px] text-[#9CA3AF] font-medium">National Rate Access</span>
+                        <span className="text-[11px] text-[#A1A1AA] font-medium">National Rate Access</span>
                         <input
                           type="password"
                           inputMode="numeric"
@@ -2271,26 +2339,21 @@ export default function App() {
                             setLpPasscode(val)
                             if (val === '4040') setLpUnlocked(true)
                           }}
-                          className="w-16 h-7 text-center text-[12px] font-mono bg-[#F9FAFB] border border-[#E5E7EB] rounded text-[#6B7280] outline-none focus:border-[#9CA3AF] placeholder:text-[#D1D5DB]"
+                          className="w-16 h-7 text-center text-[12px] font-mono bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded text-[#71717A] outline-none focus:border-[#A1A1AA] placeholder:text-[#D1D5DB]"
                         />
                       </div>
                     )}
 
                     {/* LP Loading */}
                     {lpUnlocked && lpLoading && !lpResult && (
-                      <div className="mt-4 border border-slate-700 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl p-8">
-                        <div className="flex flex-col items-center justify-center gap-3">
-                          <div className="relative">
-                            <Globe className="w-8 h-8 text-cyan-400 animate-pulse" />
-                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full animate-ping" />
-                          </div>
-                          <span className="text-sm text-slate-300 font-medium tracking-wide">Scanning national wholesale pricing engines...</span>
-                          <div className="flex gap-1 mt-1">
-                            <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                            <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                            <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                          </div>
+                      <div className="mt-4 border border-[rgba(39,39,42,0.15)] bg-white rounded-xl p-6 space-y-4">
+                        <div className="flex items-center gap-3">
+                          <Globe className="w-5 h-5 text-[#A1A1AA]" />
+                          <span className="text-sm text-[#A1A1AA] font-medium tracking-wide">Scanning national pricing engines...</span>
                         </div>
+                        <div className="skeleton-card h-12 w-full" />
+                        <div className="skeleton-card h-12 w-full" />
+                        <div className="skeleton h-4 w-40" />
                       </div>
                     )}
 
@@ -2331,54 +2394,53 @@ export default function App() {
                         : 999
                       const prepayLabel = isInvestment && prepayMonths > 0 ? ` - ${prepayMonths} Month Prepay` : ''
                       return (
-                        <div className="mt-4 border border-slate-700 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl overflow-hidden relative">
-                          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-                          <div className="px-5 pt-5 pb-3 relative z-10">
+                        <div className="mt-4 border border-[rgba(39,39,42,0.15)] bg-white rounded-xl overflow-hidden">
+                          <div className="px-5 pt-5 pb-3">
                             <div className="flex items-center justify-between flex-wrap gap-3 mb-2">
                               <div className="flex items-center gap-2.5">
-                                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/30">
-                                  <Zap className="w-4 h-4 text-cyan-400" />
+                                <div className="flex items-center justify-center w-8 h-8 rounded-[10px] bg-[#FAFAFA]">
+                                  <Zap className="w-4 h-4 text-[#000000]" />
                                 </div>
-                                <div className="text-base font-semibold text-white tracking-tight">AI Reviewed - National Wholesale Rate Results{prepayLabel}</div>
+                                <div className="text-base font-semibold text-[#000000] tracking-tight">National Wholesale Rate Results{prepayLabel}</div>
                               </div>
                               <div className="flex items-center gap-2">
-                                <div className="flex items-center gap-1.5 text-[11px] text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-full font-medium">
+                                <div className="flex items-center gap-1.5 text-[11px] text-[#22C55E] bg-[rgba(34,197,94,0.08)] border border-[rgba(34,197,94,0.2)] px-2.5 py-1 rounded-[4px] font-medium">
                                   <ShieldCheck className="w-3 h-3" />Verified
                                 </div>
-                                <span className="text-[11px] font-mono text-slate-400">{filteredLpRates.length} rates</span>
+                                <span className="text-[11px] font-mono text-[#A1A1AA]">{filteredLpRates.length} rates</span>
                               </div>
                             </div>
-                            <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                              <Globe className="w-3 h-3 text-cyan-500/60" />
+                            <p className="text-[11px] text-[#A1A1AA] flex items-center gap-1.5">
+                              <Globe className="w-3 h-3 text-[#A1A1AA]" />
                               We just checked all of the Industry Leading Pricing Engines for you.
                             </p>
                           </div>
-                          <div className="px-5 pb-5 relative z-10">
+                          <div className="px-5 pb-5">
                             {filteredLpRates.length > 0 ? (
-                              <div className="overflow-x-auto rounded-lg border border-slate-700/80 bg-slate-800/50">
+                              <div className="overflow-x-auto rounded-lg border border-[rgba(39,39,42,0.12)]">
                                 <table className="w-full text-sm">
                                   <thead>
-                                    <tr className="border-b border-slate-700">
-                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Rate</th>
-                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Price</th>
-                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Payment</th>
-                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Price Adj.</th>
+                                    <tr className="border-b border-[rgba(39,39,42,0.15)]">
+                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-[#71717A]">Rate</th>
+                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-[#71717A]">Price</th>
+                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-[#71717A]">Payment</th>
+                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-[#71717A]">Price Adj.</th>
                                     </tr>
                                   </thead>
                                   <tbody>
                                     {filteredLpRates.map((opt: any, idx: number) => {
                                       const isClosest = Math.abs(opt.price - 100) === closestPrice
                                       return (
-                                        <tr key={idx} className={`border-t border-slate-700/60 transition-colors ${isClosest ? 'bg-cyan-500/10' : 'hover:bg-slate-700/30'}`}>
-                                          <td className="py-2.5 px-4 text-right font-semibold text-cyan-300 font-mono">{safeNumber(opt.rate).toFixed(3)}%</td>
-                                          <td className={`py-2.5 px-4 text-right font-mono ${opt.price >= 100 ? 'text-emerald-400 font-semibold' : 'text-slate-300'}`}>{safeNumber(opt.price).toFixed(3)}</td>
-                                          <td className="py-2.5 px-4 text-right text-slate-300 font-mono">{opt.payment > 0 ? formatCurrency(safeNumber(opt.payment)) : '-'}</td>
+                                        <tr key={idx} className={`border-t border-[rgba(39,39,42,0.08)] transition-colors duration-150 ${isClosest ? 'bg-[#FAFAFA]' : 'hover:bg-[#FAFAFA]'}`}>
+                                          <td className="py-2.5 px-4 text-right font-semibold text-[#000000] font-mono">{safeNumber(opt.rate).toFixed(3)}%</td>
+                                          <td className={`py-2.5 px-4 text-right font-mono ${opt.price >= 100 ? 'text-[#22C55E] font-semibold' : 'text-[#000000]'}`}>{safeNumber(opt.price).toFixed(3)}</td>
+                                          <td className="py-2.5 px-4 text-right text-[#000000] font-mono">{opt.payment > 0 ? formatCurrency(safeNumber(opt.payment)) : '-'}</td>
                                           <td className="py-2.5 px-4 text-right font-mono">
                                             {opt.totalAdjustments !== 0 ? (
-                                              <span className={opt.totalAdjustments > 0 ? 'text-emerald-400' : 'text-red-400'}>
+                                              <span className={opt.totalAdjustments > 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}>
                                                 {opt.totalAdjustments > 0 ? '+' : ''}{safeNumber(opt.totalAdjustments).toFixed(3)}
                                               </span>
-                                            ) : <span className="text-slate-500">-</span>}
+                                            ) : <span className="text-[#A1A1AA]">-</span>}
                                           </td>
                                         </tr>
                                       )
@@ -2387,7 +2449,7 @@ export default function App() {
                                 </table>
                               </div>
                             ) : (
-                              <p className="text-sm text-slate-400 text-center py-3">
+                              <p className="text-sm text-[#A1A1AA] text-center py-3">
                                 {adjustedLpRates.length} rates returned, none in price range
                               </p>
                             )}
@@ -2398,10 +2460,10 @@ export default function App() {
 
                     {/* LP empty */}
                     {lpUnlocked && !lpLoading && lpResult && (!lpResult.rateOptions || lpResult.rateOptions.length === 0) && (
-                      <div className="mt-4 border border-slate-700 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl p-6">
+                      <div className="mt-4 border border-[rgba(39,39,42,0.15)] bg-white rounded-xl p-6">
                         <div className="flex flex-col items-center gap-2">
-                          <Globe className="w-5 h-5 text-slate-500" />
-                          <p className="text-sm text-slate-400 text-center">No LP market rates available for this scenario</p>
+                          <Globe className="w-5 h-5 text-[#A1A1AA]" />
+                          <p className="text-sm text-[#A1A1AA] text-center">No LP market rates available for this scenario</p>
                         </div>
                       </div>
                     )}
@@ -2413,10 +2475,9 @@ export default function App() {
         </div>
 
         {/* Footer */}
-        <footer className="border-t border-[#E5E7EB] bg-[#FAFAFA] px-6 py-6 mt-6">
-          <p className="text-[9px] leading-relaxed text-[#9CA3AF]">
-            &copy;OpenBroker Labs &amp; Qualr All rights reserved. We are a B2B technology platform, not a mortgage lender, broker, or loan originator. We do not make credit decisions or originate, arrange, negotiate, or fund loans. Nothing on this site is an offer or commitment to lend. By using this site, you agree to our policies. Use at your own risk. AI may be inaccurate. We are not liable for losses arising from use of this site.
-          </p>
+        <footer className="border-t border-[rgba(39,39,42,0.1)] bg-white px-6 lg:px-10 py-3 mt-6 flex items-center justify-between">
+          <span className="text-[12px] text-[#71717A]">&copy; 2026 OpenBroker Labs</span>
+          <span className="text-[9px] text-[#A1A1AA] max-w-xl hidden sm:block">B2B technology platform. Not a lender, broker, or originator. Use at your own risk.</span>
         </footer>
       </main>
 
@@ -2425,29 +2486,29 @@ export default function App() {
         <>
           <div className="fixed inset-0 z-[300] bg-black/40 backdrop-blur-sm" onClick={() => setShowHelpDesk(false)} />
           <div className="fixed inset-0 z-[301] flex items-center justify-center px-4">
-            <div className="w-full max-w-[420px] bg-white rounded-2xl shadow-2xl p-6">
+            <div className="w-full max-w-[420px] bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <HelpCircle className="w-5 h-5 text-[#171717]" />
-                  <h3 className="text-lg font-bold text-[#171717]">Help Desk</h3>
+                  <HelpCircle className="w-5 h-5 text-[#000000]" />
+                  <h3 className="text-lg font-bold text-[#000000]">Help Desk</h3>
                 </div>
-                <button type="button" onClick={() => setShowHelpDesk(false)} className="p-1 text-[#9CA3AF] hover:text-[#374151] transition-colors">
+                <button type="button" onClick={() => setShowHelpDesk(false)} className="p-1 text-[#A1A1AA] hover:text-[#000000] transition-colors">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-[13px] text-[#6B7280] mb-4">Submit a help request and our team will get back to you.</p>
+              <p className="text-[13px] text-[#71717A] mb-4">Submit a help request and our team will get back to you.</p>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">Name *</label>
-                  <input type="text" value={helpDeskFields.name} onChange={(e) => setHelpDeskFields(prev => ({ ...prev, name: e.target.value }))} placeholder="Your name" className="w-full px-3 py-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
+                  <label className="block text-[11px] font-semibold text-[#71717A] uppercase tracking-wider mb-1">Name *</label>
+                  <input type="text" value={helpDeskFields.name} onChange={(e) => setHelpDeskFields(prev => ({ ...prev, name: e.target.value }))} placeholder="Your name" className="w-full px-3 py-2.5 bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">Email *</label>
-                  <input type="email" value={helpDeskFields.email} onChange={(e) => setHelpDeskFields(prev => ({ ...prev, email: e.target.value }))} placeholder="you@company.com" className="w-full px-3 py-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent" />
+                  <label className="block text-[11px] font-semibold text-[#71717A] uppercase tracking-wider mb-1">Email *</label>
+                  <input type="email" value={helpDeskFields.email} onChange={(e) => setHelpDeskFields(prev => ({ ...prev, email: e.target.value }))} placeholder="you@company.com" className="w-full px-3 py-2.5 bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#6B7280] uppercase tracking-wider mb-1">Help Topic *</label>
-                  <select value={helpDeskFields.topic} onChange={(e) => setHelpDeskFields(prev => ({ ...prev, topic: e.target.value }))} className="w-full px-3 py-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#171717] focus:border-transparent">
+                  <label className="block text-[11px] font-semibold text-[#71717A] uppercase tracking-wider mb-1">Help Topic *</label>
+                  <select value={helpDeskFields.topic} onChange={(e) => setHelpDeskFields(prev => ({ ...prev, topic: e.target.value }))} className="w-full px-3 py-2.5 bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent">
                     <option value="">Select a topic...</option>
                     <option value="Pricing">Pricing</option>
                     <option value="Lock Desk">Lock Desk</option>
@@ -2456,16 +2517,22 @@ export default function App() {
                     <option value="Other">Other</option>
                   </select>
                 </div>
-                <button type="button" onClick={handleHelpDeskSubmit} disabled={helpDeskSending || !helpDeskFields.name || !helpDeskFields.email || !helpDeskFields.topic} className="w-full py-3 bg-[#171717] hover:bg-[#262626] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                <div>
+                  <label className="block text-[11px] font-semibold text-[#71717A] uppercase tracking-wider mb-1">Message</label>
+                  <textarea value={helpDeskFields.message} onChange={(e) => setHelpDeskFields(prev => ({ ...prev, message: e.target.value }))} placeholder="Describe your issue or question..." rows={3} className="w-full px-3 py-2.5 bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent resize-none" />
+                </div>
+                <button type="button" onClick={handleHelpDeskSubmit} disabled={helpDeskSending || !helpDeskFields.name || !helpDeskFields.email || !helpDeskFields.topic} className="w-full py-3 bg-[#000000] hover:opacity-85 text-white rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-opacity duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
                   {helpDeskSending ? <Loader2 className="w-4 h-4 animate-spin" /> : helpDeskStatus === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <Send className="w-4 h-4" />}
                   {helpDeskSending ? 'Sending...' : helpDeskStatus === 'success' ? 'Sent!' : 'Submit Request'}
                 </button>
-                {helpDeskStatus === 'error' && <p className="text-xs text-red-500 text-center">Failed to send. Please try again.</p>}
+                {helpDeskStatus === 'error' && <p className="text-xs text-[#EF4444] text-center">Failed to send. Please try again.</p>}
               </div>
             </div>
           </div>
         </>
       )}
+
+      <LiveChat userId={user?.id} userName={profile ? `${profile.first_name} ${profile.last_name}` : undefined} />
     </div>
   )
 }

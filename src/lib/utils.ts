@@ -21,3 +21,7 @@ export function formatPercent(value: number): string {
 export function parseCurrency(value: string): number {
   return Number(value.replace(/[^0-9.-]+/g, ''))
 }
+
+export function generateId(): string {
+  return Math.random().toString(36).substring(2, 11)
+}
