@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { DollarSign, Loader2, CheckCircle2, AlertCircle, ChevronDown, ChevronUp, X, Zap, Globe, ShieldCheck, Mail, LogOut, User, HelpCircle, Send, BarChart3, Menu } from 'lucide-react'
+import { DollarSign, Loader2, CheckCircle2, AlertCircle, ChevronDown, ChevronUp, X, Zap, Globe, ShieldCheck, Mail, LogOut, User, HelpCircle, Send, BarChart3, Menu, MessageCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { LoginPage } from '@/components/auth/LoginPage'
@@ -9,10 +9,69 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { formatCurrency, formatPercent } from '@/lib/utils'
 import { validateFormBeforeSubmit } from '@/lib/PricingLogic'
 import { LiveChat } from '@/components/live-chat'
+import { AdminChatPanel } from '@/components/admin-chat'
 
 const OpenPriceLogo = ({ size = 36 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
     <text x="24" y="36" fontSize="36" fontWeight="800" fill="#000" fontFamily='-apple-system, BlinkMacSystemFont, "Inter", sans-serif' textAnchor="middle" letterSpacing="-0.04em">P</text>
+  </svg>
+)
+
+/* ── Sidebar SVG Icons (currentColor for theme adaptability) ── */
+const IconNewScenario = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <circle cx="11" cy="12" r="9" stroke="currentColor" strokeWidth="1.5"/>
+    <line x1="11" y1="7" x2="11" y2="17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <line x1="6" y1="12" x2="16" y2="12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <circle cx="20" cy="4" r="2" fill="currentColor"/>
+  </svg>
+)
+
+const IconDealDesk = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <polygon points="12,2 21,18 3,18" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+    <circle cx="12" cy="11" r="2.5" fill="currentColor"/>
+    <line x1="4" y1="21" x2="20" y2="21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+  </svg>
+)
+
+const IconSubmitLoan = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <rect x="2" y="2" width="13" height="17" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+    <line x1="5" y1="8" x2="12" y2="8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="5" y1="11" x2="12" y2="11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="5" y1="14" x2="9" y2="14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+    <line x1="19" y1="22" x2="19" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <polyline points="15,17 19,13 23,17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+)
+
+const IconRentAvm = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <polygon points="12,2 22,9 22,22 2,22 2,9" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+    <rect x="4" y="15" width="3" height="7" rx="0.5" fill="currentColor" opacity="0.45"/>
+    <rect x="10" y="11" width="3" height="11" rx="0.5" fill="currentColor" opacity="0.75"/>
+    <rect x="16" y="13" width="3" height="9" rx="0.5" fill="currentColor"/>
+  </svg>
+)
+
+const IconOpenLos = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <ellipse cx="12" cy="10" rx="5" ry="8" stroke="currentColor" strokeWidth="1.5"/>
+    <path d="M8,15 C5,17 4,21 6,22 L8,20" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+    <path d="M16,15 C19,17 20,21 18,22 L16,20" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+    <line x1="12" y1="18" x2="12" y2="22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <circle cx="12" cy="9" r="2.5" fill="currentColor" opacity="0.35"/>
+  </svg>
+)
+
+const IconRtlTerminal = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <rect x="1" y="3" width="22" height="15" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+    <line x1="8" y1="22" x2="16" y2="22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <line x1="12" y1="18" x2="12" y2="22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <polyline points="5,8 8,11 5,14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <line x1="10" y1="14" x2="16" y2="14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity="0.55"/>
   </svg>
 )
 
@@ -294,6 +353,10 @@ export default function App() {
   const [lpLoading, setLpLoading] = useState(false)
   const [lpUnlocked, setLpUnlocked] = useState(false)
   const [lpPasscode, setLpPasscode] = useState('')
+  // Secondary Admin state
+  const [adminUnlocked, setAdminUnlocked] = useState(false)
+  const [adminPasscode, setAdminPasscode] = useState('')
+  const [showAdminPanel, setShowAdminPanel] = useState(false)
   const [emailTo, setEmailTo] = useState('')
   const [emailSending, setEmailSending] = useState(false)
   const [emailStatus, setEmailStatus] = useState<'idle' | 'success' | 'error'>('idle')
@@ -1132,51 +1195,80 @@ export default function App() {
           <div className="px-2 py-1 mb-2">
             <span className="text-[9px] font-bold uppercase tracking-widest text-[#A1A1AA]">Tools</span>
           </div>
-          {/* Deal Desk — active */}
-          <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-[#000000] text-white">
-            <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0" />
-            <span className="text-[13px] font-semibold truncate">Deal Desk</span>
+          {/* + New Scenario */}
+          <button type="button" className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left text-[#000000]">
+            <IconNewScenario className="w-[18px] h-[18px] shrink-0" />
+            <span className="text-[13px] font-semibold truncate">+ New Scenario</span>
+          </button>
+          {/* TRINITY AI / DEAL DESK — active */}
+          <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg bg-[#000000] text-white">
+            <IconDealDesk className="w-[18px] h-[18px] shrink-0" />
+            <span className="text-[13px] font-semibold truncate">TRINITY AI / DEAL DESK</span>
           </div>
-          {/* TRINITY AI Agent — disabled */}
-          <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-            <span className="text-[13px] text-[#D1D5DB] truncate">TRINITY AI Agent</span>
+          {/* Submit a Loan — disabled */}
+          <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
+            <IconSubmitLoan className="w-[18px] h-[18px] shrink-0" />
+            <span className="text-[13px] truncate">Submit a Loan</span>
           </div>
-          {/* Pipeline — disabled */}
-          <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-            <span className="text-[13px] text-[#D1D5DB] truncate">Pipeline</span>
-          </div>
-          {/* QuickAVM */}
-          <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-            <span className="text-[13px] text-[#000000] truncate">QuickAVM</span>
-          </a>
-          {/* Veriqual */}
-          <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-            <span className="text-[13px] text-[#000000] truncate">Veriqual AUS</span>
+          {/* Rent AVM */}
+          <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]">
+            <IconRentAvm className="w-[18px] h-[18px] shrink-0" />
+            <span className="text-[13px] truncate">Rent AVM</span>
           </a>
           {/* Help Desk — partner only */}
           {isPartner && (
             <button
               type="button"
               onClick={() => { setHelpDeskFields({ name: helpDeskDefaults.name, email: helpDeskDefaults.email, topic: '', message: '' }); setHelpDeskStatus('idle'); setShowHelpDesk(true) }}
-              className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left"
+              className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left text-[#000000]"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-              <span className="text-[13px] text-[#000000] truncate">Help Desk</span>
+              <HelpCircle className="w-[18px] h-[18px] shrink-0" />
+              <span className="text-[13px] truncate">Help Desk</span>
             </button>
           )}
-          {/* Exception — disabled */}
-          <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-            <span className="text-[13px] text-[#D1D5DB] truncate">Exception</span>
-          </div>
           {/* Launch OpenLOS — disabled */}
-          <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-            <span className="text-[13px] text-[#D1D5DB] truncate">Launch OpenLOS</span>
+          <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
+            <IconOpenLos className="w-[18px] h-[18px] shrink-0" />
+            <span className="text-[13px] truncate">Launch OpenLOS</span>
+          </div>
+          {/* RTL Terminal — disabled */}
+          <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
+            <IconRtlTerminal className="w-[18px] h-[18px] shrink-0" />
+            <span className="text-[13px] truncate">RTL Terminal</span>
+          </div>
+
+          {/* Secondary Admin */}
+          <div className="mt-3 pt-3 border-t border-[rgba(39,39,42,0.1)]">
+            <div className="px-2 py-1 mb-1">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-[#A1A1AA]">Secondary Admin</span>
+            </div>
+            {!adminUnlocked ? (
+              <div className="flex items-center gap-2 px-2">
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder="----"
+                  value={adminPasscode}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 4)
+                    setAdminPasscode(val)
+                    if (val === '4040') setAdminUnlocked(true)
+                  }}
+                  className="w-14 h-7 text-center text-[12px] font-mono bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded text-[#71717A] outline-none focus:border-[#A1A1AA] placeholder:text-[#D1D5DB]"
+                />
+                <span className="text-[10px] text-[#D1D5DB]">Passcode</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowAdminPanel(true)}
+                className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left text-[#000000]"
+              >
+                <MessageCircle className="w-[18px] h-[18px] shrink-0" />
+                <span className="text-[13px] font-semibold truncate">Admin Panel</span>
+              </button>
+            )}
           </div>
         </nav>
 
@@ -1247,43 +1339,80 @@ export default function App() {
               <div className="px-2 py-1 mb-2">
                 <span className="text-[9px] font-bold uppercase tracking-widest text-[#A1A1AA]">Tools</span>
               </div>
-              <div className="flex items-center gap-2 px-2 py-2 rounded-lg bg-[#000000] text-white">
-                <span className="w-1.5 h-1.5 rounded-full bg-white shrink-0" />
-                <span className="text-[13px] font-semibold">Deal Desk</span>
+              {/* + New Scenario */}
+              <button type="button" onClick={() => setMobileMenuOpen(false)} className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left text-[#000000]">
+                <IconNewScenario className="w-[18px] h-[18px] shrink-0" />
+                <span className="text-[13px] font-semibold">+ New Scenario</span>
+              </button>
+              {/* TRINITY AI / DEAL DESK — active */}
+              <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg bg-[#000000] text-white">
+                <IconDealDesk className="w-[18px] h-[18px] shrink-0" />
+                <span className="text-[13px] font-semibold">TRINITY AI / DEAL DESK</span>
               </div>
-              <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-                <span className="text-[13px] text-[#D1D5DB]">TRINITY AI Agent</span>
+              {/* Submit a Loan — disabled */}
+              <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
+                <IconSubmitLoan className="w-[18px] h-[18px] shrink-0" />
+                <span className="text-[13px]">Submit a Loan</span>
               </div>
-              <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-                <span className="text-[13px] text-[#D1D5DB]">Pipeline</span>
-              </div>
-              <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors" onClick={() => setMobileMenuOpen(false)}>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-                <span className="text-[13px] text-[#000000]">QuickAVM</span>
+              {/* Rent AVM */}
+              <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]" onClick={() => setMobileMenuOpen(false)}>
+                <IconRentAvm className="w-[18px] h-[18px] shrink-0" />
+                <span className="text-[13px]">Rent AVM</span>
               </a>
-              <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors" onClick={() => setMobileMenuOpen(false)}>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-                <span className="text-[13px] text-[#000000]">Veriqual AUS</span>
-              </a>
+              {/* Help Desk — partner only */}
               {isPartner && (
                 <button
                   type="button"
                   onClick={() => { setMobileMenuOpen(false); setHelpDeskFields({ name: helpDeskDefaults.name, email: helpDeskDefaults.email, topic: '', message: '' }); setHelpDeskStatus('idle'); setShowHelpDesk(true) }}
-                  className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left"
+                  className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left text-[#000000]"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-                  <span className="text-[13px] text-[#000000]">Help Desk</span>
+                  <HelpCircle className="w-[18px] h-[18px] shrink-0" />
+                  <span className="text-[13px]">Help Desk</span>
                 </button>
               )}
-              <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-                <span className="text-[13px] text-[#D1D5DB]">Exception</span>
+              {/* Launch OpenLOS — disabled */}
+              <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
+                <IconOpenLos className="w-[18px] h-[18px] shrink-0" />
+                <span className="text-[13px]">Launch OpenLOS</span>
               </div>
-              <div className="flex items-center gap-2 px-2 py-2 rounded-lg cursor-not-allowed">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] shrink-0" />
-                <span className="text-[13px] text-[#D1D5DB]">Launch OpenLOS</span>
+              {/* RTL Terminal — disabled */}
+              <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
+                <IconRtlTerminal className="w-[18px] h-[18px] shrink-0" />
+                <span className="text-[13px]">RTL Terminal</span>
+              </div>
+
+              {/* Secondary Admin */}
+              <div className="mt-3 pt-3 border-t border-[rgba(39,39,42,0.1)]">
+                <div className="px-2 py-1 mb-1">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-[#A1A1AA]">Secondary Admin</span>
+                </div>
+                {!adminUnlocked ? (
+                  <div className="flex items-center gap-2 px-2">
+                    <input
+                      type="password"
+                      inputMode="numeric"
+                      maxLength={4}
+                      placeholder="----"
+                      value={adminPasscode}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, 4)
+                        setAdminPasscode(val)
+                        if (val === '4040') setAdminUnlocked(true)
+                      }}
+                      className="w-14 h-7 text-center text-[12px] font-mono bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded text-[#71717A] outline-none focus:border-[#A1A1AA] placeholder:text-[#D1D5DB]"
+                    />
+                    <span className="text-[10px] text-[#D1D5DB]">Passcode</span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => { setMobileMenuOpen(false); setShowAdminPanel(true) }}
+                    className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left text-[#000000]"
+                  >
+                    <MessageCircle className="w-[18px] h-[18px] shrink-0" />
+                    <span className="text-[13px] font-semibold">Admin Panel</span>
+                  </button>
+                )}
               </div>
             </nav>
             <div className="px-3 py-4 border-t border-[rgba(39,39,42,0.15)]">
@@ -2533,6 +2662,9 @@ export default function App() {
       )}
 
       <LiveChat userId={user?.id} userName={profile ? `${profile.first_name} ${profile.last_name}` : undefined} />
+
+      {/* Admin Chat Panel (fullscreen overlay) */}
+      {showAdminPanel && <AdminChatPanel onClose={() => setShowAdminPanel(false)} />}
     </div>
   )
 }
