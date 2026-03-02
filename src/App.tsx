@@ -126,7 +126,6 @@ interface LoanData {
   isShortTermRental: boolean
   isVestedInLLCOrCorp: boolean
   hasITIN: boolean
-  isAVMOrCDA: boolean
   documentationType: string
 }
 
@@ -328,7 +327,6 @@ const DEFAULT_FORM_DATA: LoanData = {
   isShortTermRental: false,
   isVestedInLLCOrCorp: false,
   hasITIN: false,
-  isAVMOrCDA: false,
   documentationType: 'fullDoc'
 }
 
@@ -1186,7 +1184,7 @@ export default function App() {
         <div className="px-4 pt-5 pb-4 border-b border-[rgba(39,39,42,0.15)]">
           <div className="flex items-center gap-1">
             <OpenPriceLogo size={28} />
-            <span className="text-[15px] font-semibold text-[#71717A] leading-tight tracking-[-0.02em]">OpenBroker Labs · OpenPrice</span>
+            <span className="text-[15px] font-semibold leading-tight tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
           </div>
         </div>
 
@@ -1314,7 +1312,7 @@ export default function App() {
         </button>
         <div className="flex items-center gap-1">
           <OpenPriceLogo size={24} />
-          <span className="text-[14px] font-semibold text-[#71717A] tracking-[-0.02em]">OpenBroker Labs · OpenPrice</span>
+          <span className="text-[14px] font-semibold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
         </div>
         <div className="w-8" />
       </header>
@@ -1328,7 +1326,7 @@ export default function App() {
               <div>
                 <div className="flex items-center gap-1">
                   <OpenPriceLogo size={24} />
-                  <span className="text-[14px] font-semibold text-[#71717A] tracking-[-0.02em]">OpenBroker Labs · OpenPrice</span>
+                  <span className="text-[14px] font-semibold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
                 </div>
               </div>
               <button type="button" onClick={() => setMobileMenuOpen(false)} className="p-1 text-[#A1A1AA] hover:text-[#000000]">
@@ -1664,7 +1662,7 @@ export default function App() {
                     <label htmlFor="propertyCity" className="block text-[10px] font-medium text-[#000000]">City</label>
                     <Input id="propertyCity" name="propertyCity" value={formData.propertyCity} onChange={(e) => handleInputChange('propertyCity', e.target.value)} className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]" autoComplete="address-level2" />
                   </div>
-                  {/* Row 2: Structure Type + chips */}
+                  {/* Row 2: Structure Type + pill toggles inline */}
                   <div className="space-y-0.5">
                     <label htmlFor="structureType" className="block text-[10px] font-medium text-[#000000]">Structure Type</label>
                     <Select name="structureType" value={formData.structureType} onValueChange={(v) => handleInputChange('structureType', v)}>
@@ -1675,7 +1673,7 @@ export default function App() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="col-span-full flex flex-wrap gap-2">
+                  <div className="col-span-2 md:col-span-5 flex flex-wrap items-end gap-2 pb-0.5">
                     <label htmlFor="isRuralProperty" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isRuralProperty ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
                       <input type="checkbox" id="isRuralProperty" name="isRuralProperty" className="sr-only" checked={formData.isRuralProperty} onChange={(e) => handleInputChange('isRuralProperty', e.target.checked)} />
                       Rural Property
@@ -1691,10 +1689,6 @@ export default function App() {
                     <label htmlFor="is5PlusUnits" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.is5PlusUnits ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
                       <input type="checkbox" id="is5PlusUnits" name="is5PlusUnits" className="sr-only" checked={formData.is5PlusUnits} onChange={(e) => handleInputChange('is5PlusUnits', e.target.checked)} />
                       5+ Units
-                    </label>
-                    <label htmlFor="isAVMOrCDA" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isAVMOrCDA ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
-                      <input type="checkbox" id="isAVMOrCDA" name="isAVMOrCDA" className="sr-only" checked={formData.isAVMOrCDA} onChange={(e) => handleInputChange('isAVMOrCDA', e.target.checked)} />
-                      AVM or CDA
                     </label>
                   </div>
                 </div>
