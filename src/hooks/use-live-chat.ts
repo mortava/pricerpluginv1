@@ -29,24 +29,20 @@ interface UseLiveChatOptions {
 export function playUserNotificationSound() {
   try {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
-    // Two-tone ascending chime (C5 → E5)
     const osc1 = ctx.createOscillator()
     const osc2 = ctx.createOscillator()
     const gain = ctx.createGain()
     osc1.connect(gain)
     osc2.connect(gain)
     gain.connect(ctx.destination)
-
     osc1.type = 'sine'
-    osc1.frequency.setValueAtTime(523, ctx.currentTime) // C5
+    osc1.frequency.setValueAtTime(523, ctx.currentTime)
     osc1.start(ctx.currentTime)
     osc1.stop(ctx.currentTime + 0.15)
-
     osc2.type = 'sine'
-    osc2.frequency.setValueAtTime(659, ctx.currentTime + 0.15) // E5
+    osc2.frequency.setValueAtTime(659, ctx.currentTime + 0.15)
     osc2.start(ctx.currentTime + 0.15)
     osc2.stop(ctx.currentTime + 0.35)
-
     gain.gain.setValueAtTime(0.35, ctx.currentTime)
     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45)
   } catch {}
@@ -56,8 +52,7 @@ export function playUserNotificationSound() {
 export function playAdminNotificationSound() {
   try {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
-    // Three short knocks (G4 → G4 → B4)
-    const notes = [392, 392, 494] // G4, G4, B4
+    const notes = [392, 392, 494]
     const times = [0, 0.12, 0.24]
     notes.forEach((freq, i) => {
       const osc = ctx.createOscillator()
@@ -79,17 +74,26 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
   const [messages, setMessages] = useState<LiveChatMessage[]>([])
   const [loading, setLoading] = useState(false)
   const channelRef = useRef<ReturnType<NonNullable<typeof supabase>['channel']> | null>(null)
+  const prevMsgCountRef = useRef(0)
 
-  // CRITICAL: stable user ID across renders — useMemo so it doesn't regenerate
   const resolvedUserId = useMemo(() => userId || 'anonymous-' + generateId(), [userId])
   const resolvedUserName = userName || 'Guest'
 
-  // Subscribe to real-time messages for the active conversation
+  // Merge messages helper — dedup by id, keep existing optimistic ones
+  const mergeMessages = useCallback((prev: LiveChatMessage[], incoming: LiveChatMessage[]) => {
+    const existingIds = new Set(prev.map((m) => m.id))
+    const newMsgs = incoming.filter((m) => !existingIds.has(m.id))
+    if (newMsgs.length === 0) return prev
+    return [...prev, ...newMsgs]
+  }, [])
+
+  // === REALTIME subscription ===
   useEffect(() => {
-    if (!supabase || !conversation) return
+    if (!conversation) return
+    console.log('[Chat] Subscribing to realtime for', conversation.id)
 
     const channel = supabase
-      .channel(`chat:${conversation.id}`)
+      .channel(`user-chat:${conversation.id}:${Date.now()}`)
       .on(
         'postgres_changes',
         {
@@ -99,45 +103,86 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
           filter: `conversation_id=eq.${conversation.id}`,
         },
         (payload) => {
+          console.log('[Chat RT]', payload.new)
           const newMsg = payload.new as LiveChatMessage
           setMessages((prev) => {
-            // Deduplicate — skip if we already have this message (by DB id)
-            // or if it's a user message we already optimistically added (match by content+role)
             if (prev.some((m) => m.id === newMsg.id)) return prev
+            // For user's own messages, skip if we have optimistic match
             if (newMsg.sender_role === 'user' && prev.some((m) =>
-              m.sender_role === 'user' && m.content === newMsg.content && m.id !== newMsg.id
+              m.sender_role === 'user' && m.content === newMsg.content
             )) return prev
             return [...prev, newMsg]
           })
-
-          // Sound + desktop notification for agent messages only
           if (newMsg.sender_role === 'agent') {
             playUserNotificationSound()
             if (document.hidden && Notification.permission === 'granted') {
-              new Notification('OpenPrice', {
-                body: newMsg.content,
-                icon: '/vite.svg',
-              })
+              new Notification('OpenPrice', { body: newMsg.content, icon: '/vite.svg' })
             }
           }
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        console.log('[Chat] Realtime status:', status)
+      })
 
     channelRef.current = channel
-
     return () => {
-      supabase!.removeChannel(channel)
+      console.log('[Chat] Unsubscribing realtime')
+      supabase.removeChannel(channel)
       channelRef.current = null
     }
   }, [conversation?.id])
 
+  // === POLLING fallback — fetch new messages every 3s ===
+  useEffect(() => {
+    if (!conversation) return
+    console.log('[Chat] Starting poll for', conversation.id)
+
+    const poll = async () => {
+      const { data, error } = await supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('conversation_id', conversation.id)
+        .order('created_at', { ascending: true })
+
+      if (error) {
+        console.error('[Chat] Poll error:', error)
+        return
+      }
+      if (data && data.length > 0) {
+        setMessages((prev) => {
+          const existingIds = new Set(prev.map((m) => m.id))
+          // Find genuinely new DB messages
+          const newFromDb = (data as LiveChatMessage[]).filter((m) => !existingIds.has(m.id))
+          if (newFromDb.length === 0) return prev
+
+          // Check if any are agent messages we don't have yet (play sound)
+          const newAgentMsgs = newFromDb.filter((m) => m.sender_role === 'agent')
+          if (newAgentMsgs.length > 0 && prev.length > 0) {
+            playUserNotificationSound()
+          }
+
+          // Replace optimistic user messages with real DB versions
+          const optimisticUserMsgs = prev.filter((m) =>
+            m.sender_role === 'user' && !data.some((d: any) => d.id === m.id)
+          )
+          // Keep optimistic messages that aren't in DB yet (still inserting)
+          // Add all DB messages
+          const dbIds = new Set((data as LiveChatMessage[]).map((m) => m.id))
+          const keptOptimistic = prev.filter((m) => !dbIds.has(m.id) && m.sender_role === 'user')
+          return [...(data as LiveChatMessage[]), ...keptOptimistic]
+        })
+      }
+    }
+
+    const interval = setInterval(poll, 3000)
+    return () => clearInterval(interval)
+  }, [conversation?.id])
+
   // Load existing open conversation on mount
   useEffect(() => {
-    if (!supabase) return
-
     async function loadExisting() {
-      const { data } = await supabase!
+      const { data, error } = await supabase
         .from('chat_conversations')
         .select('*')
         .eq('user_id', resolvedUserId)
@@ -146,38 +191,28 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
         .limit(1)
         .single()
 
+      if (error) {
+        console.log('[Chat] No existing conversation:', error.code)
+        return
+      }
       if (data) {
+        console.log('[Chat] Loaded existing conversation:', data.id)
         setConversation(data as LiveChatConversation)
-        const { data: msgs } = await supabase!
+        const { data: msgs } = await supabase
           .from('chat_messages')
           .select('*')
           .eq('conversation_id', data.id)
           .order('created_at', { ascending: true })
-
         if (msgs) setMessages(msgs as LiveChatMessage[])
       }
     }
-
     loadExisting()
   }, [resolvedUserId])
 
   const startConversation = useCallback(
     async (department: 'support' | 'sales' = 'support') => {
-      if (!supabase) {
-        const localConvo: LiveChatConversation = {
-          id: generateId(),
-          user_id: resolvedUserId,
-          user_name: resolvedUserName,
-          status: 'open',
-          department,
-          created_at: new Date().toISOString(),
-        }
-        setConversation(localConvo)
-        setMessages([])
-        return localConvo
-      }
-
       setLoading(true)
+      console.log('[Chat] Starting conversation, department:', department)
       const { data, error } = await supabase
         .from('chat_conversations')
         .insert({
@@ -189,8 +224,12 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
         .single()
 
       setLoading(false)
-      if (error) throw error
+      if (error) {
+        console.error('[Chat] Start conversation error:', error)
+        throw error
+      }
 
+      console.log('[Chat] Conversation created:', data.id)
       const convo = data as LiveChatConversation
       setConversation(convo)
       setMessages([])
@@ -201,20 +240,15 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
 
   const sendMessage = useCallback(
     async (content: string) => {
-      if (!content.trim()) return
+      if (!content.trim() || !conversation) return
 
       const localMsg: LiveChatMessage = {
         id: generateId(),
-        conversation_id: conversation?.id || '',
+        conversation_id: conversation.id,
         sender_role: 'user',
         sender_name: resolvedUserName,
         content: content.trim(),
         created_at: new Date().toISOString(),
-      }
-
-      if (!supabase || !conversation) {
-        setMessages((prev) => [...prev, localMsg])
-        return
       }
 
       // Optimistic update
@@ -228,10 +262,12 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
       })
 
       if (error) {
+        console.error('[Chat] Send message error:', error)
         setMessages((prev) => prev.filter((m) => m.id !== localMsg.id))
-        throw error
+        return
       }
 
+      console.log('[Chat] Message sent OK')
       await supabase
         .from('chat_conversations')
         .update({ updated_at: new Date().toISOString() })
@@ -241,7 +277,7 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
   )
 
   const endConversation = useCallback(async () => {
-    if (supabase && conversation) {
+    if (conversation) {
       await supabase
         .from('chat_conversations')
         .update({ status: 'closed' })
@@ -258,6 +294,6 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
     startConversation,
     sendMessage,
     endConversation,
-    isConnected: !!supabase,
+    isConnected: true,
   }
 }

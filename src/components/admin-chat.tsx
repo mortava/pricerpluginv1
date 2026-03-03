@@ -52,28 +52,29 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
 
   // Load all open conversations
   const loadConversations = useCallback(async () => {
-    if (!supabase) return
     setLoading(true)
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('chat_conversations')
       .select('*')
       .eq('status', 'open')
       .order('created_at', { ascending: false })
+    if (error) console.error('[Admin] Load convos error:', error)
     if (data) setConversations(data as Conversation[])
     setLoading(false)
   }, [])
 
   useEffect(() => { loadConversations() }, [loadConversations])
 
-  // Subscribe to NEW conversations in real-time
+  // === REALTIME: new conversations ===
   useEffect(() => {
-    if (!supabase) return
+    console.log('[Admin] Subscribing to conversation changes')
     const channel = supabase
-      .channel('admin-conversations')
+      .channel(`admin-convos:${Date.now()}`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'chat_conversations' },
         (payload) => {
+          console.log('[Admin RT] New conversation:', payload.new)
           const newConvo = payload.new as Conversation
           setConversations((prev) => {
             if (prev.some((c) => c.id === newConvo.id)) return prev
@@ -92,36 +93,59 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
           const updated = payload.new as Conversation
           if (updated.status === 'closed') {
             setConversations((prev) => prev.filter((c) => c.id !== updated.id))
-            if (selected?.id === updated.id) {
-              setSelected(null)
-              setMessages([])
-            }
           }
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        console.log('[Admin] Conversations realtime status:', status)
+      })
     return () => { supabase.removeChannel(channel) }
-  }, [selected?.id])
+  }, [])
+
+  // === POLL conversations every 5s ===
+  useEffect(() => {
+    const poll = async () => {
+      const { data } = await supabase
+        .from('chat_conversations')
+        .select('*')
+        .eq('status', 'open')
+        .order('created_at', { ascending: false })
+      if (data) {
+        setConversations((prev) => {
+          const prevIds = new Set(prev.map((c) => c.id))
+          const newOnes = (data as Conversation[]).filter((c) => !prevIds.has(c.id))
+          if (newOnes.length > 0) playAdminNotificationSound()
+          // Return full fresh list from DB
+          return data as Conversation[]
+        })
+      }
+    }
+    const interval = setInterval(poll, 5000)
+    return () => clearInterval(interval)
+  }, [])
 
   // Load messages for selected conversation
   useEffect(() => {
-    if (!supabase || !selected) return
+    if (!selected) return
     async function loadMessages() {
-      const { data } = await supabase!
+      console.log('[Admin] Loading messages for', selected!.id)
+      const { data, error } = await supabase
         .from('chat_messages')
         .select('*')
         .eq('conversation_id', selected!.id)
         .order('created_at', { ascending: true })
+      if (error) console.error('[Admin] Load messages error:', error)
       if (data) setMessages(data as ChatMessage[])
     }
     loadMessages()
   }, [selected?.id])
 
-  // Subscribe to messages for selected conversation
+  // === REALTIME: messages for selected conversation ===
   useEffect(() => {
-    if (!supabase || !selected) return
+    if (!selected) return
+    console.log('[Admin] Subscribing to messages for', selected.id)
     const channel = supabase
-      .channel(`admin-chat:${selected.id}`)
+      .channel(`admin-msgs:${selected.id}:${Date.now()}`)
       .on(
         'postgres_changes',
         {
@@ -131,17 +155,16 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
           filter: `conversation_id=eq.${selected.id}`,
         },
         (payload) => {
+          console.log('[Admin RT] New message:', payload.new)
           const newMsg = payload.new as ChatMessage
           setMessages((prev) => {
-            // Deduplicate by DB id
             if (prev.some((m) => m.id === newMsg.id)) return prev
-            // Skip if agent message already shown via optimistic update (match by content+role)
+            // Skip agent messages that match optimistic (same content)
             if (newMsg.sender_role === 'agent' && prev.some((m) =>
-              m.sender_role === 'agent' && m.content === newMsg.content && m.id !== newMsg.id
+              m.sender_role === 'agent' && m.content === newMsg.content
             )) return prev
             return [...prev, newMsg]
           })
-          // Sound + notification only for user messages (incoming)
           if (newMsg.sender_role === 'user') {
             playAdminNotificationSound()
             if (document.hidden && Notification.permission === 'granted') {
@@ -150,17 +173,47 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
           }
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        console.log('[Admin] Messages realtime status:', status)
+      })
     return () => { supabase.removeChannel(channel) }
+  }, [selected?.id])
+
+  // === POLL messages every 3s for selected conversation ===
+  useEffect(() => {
+    if (!selected) return
+    const poll = async () => {
+      const { data } = await supabase
+        .from('chat_messages')
+        .select('*')
+        .eq('conversation_id', selected.id)
+        .order('created_at', { ascending: true })
+      if (data) {
+        setMessages((prev) => {
+          const dbMsgs = data as ChatMessage[]
+          const dbIds = new Set(dbMsgs.map((m) => m.id))
+          // Keep optimistic agent messages not yet in DB
+          const keptOptimistic = prev.filter((m) => !dbIds.has(m.id) && m.sender_role === 'agent')
+          // Check for new user messages (play sound)
+          const prevUserIds = new Set(prev.filter((m) => m.sender_role === 'user').map((m) => m.id))
+          const newUserMsgs = dbMsgs.filter((m) => m.sender_role === 'user' && !prevUserIds.has(m.id))
+          if (newUserMsgs.length > 0 && prev.length > 0) {
+            playAdminNotificationSound()
+          }
+          return [...dbMsgs, ...keptOptimistic]
+        })
+      }
+    }
+    const interval = setInterval(poll, 3000)
+    return () => clearInterval(interval)
   }, [selected?.id])
 
   // Send message as agent (with optimistic update)
   async function handleSend() {
-    if (!input.trim() || !supabase || !selected) return
+    if (!input.trim() || !selected) return
     const content = input.trim()
     setInput('')
 
-    // Optimistic: show message immediately
     const optimisticMsg: ChatMessage = {
       id: generateId(),
       conversation_id: selected.id,
@@ -171,6 +224,7 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
     }
     setMessages((prev) => [...prev, optimisticMsg])
 
+    console.log('[Admin] Sending message to', selected.id)
     const { error } = await supabase.from('chat_messages').insert({
       conversation_id: selected.id,
       sender_role: 'agent',
@@ -178,15 +232,16 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
       content,
     })
     if (error) {
-      // Remove optimistic message and restore input on failure
+      console.error('[Admin] Send error:', error)
       setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id))
       setInput(content)
+    } else {
+      console.log('[Admin] Message sent OK')
     }
   }
 
   // Close a conversation
   async function handleCloseConversation(convoId: string) {
-    if (!supabase) return
     await supabase.from('chat_conversations').update({ status: 'closed' }).eq('id', convoId)
     setConversations((prev) => prev.filter((c) => c.id !== convoId))
     if (selected?.id === convoId) {
