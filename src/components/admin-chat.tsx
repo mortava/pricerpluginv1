@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { X, Send, MessageCircle, ArrowLeft, RefreshCw } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { cn } from '@/lib/utils'
+import { cn, generateId } from '@/lib/utils'
+import { playAdminNotificationSound } from '@/hooks/use-live-chat'
 
 interface Conversation {
   id: string
@@ -21,23 +22,6 @@ interface ChatMessage {
   sender_name: string
   content: string
   created_at: string
-}
-
-function playNotificationSound() {
-  try {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
-    const osc = ctx.createOscillator()
-    const gain = ctx.createGain()
-    osc.connect(gain)
-    gain.connect(ctx.destination)
-    osc.type = 'sine'
-    osc.frequency.setValueAtTime(660, ctx.currentTime)
-    osc.frequency.setValueAtTime(880, ctx.currentTime + 0.15)
-    gain.gain.setValueAtTime(0.25, ctx.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35)
-    osc.start(ctx.currentTime)
-    osc.stop(ctx.currentTime + 0.35)
-  } catch {}
 }
 
 export function AdminChatPanel({ onClose }: { onClose: () => void }) {
@@ -95,7 +79,7 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
             if (prev.some((c) => c.id === newConvo.id)) return prev
             return [newConvo, ...prev]
           })
-          playNotificationSound()
+          playAdminNotificationSound()
           if (document.hidden && Notification.permission === 'granted') {
             new Notification('New Chat', { body: `${newConvo.user_name} started a ${newConvo.department} conversation` })
           }
@@ -149,11 +133,17 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
         (payload) => {
           const newMsg = payload.new as ChatMessage
           setMessages((prev) => {
+            // Deduplicate by DB id
             if (prev.some((m) => m.id === newMsg.id)) return prev
+            // Skip if agent message already shown via optimistic update (match by content+role)
+            if (newMsg.sender_role === 'agent' && prev.some((m) =>
+              m.sender_role === 'agent' && m.content === newMsg.content && m.id !== newMsg.id
+            )) return prev
             return [...prev, newMsg]
           })
+          // Sound + notification only for user messages (incoming)
           if (newMsg.sender_role === 'user') {
-            playNotificationSound()
+            playAdminNotificationSound()
             if (document.hidden && Notification.permission === 'granted') {
               new Notification('New Message', { body: newMsg.content })
             }
@@ -164,18 +154,34 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
     return () => { supabase.removeChannel(channel) }
   }, [selected?.id])
 
-  // Send message as agent
+  // Send message as agent (with optimistic update)
   async function handleSend() {
     if (!input.trim() || !supabase || !selected) return
     const content = input.trim()
     setInput('')
+
+    // Optimistic: show message immediately
+    const optimisticMsg: ChatMessage = {
+      id: generateId(),
+      conversation_id: selected.id,
+      sender_role: 'agent',
+      sender_name: 'Admin',
+      content,
+      created_at: new Date().toISOString(),
+    }
+    setMessages((prev) => [...prev, optimisticMsg])
+
     const { error } = await supabase.from('chat_messages').insert({
       conversation_id: selected.id,
       sender_role: 'agent',
       sender_name: 'Admin',
       content,
     })
-    if (error) setInput(content) // Restore on failure
+    if (error) {
+      // Remove optimistic message and restore input on failure
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id))
+      setInput(content)
+    }
   }
 
   // Close a conversation

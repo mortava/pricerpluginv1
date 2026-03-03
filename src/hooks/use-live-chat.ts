@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { generateId } from '@/lib/utils'
 
@@ -25,22 +25,52 @@ interface UseLiveChatOptions {
   userName?: string
 }
 
-// Notification sound via Web Audio API
-function playNotificationSound() {
+// Notification sound for USER side — bright ascending chime when agent replies
+export function playUserNotificationSound() {
   try {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
-    const osc = ctx.createOscillator()
+    // Two-tone ascending chime (C5 → E5)
+    const osc1 = ctx.createOscillator()
+    const osc2 = ctx.createOscillator()
     const gain = ctx.createGain()
-    osc.connect(gain)
+    osc1.connect(gain)
+    osc2.connect(gain)
     gain.connect(ctx.destination)
-    osc.type = 'sine'
-    osc.frequency.setValueAtTime(880, ctx.currentTime)
-    osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.1)
-    osc.frequency.setValueAtTime(880, ctx.currentTime + 0.2)
-    gain.gain.setValueAtTime(0.3, ctx.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4)
-    osc.start(ctx.currentTime)
-    osc.stop(ctx.currentTime + 0.4)
+
+    osc1.type = 'sine'
+    osc1.frequency.setValueAtTime(523, ctx.currentTime) // C5
+    osc1.start(ctx.currentTime)
+    osc1.stop(ctx.currentTime + 0.15)
+
+    osc2.type = 'sine'
+    osc2.frequency.setValueAtTime(659, ctx.currentTime + 0.15) // E5
+    osc2.start(ctx.currentTime + 0.15)
+    osc2.stop(ctx.currentTime + 0.35)
+
+    gain.gain.setValueAtTime(0.35, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45)
+  } catch {}
+}
+
+// Notification sound for ADMIN side — deeper triple-knock when user messages
+export function playAdminNotificationSound() {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+    // Three short knocks (G4 → G4 → B4)
+    const notes = [392, 392, 494] // G4, G4, B4
+    const times = [0, 0.12, 0.24]
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + times[i])
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + times[i])
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + times[i] + 0.1)
+      osc.start(ctx.currentTime + times[i])
+      osc.stop(ctx.currentTime + times[i] + 0.12)
+    })
   } catch {}
 }
 
@@ -50,7 +80,8 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
   const [loading, setLoading] = useState(false)
   const channelRef = useRef<ReturnType<NonNullable<typeof supabase>['channel']> | null>(null)
 
-  const resolvedUserId = userId || 'anonymous-' + generateId()
+  // CRITICAL: stable user ID across renders — useMemo so it doesn't regenerate
+  const resolvedUserId = useMemo(() => userId || 'anonymous-' + generateId(), [userId])
   const resolvedUserName = userName || 'Guest'
 
   // Subscribe to real-time messages for the active conversation
@@ -70,13 +101,18 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
         (payload) => {
           const newMsg = payload.new as LiveChatMessage
           setMessages((prev) => {
+            // Deduplicate — skip if we already have this message (by DB id)
+            // or if it's a user message we already optimistically added (match by content+role)
             if (prev.some((m) => m.id === newMsg.id)) return prev
+            if (newMsg.sender_role === 'user' && prev.some((m) =>
+              m.sender_role === 'user' && m.content === newMsg.content && m.id !== newMsg.id
+            )) return prev
             return [...prev, newMsg]
           })
 
-          // Sound + desktop notification for agent messages
+          // Sound + desktop notification for agent messages only
           if (newMsg.sender_role === 'agent') {
-            playNotificationSound()
+            playUserNotificationSound()
             if (document.hidden && Notification.permission === 'granted') {
               new Notification('OpenPrice', {
                 body: newMsg.content,
@@ -128,7 +164,6 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
   const startConversation = useCallback(
     async (department: 'support' | 'sales' = 'support') => {
       if (!supabase) {
-        // Fallback: local-only mode when Supabase is not configured
         const localConvo: LiveChatConversation = {
           id: generateId(),
           user_id: resolvedUserId,
@@ -178,7 +213,6 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
       }
 
       if (!supabase || !conversation) {
-        // Local-only fallback
         setMessages((prev) => [...prev, localMsg])
         return
       }
@@ -194,12 +228,10 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
       })
 
       if (error) {
-        // Remove optimistic message on failure
         setMessages((prev) => prev.filter((m) => m.id !== localMsg.id))
         throw error
       }
 
-      // Update conversation timestamp
       await supabase
         .from('chat_conversations')
         .update({ updated_at: new Date().toISOString() })

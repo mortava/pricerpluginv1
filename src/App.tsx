@@ -11,12 +11,6 @@ import { validateFormBeforeSubmit } from '@/lib/PricingLogic'
 import { LiveChat } from '@/components/live-chat'
 import { AdminChatPanel } from '@/components/admin-chat'
 
-const OpenPriceLogo = ({ size = 36 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
-    <text x="24" y="36" fontSize="36" fontWeight="800" fill="#000" fontFamily='-apple-system, BlinkMacSystemFont, "Inter", sans-serif' textAnchor="middle" letterSpacing="-0.04em">P</text>
-  </svg>
-)
-
 /* ── Sidebar SVG Icons (currentColor for theme adaptability) ── */
 const IconNewScenario = ({ className = "w-4 h-4" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none">
@@ -1182,9 +1176,9 @@ export default function App() {
       <aside className="hidden lg:flex flex-col fixed left-0 top-0 h-screen w-[200px] bg-white border-r border-[rgba(39,39,42,0.15)] z-50">
         {/* Brand */}
         <div className="px-4 pt-5 pb-4 border-b border-[rgba(39,39,42,0.15)]">
-          <div className="flex items-center gap-1">
-            <OpenPriceLogo size={28} />
-            <span className="text-[15px] font-semibold leading-tight tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
+          <div className="leading-tight">
+            <span className="text-[17px] font-bold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
+            <div className="text-[9px] text-[#A1A1AA] tracking-wide mt-0.5">powered by DEFY TPO</div>
           </div>
         </div>
 
@@ -1198,11 +1192,11 @@ export default function App() {
             <IconNewScenario className="w-[18px] h-[18px] shrink-0" />
             <span className="text-[13px] font-semibold truncate">+ New Scenario</span>
           </button>
-          {/* TRINITY AI / DEAL DESK — active */}
-          <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg bg-[#000000] text-white">
+          {/* TRINITY AI DEAL DESK — active */}
+          <a href="https://dealr.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg bg-[#000000] text-white hover:opacity-90 transition-opacity">
             <IconDealDesk className="w-[18px] h-[18px] shrink-0" />
-            <span className="text-[13px] font-semibold truncate">TRINITY AI / DEAL DESK</span>
-          </div>
+            <span className="text-[13px] font-semibold truncate">TRINITY AI DEAL DESK</span>
+          </a>
           {/* Submit a Loan — disabled */}
           <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
             <IconSubmitLoan className="w-[18px] h-[18px] shrink-0" />
@@ -1310,9 +1304,9 @@ export default function App() {
         >
           <Menu className="w-5 h-5" />
         </button>
-        <div className="flex items-center gap-1">
-          <OpenPriceLogo size={24} />
-          <span className="text-[14px] font-semibold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
+        <div className="leading-tight">
+          <span className="text-[15px] font-bold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
+          <div className="text-[8px] text-[#A1A1AA] tracking-wide">powered by DEFY TPO</div>
         </div>
         <div className="w-8" />
       </header>
@@ -1323,11 +1317,9 @@ export default function App() {
           <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm lg:hidden" onClick={() => setMobileMenuOpen(false)} />
           <div className="fixed left-0 top-0 h-full w-[260px] bg-white z-[201] flex flex-col shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:hidden">
             <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[rgba(39,39,42,0.15)]">
-              <div>
-                <div className="flex items-center gap-1">
-                  <OpenPriceLogo size={24} />
-                  <span className="text-[14px] font-semibold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
-                </div>
+              <div className="leading-tight">
+                <span className="text-[15px] font-bold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
+                <div className="text-[8px] text-[#A1A1AA] tracking-wide">powered by DEFY TPO</div>
               </div>
               <button type="button" onClick={() => setMobileMenuOpen(false)} className="p-1 text-[#A1A1AA] hover:text-[#000000]">
                 <X className="w-5 h-5" />
@@ -1342,11 +1334,11 @@ export default function App() {
                 <IconNewScenario className="w-[18px] h-[18px] shrink-0" />
                 <span className="text-[13px] font-semibold">+ New Scenario</span>
               </button>
-              {/* TRINITY AI / DEAL DESK — active */}
-              <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg bg-[#000000] text-white">
+              {/* TRINITY AI DEAL DESK — active */}
+              <a href="https://dealr.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg bg-[#000000] text-white hover:opacity-90 transition-opacity" onClick={() => setMobileMenuOpen(false)}>
                 <IconDealDesk className="w-[18px] h-[18px] shrink-0" />
-                <span className="text-[13px] font-semibold">TRINITY AI / DEAL DESK</span>
-              </div>
+                <span className="text-[13px] font-semibold">TRINITY AI DEAL DESK</span>
+              </a>
               {/* Submit a Loan — disabled */}
               <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
                 <IconSubmitLoan className="w-[18px] h-[18px] shrink-0" />
@@ -1488,7 +1480,7 @@ export default function App() {
                 <ChevronDown className={`w-4 h-4 text-[#A1A1AA] transition-transform ${!collapsedSections.has('loan') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('loan') && (
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-2">
                   {/* Row 1: Lien Position, Loan Purpose, Value/Sales Price, Loan Amount, LTV, CLTV */}
                   <div className="space-y-0.5">
                     <label htmlFor="lienPosition" className="block text-[10px] font-medium text-[#000000]">Lien Position</label>
@@ -1608,7 +1600,7 @@ export default function App() {
                 <ChevronDown className={`w-4 h-4 text-[#A1A1AA] transition-transform ${!collapsedSections.has('property') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('property') && (
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-2">
                   {/* Row 1: Property Use, Property Type, ZIP Code, State, County, City */}
                   <div className="space-y-0.5">
                     <label htmlFor="occupancyType" className={`block text-[10px] font-medium ${hasError('occupancyType') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Property Use *</label>
@@ -1673,7 +1665,7 @@ export default function App() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="col-span-2 md:col-span-5 flex flex-wrap items-end gap-2 pb-0.5">
+                  <div className="col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-5 flex flex-wrap items-end gap-2 pb-0.5">
                     <label htmlFor="isRuralProperty" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isRuralProperty ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
                       <input type="checkbox" id="isRuralProperty" name="isRuralProperty" className="sr-only" checked={formData.isRuralProperty} onChange={(e) => handleInputChange('isRuralProperty', e.target.checked)} />
                       Rural Property
@@ -1702,7 +1694,7 @@ export default function App() {
                 <ChevronDown className={`w-4 h-4 text-[#A1A1AA] transition-transform ${!collapsedSections.has('borrower') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('borrower') && (
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-2">
                   <div className="space-y-0.5">
                     <label htmlFor="creditScore" className={`block text-[10px] font-medium ${hasError('creditScore') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Credit Score *</label>
                     <Input id="creditScore" name="creditScore" maxLength={3} value={formData.creditScore} onChange={(e) => handleInputChange('creditScore', e.target.value.replace(/\D/g, ''))} className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('creditScore') ? 'border-red-500' : ''}`} />
@@ -1770,7 +1762,7 @@ export default function App() {
                   <ChevronDown className={`w-4 h-4 text-[#A1A1AA] transition-transform ${!collapsedSections.has('investor') ? 'rotate-180' : ''}`} />
                 </button>
                 {!collapsedSections.has('investor') && (
-                  <div className="grid grid-cols-3 md:grid-cols-6 gap-x-3 gap-y-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-2">
                     <div className="space-y-0.5">
                       <label htmlFor="prepayPeriod" className="block text-[10px] font-medium text-[#000000]">Prepay Period</label>
                       <Select name="prepayPeriod" value={formData.prepayPeriod} onValueChange={(v) => handleInputChange('prepayPeriod', v)}>
@@ -1900,24 +1892,17 @@ export default function App() {
         {/* ===== RESULTS SECTION ===== */}
         <div className="mt-6 px-4 lg:px-6 pb-10 max-w-6xl mx-auto">
           <AnimatePresence mode="wait">
-            {/* Loading — progress bar */}
+            {/* Loading — shimmer skeleton placeholder */}
             {isLoading && !result && (
               <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <div className="rounded-xl border border-[rgba(39,39,42,0.15)] bg-white p-8 flex flex-col items-center justify-center min-h-[200px]">
-                  <div className="w-full max-w-xs">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[12px] font-semibold text-[#71717A] uppercase tracking-wider">Processing</span>
-                      <span className="text-[12px] font-bold text-[#000000] tabular-nums">{loadingProgress}%</span>
-                    </div>
-                    <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(39,39,42,0.1)' }}>
-                      <div
-                        className="h-full rounded-full transition-all duration-700 ease-out"
-                        style={{
-                          width: `${loadingProgress}%`,
-                          background: `linear-gradient(90deg, #D1D5DB ${0}%, #71717A ${50}%, #27272A ${100}%)`,
-                        }}
-                      />
-                    </div>
+                <div className="rounded-xl border border-[rgba(39,39,42,0.15)] bg-white p-8 space-y-4 min-h-[200px]">
+                  <div className="skeleton-card h-6 w-2/5 rounded-md" />
+                  <div className="skeleton-card h-4 w-3/4 rounded-md" />
+                  <div className="skeleton-card h-4 w-1/2 rounded-md" />
+                  <div className="grid grid-cols-3 gap-4 pt-2">
+                    <div className="skeleton-card h-12 rounded-md" />
+                    <div className="skeleton-card h-12 rounded-md" />
+                    <div className="skeleton-card h-12 rounded-md" />
                   </div>
                 </div>
               </motion.div>
@@ -1990,7 +1975,7 @@ export default function App() {
                           <AlertCircle className="w-3 h-3" />Error
                         </div>
                       )}
-                      <div className="grid grid-cols-5 gap-0 border-t border-[rgba(39,39,42,0.15)] pt-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-y-3 gap-x-0 border-t border-[rgba(39,39,42,0.15)] pt-4">
                         <div>
                           <div className="text-base font-semibold text-[#000000] tabular-nums">{targetPricing ? targetPricing.price.toFixed(3) : '100.000'}</div>
                           <div className="text-[10px] text-[#A1A1AA] uppercase tracking-wider mt-0.5">Price</div>
