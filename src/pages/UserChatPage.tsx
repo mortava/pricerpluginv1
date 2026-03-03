@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
-import { Send, MessageCircle, ArrowLeft } from 'lucide-react'
+import { Send, User, ArrowLeft } from 'lucide-react'
 import { useLiveChat } from '@/hooks/use-live-chat'
 import { cn } from '@/lib/utils'
 
 export default function UserChatPage() {
   const [input, setInput] = useState('')
-  const [department, setDepartment] = useState<'support' | 'sales' | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const notificationRequested = useRef(false)
@@ -34,9 +33,8 @@ export default function UserChatPage() {
     }
   }, [])
 
-  async function handleStartChat(dept: 'support' | 'sales') {
-    setDepartment(dept)
-    await startConversation(dept)
+  async function handleStartChat() {
+    await startConversation('support')
   }
 
   async function handleSend() {
@@ -48,7 +46,6 @@ export default function UserChatPage() {
 
   async function handleEnd() {
     await endConversation()
-    setDepartment(null)
   }
 
   function formatTime(iso: string) {
@@ -71,7 +68,7 @@ export default function UserChatPage() {
             <div>
               <h3 className="text-[15px] font-semibold tracking-[-0.02em]">
                 {conversation
-                  ? department === 'sales' ? 'Sales Team' : 'Help Desk'
+                  ? 'Support'
                   : <><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></>}
               </h3>
               <p className="text-[12px] text-[#71717A]">
@@ -91,37 +88,23 @@ export default function UserChatPage() {
         <div className="flex flex-1 flex-col overflow-hidden">
           {!conversation ? (
             <div className="flex flex-1 flex-col items-center justify-center px-6">
-              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-[#FAFAFA]">
-                <MessageCircle className="h-6 w-6 text-black" />
+              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#ECFDF5]">
+                <User className="h-7 w-7 text-[#34D399]" />
               </div>
-              <h4 className="mb-1 text-[15px] font-semibold text-black tracking-[-0.02em]">How can we help?</h4>
-              <p className="mb-6 text-center text-[13px] text-[#A1A1AA]">Choose a team to start a conversation.</p>
-              <div className="flex w-full flex-col gap-3">
-                <button onClick={() => handleStartChat('support')} disabled={loading}
-                  className="flex w-full items-center gap-4 rounded-xl bg-white px-5 py-4 text-left transition-all duration-200 hover:bg-[#FAFAFA]"
-                  style={{ border: '1px solid rgba(39,39,42,0.15)' }}
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FAFAFA]">
-                    <MessageCircle className="h-5 w-5 text-black" />
-                  </div>
-                  <div>
-                    <span className="text-[14px] font-medium text-black">Help Desk</span>
-                    <p className="text-[13px] text-[#A1A1AA]">Technical support & questions</p>
-                  </div>
-                </button>
-                <button onClick={() => handleStartChat('sales')} disabled={loading}
-                  className="flex w-full items-center gap-4 rounded-xl bg-white px-5 py-4 text-left transition-all duration-200 hover:bg-[#FAFAFA]"
-                  style={{ border: '1px solid rgba(39,39,42,0.15)' }}
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FAFAFA]">
-                    <MessageCircle className="h-5 w-5 text-black" />
-                  </div>
-                  <div>
-                    <span className="text-[14px] font-medium text-black">Sales Team</span>
-                    <p className="text-[13px] text-[#A1A1AA]">Pricing, demos & partnerships</p>
-                  </div>
-                </button>
-              </div>
+              <h4 className="mb-1 text-[15px] font-semibold text-black tracking-[-0.02em]">Chat with a Human</h4>
+              <p className="mb-6 text-center text-[13px] text-[#A1A1AA]">Get help from our support team in real-time.</p>
+              <button onClick={handleStartChat} disabled={loading}
+                className="flex w-full items-center gap-4 rounded-xl bg-white px-5 py-4 text-left transition-all duration-200 hover:bg-[#FAFAFA]"
+                style={{ border: '1px solid rgba(39,39,42,0.15)' }}
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ECFDF5]">
+                  <User className="h-5 w-5 text-[#34D399]" />
+                </div>
+                <div>
+                  <span className="text-[14px] font-medium text-black">Support</span>
+                  <p className="text-[13px] text-[#A1A1AA]">Questions, pricing & technical help</p>
+                </div>
+              </button>
             </div>
           ) : (
             <>
@@ -129,7 +112,7 @@ export default function UserChatPage() {
                 {messages.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-8 text-center">
                     <p className="text-[13px] text-[#A1A1AA]">
-                      {department === 'sales' ? 'A sales representative will be with you shortly.' : 'A support agent will be with you shortly.'}
+                      A support agent will be with you shortly.
                     </p>
                   </div>
                 )}

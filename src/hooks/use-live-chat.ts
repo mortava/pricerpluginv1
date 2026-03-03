@@ -73,61 +73,46 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
   const [conversation, setConversation] = useState<LiveChatConversation | null>(null)
   const [messages, setMessages] = useState<LiveChatMessage[]>([])
   const [loading, setLoading] = useState(false)
-  const channelRef = useRef<ReturnType<NonNullable<typeof supabase>['channel']> | null>(null)
 
   const resolvedUserId = useMemo(() => userId || 'anonymous-' + generateId(), [userId])
   const resolvedUserName = userName || 'Guest'
 
-  // === REALTIME subscription ===
-  useEffect(() => {
-    if (!conversation) return
-    console.log('[Chat] Subscribing to realtime for', conversation.id)
+  // Track which DB message IDs we've already seen (for sound dedup)
+  const seenDbIdsRef = useRef<Set<string>>(new Set())
 
-    const channel = supabase
-      .channel(`user-chat:${conversation.id}:${Date.now()}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'chat_messages',
-          filter: `conversation_id=eq.${conversation.id}`,
-        },
-        (payload) => {
-          console.log('[Chat RT]', payload.new)
-          const newMsg = payload.new as LiveChatMessage
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === newMsg.id)) return prev
-            // For user's own messages, skip if we have optimistic match
-            if (newMsg.sender_role === 'user' && prev.some((m) =>
-              m.sender_role === 'user' && m.content === newMsg.content
-            )) return prev
-            return [...prev, newMsg]
-          })
-          if (newMsg.sender_role === 'agent') {
-            playUserNotificationSound()
-            if (document.hidden && Notification.permission === 'granted') {
-              new Notification('OpenPrice', { body: newMsg.content, icon: '/vite.svg' })
-            }
+  // === Canonical merge: DB is source of truth, keep unsent optimistic msgs ===
+  const mergeFromDb = useCallback((dbData: LiveChatMessage[], playSound: boolean) => {
+    setMessages((prev) => {
+      const dbIds = new Set(dbData.map((m) => m.id))
+      // Keep optimistic user messages not yet confirmed by DB
+      const keptOptimistic = prev.filter((m) => !dbIds.has(m.id) && m.sender_role === 'user')
+
+      // Detect genuinely new agent messages for notification sound
+      if (playSound) {
+        const newAgentMsgs = dbData.filter((m) => m.sender_role === 'agent' && !seenDbIdsRef.current.has(m.id))
+        if (newAgentMsgs.length > 0 && (prev.length > 0 || seenDbIdsRef.current.size > 0)) {
+          playUserNotificationSound()
+          if (document.hidden && Notification.permission === 'granted') {
+            new Notification('OpenPrice', { body: newAgentMsgs[newAgentMsgs.length - 1].content, icon: '/vite.svg' })
           }
         }
-      )
-      .subscribe((status) => {
-        console.log('[Chat] Realtime status:', status)
-      })
+      }
 
-    channelRef.current = channel
-    return () => {
-      console.log('[Chat] Unsubscribing realtime')
-      supabase.removeChannel(channel)
-      channelRef.current = null
-    }
-  }, [conversation?.id])
+      // Update seen IDs
+      dbData.forEach((m) => seenDbIdsRef.current.add(m.id))
 
-  // === POLLING fallback — fetch new messages every 3s ===
+      const merged = [...dbData, ...keptOptimistic]
+      // Only update state if actually different
+      if (merged.length === prev.length && merged.every((m, i) => m.id === prev[i]?.id)) return prev
+      return merged
+    })
+  }, [])
+
+  // === POLLING — single source of truth, fetch every 3s ===
   useEffect(() => {
     if (!conversation) return
     console.log('[Chat] Starting poll for', conversation.id)
+    seenDbIdsRef.current = new Set()
 
     const poll = async () => {
       const { data, error } = await supabase
@@ -140,31 +125,16 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
         console.error('[Chat] Poll error:', error)
         return
       }
-      if (data && data.length > 0) {
-        setMessages((prev) => {
-          const existingIds = new Set(prev.map((m) => m.id))
-          // Find genuinely new DB messages
-          const newFromDb = (data as LiveChatMessage[]).filter((m) => !existingIds.has(m.id))
-          if (newFromDb.length === 0) return prev
-
-          // Check if any are agent messages we don't have yet (play sound)
-          const newAgentMsgs = newFromDb.filter((m) => m.sender_role === 'agent')
-          if (newAgentMsgs.length > 0 && prev.length > 0) {
-            playUserNotificationSound()
-          }
-
-          // Keep optimistic messages that aren't in DB yet (still inserting)
-          // Add all DB messages
-          const dbIds = new Set((data as LiveChatMessage[]).map((m) => m.id))
-          const keptOptimistic = prev.filter((m) => !dbIds.has(m.id) && m.sender_role === 'user')
-          return [...(data as LiveChatMessage[]), ...keptOptimistic]
-        })
+      if (data) {
+        mergeFromDb(data as LiveChatMessage[], true)
       }
     }
 
+    // Initial fetch
+    poll()
     const interval = setInterval(poll, 3000)
     return () => clearInterval(interval)
-  }, [conversation?.id])
+  }, [conversation?.id, mergeFromDb])
 
   // Load existing open conversation on mount
   useEffect(() => {

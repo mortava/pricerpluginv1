@@ -140,48 +140,14 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
     loadMessages()
   }, [selected?.id])
 
-  // === REALTIME: messages for selected conversation ===
-  useEffect(() => {
-    if (!selected) return
-    console.log('[Admin] Subscribing to messages for', selected.id)
-    const channel = supabase
-      .channel(`admin-msgs:${selected.id}:${Date.now()}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'chat_messages',
-          filter: `conversation_id=eq.${selected.id}`,
-        },
-        (payload) => {
-          console.log('[Admin RT] New message:', payload.new)
-          const newMsg = payload.new as ChatMessage
-          setMessages((prev) => {
-            if (prev.some((m) => m.id === newMsg.id)) return prev
-            // Skip agent messages that match optimistic (same content)
-            if (newMsg.sender_role === 'agent' && prev.some((m) =>
-              m.sender_role === 'agent' && m.content === newMsg.content
-            )) return prev
-            return [...prev, newMsg]
-          })
-          if (newMsg.sender_role === 'user') {
-            playAdminNotificationSound()
-            if (document.hidden && Notification.permission === 'granted') {
-              new Notification('New Message', { body: newMsg.content })
-            }
-          }
-        }
-      )
-      .subscribe((status) => {
-        console.log('[Admin] Messages realtime status:', status)
-      })
-    return () => { supabase.removeChannel(channel) }
-  }, [selected?.id])
+  // Track seen DB message IDs for sound dedup
+  const seenMsgIdsRef = useRef<Set<string>>(new Set())
 
-  // === POLL messages every 3s for selected conversation ===
+  // === POLL messages every 3s for selected conversation (single source of truth) ===
   useEffect(() => {
     if (!selected) return
+    seenMsgIdsRef.current = new Set()
+
     const poll = async () => {
       const { data } = await supabase
         .from('chat_messages')
@@ -194,16 +160,28 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
           const dbIds = new Set(dbMsgs.map((m) => m.id))
           // Keep optimistic agent messages not yet in DB
           const keptOptimistic = prev.filter((m) => !dbIds.has(m.id) && m.sender_role === 'agent')
-          // Check for new user messages (play sound)
-          const prevUserIds = new Set(prev.filter((m) => m.sender_role === 'user').map((m) => m.id))
-          const newUserMsgs = dbMsgs.filter((m) => m.sender_role === 'user' && !prevUserIds.has(m.id))
-          if (newUserMsgs.length > 0 && prev.length > 0) {
+
+          // Detect genuinely new user messages for notification sound
+          const newUserMsgs = dbMsgs.filter((m) => m.sender_role === 'user' && !seenMsgIdsRef.current.has(m.id))
+          if (newUserMsgs.length > 0 && seenMsgIdsRef.current.size > 0) {
             playAdminNotificationSound()
+            if (document.hidden && Notification.permission === 'granted') {
+              new Notification('New Message', { body: newUserMsgs[newUserMsgs.length - 1].content })
+            }
           }
-          return [...dbMsgs, ...keptOptimistic]
+
+          // Update seen IDs
+          dbMsgs.forEach((m) => seenMsgIdsRef.current.add(m.id))
+
+          const merged = [...dbMsgs, ...keptOptimistic]
+          if (merged.length === prev.length && merged.every((m, i) => m.id === prev[i]?.id)) return prev
+          return merged
         })
       }
     }
+
+    // Initial fetch
+    poll()
     const interval = setInterval(poll, 3000)
     return () => clearInterval(interval)
   }, [selected?.id])
