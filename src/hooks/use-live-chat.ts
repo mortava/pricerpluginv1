@@ -74,18 +74,9 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
   const [messages, setMessages] = useState<LiveChatMessage[]>([])
   const [loading, setLoading] = useState(false)
   const channelRef = useRef<ReturnType<NonNullable<typeof supabase>['channel']> | null>(null)
-  const prevMsgCountRef = useRef(0)
 
   const resolvedUserId = useMemo(() => userId || 'anonymous-' + generateId(), [userId])
   const resolvedUserName = userName || 'Guest'
-
-  // Merge messages helper — dedup by id, keep existing optimistic ones
-  const mergeMessages = useCallback((prev: LiveChatMessage[], incoming: LiveChatMessage[]) => {
-    const existingIds = new Set(prev.map((m) => m.id))
-    const newMsgs = incoming.filter((m) => !existingIds.has(m.id))
-    if (newMsgs.length === 0) return prev
-    return [...prev, ...newMsgs]
-  }, [])
 
   // === REALTIME subscription ===
   useEffect(() => {
@@ -162,10 +153,6 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
             playUserNotificationSound()
           }
 
-          // Replace optimistic user messages with real DB versions
-          const optimisticUserMsgs = prev.filter((m) =>
-            m.sender_role === 'user' && !data.some((d: any) => d.id === m.id)
-          )
           // Keep optimistic messages that aren't in DB yet (still inserting)
           // Add all DB messages
           const dbIds = new Set((data as LiveChatMessage[]).map((m) => m.id))
