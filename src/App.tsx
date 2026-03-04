@@ -1208,18 +1208,18 @@ export default function App() {
             <User className="w-[18px] h-[18px] shrink-0 text-[#34D399]" />
             <span className="text-[13px] font-semibold truncate text-[#34D399]">Live Human Chat</span>
           </a>
-          {/* TRINITY AI DEAL DESK — active */}
-          <a href="https://dealr.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg bg-[#000000] text-white hover:opacity-90 transition-opacity">
+          {/* TRINITY AI DEAL DESK */}
+          <a href="https://dealr.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]">
             <IconDealDesk className="w-[18px] h-[18px] shrink-0" />
-            <span className="text-[13px] font-semibold truncate">TRINITY AI DEAL DESK</span>
+            <span className="text-[11px] font-semibold whitespace-nowrap">TRINITY AI DEAL DESK</span>
           </a>
-          {/* Submit a Loan — disabled */}
-          <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
+          {/* Submit a Loan */}
+          <a href="https://app.defywholesale.com/blitz-submit" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]">
             <IconSubmitLoan className="w-[18px] h-[18px] shrink-0" />
             <span className="text-[13px] truncate">Submit a Loan</span>
-          </div>
+          </a>
           {/* Rent AVM */}
-          <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]">
+          <a href="https://veriqualv1.qualr.com/auth" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]">
             <IconRentAvm className="w-[18px] h-[18px] shrink-0" />
             <span className="text-[13px] truncate">Rent AVM</span>
           </a>
@@ -1234,11 +1234,11 @@ export default function App() {
               <span className="text-[13px] truncate">Help Desk</span>
             </button>
           )}
-          {/* Launch OpenLOS — disabled */}
-          <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
+          {/* Launch OpenLOS */}
+          <a href="https://veriqualv1.qualr.com/auth" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]">
             <IconOpenLos className="w-[18px] h-[18px] shrink-0" />
             <span className="text-[13px] truncate">Launch OpenLOS</span>
-          </div>
+          </a>
           {/* RTL Terminal — disabled */}
           <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
             <IconRtlTerminal className="w-[18px] h-[18px] shrink-0" />
@@ -1342,18 +1342,18 @@ export default function App() {
                 <User className="w-[18px] h-[18px] shrink-0 text-[#34D399]" />
                 <span className="text-[13px] font-semibold text-[#34D399]">Live Human Chat</span>
               </a>
-              {/* TRINITY AI DEAL DESK — active */}
-              <a href="https://dealr.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg bg-[#000000] text-white hover:opacity-90 transition-opacity" onClick={() => setMobileMenuOpen(false)}>
+              {/* TRINITY AI DEAL DESK */}
+              <a href="https://dealr.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]" onClick={() => setMobileMenuOpen(false)}>
                 <IconDealDesk className="w-[18px] h-[18px] shrink-0" />
-                <span className="text-[13px] font-semibold">TRINITY AI DEAL DESK</span>
+                <span className="text-[11px] font-semibold whitespace-nowrap">TRINITY AI DEAL DESK</span>
               </a>
-              {/* Submit a Loan — disabled */}
-              <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
+              {/* Submit a Loan */}
+              <a href="https://app.defywholesale.com/blitz-submit" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]" onClick={() => setMobileMenuOpen(false)}>
                 <IconSubmitLoan className="w-[18px] h-[18px] shrink-0" />
                 <span className="text-[13px]">Submit a Loan</span>
-              </div>
+              </a>
               {/* Rent AVM */}
-              <a href="https://app.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]" onClick={() => setMobileMenuOpen(false)}>
+              <a href="https://veriqualv1.qualr.com/auth" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]" onClick={() => setMobileMenuOpen(false)}>
                 <IconRentAvm className="w-[18px] h-[18px] shrink-0" />
                 <span className="text-[13px]">Rent AVM</span>
               </a>
@@ -1368,11 +1368,11 @@ export default function App() {
                   <span className="text-[13px]">Help Desk</span>
                 </button>
               )}
-              {/* Launch OpenLOS — disabled */}
-              <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
+              {/* Launch OpenLOS */}
+              <a href="https://veriqualv1.qualr.com/auth" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]" onClick={() => setMobileMenuOpen(false)}>
                 <IconOpenLos className="w-[18px] h-[18px] shrink-0" />
                 <span className="text-[13px]">Launch OpenLOS</span>
-              </div>
+              </a>
               {/* RTL Terminal — disabled */}
               <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
                 <IconRtlTerminal className="w-[18px] h-[18px] shrink-0" />
@@ -1440,7 +1440,7 @@ export default function App() {
       <main className="lg:ml-[200px] min-h-screen">
 
         {/* ===== DESKTOP TOP HEADER BAR ===== */}
-        <div className="hidden lg:block sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-[rgba(39,39,42,0.15)] px-4 lg:px-6 py-2.5">
+        <div className="hidden lg:block sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-[rgba(39,39,42,0.15)] px-4 lg:px-6 py-4">
           <div className="max-w-6xl mx-auto flex items-center justify-end gap-2.5">
             {isPartner && profile ? (
               <>
@@ -1471,14 +1471,15 @@ export default function App() {
                   <UserCircle className="w-3.5 h-3.5" />
                   Partners Login
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setCurrentView('signup')}
+                <a
+                  href="https://apps.docusign.com/webforms/us/095ff92910ccc16fe109ea3aad3cc927"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium text-white bg-[#000000] border border-[#000000] hover:opacity-90 transition-opacity"
                 >
                   <CheckCircle className="w-3.5 h-3.5" />
                   Get Approved
-                </button>
+                </a>
               </>
             )}
           </div>
@@ -1549,7 +1550,7 @@ export default function App() {
                   <div className="space-y-0.5">
                     <label htmlFor="loanPurpose" className={`block text-[10px] font-medium ${hasError('loanPurpose') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Loan Purpose *</label>
                     <Select name="loanPurpose" value={formData.loanPurpose} onValueChange={(v) => handleInputChange('loanPurpose', v)}>
-                      <SelectTrigger id="loanPurpose" className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('loanPurpose') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="loanPurpose" className={`h-8 text-[10px] border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('loanPurpose') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="purchase">Purchase</SelectItem>
                         <SelectItem value="refinance">Refi Rate/Term</SelectItem>
@@ -1621,7 +1622,7 @@ export default function App() {
                   <div className="space-y-0.5">
                     <label htmlFor="impoundType" className="block text-[10px] font-medium text-[#000000]">Impound Type</label>
                     <Select name="impoundType" value={formData.impoundType} onValueChange={(v) => handleInputChange('impoundType', v)}>
-                      <SelectTrigger id="impoundType" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="impoundType" className="h-8 text-[10px] border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="escrowed">Taxes and Insurance Escrowed</SelectItem>
                         <SelectItem value="noescrow">No Escrow</SelectItem>
@@ -1774,7 +1775,7 @@ export default function App() {
                   <div className="space-y-0.5">
                     <label htmlFor="documentationType" className={`block text-[10px] font-medium ${hasError('documentationType') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Doc Type</label>
                     <Select name="documentationType" value={formData.documentationType} onValueChange={(v) => handleInputChange('documentationType', v)}>
-                      <SelectTrigger id="documentationType" className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('documentationType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="documentationType" className={`h-8 text-[10px] border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('documentationType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="fullDoc">Full Document</SelectItem>
                         <SelectItem value="dscr">Debt Service Coverage (DSCR)</SelectItem>
@@ -2140,7 +2141,7 @@ export default function App() {
                                 <div className="flex items-center justify-between mb-2.5">
                                   <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-2">
-                                      <div className="font-semibold text-[13px] text-[#000000] truncate">{programName}</div>
+                                      <div className="font-semibold text-[12px] text-[#000000]">{programName}</div>
                                       {isSelectedPrepay && (
                                         <span className="shrink-0 text-[9px] font-bold text-[#000000] bg-[#F3F4F6] px-1.5 py-0.5 rounded uppercase tracking-wider">Selected Prepay</span>
                                       )}
@@ -2282,7 +2283,7 @@ export default function App() {
                                                   )}
                                                 </div>
                                               </td>
-                                              <td className="py-2 pr-2 text-left"><div className="max-w-[220px] truncate font-medium text-[#000000]" title={opt.description || ''}>{opt.description || programName}</div></td>
+                                              <td className="py-2 pr-2 text-left"><div className="font-medium text-[10px] text-[#000000] whitespace-nowrap" title={opt.description || ''}>{opt.description || programName}</div></td>
                                               <td className="py-2 px-2 text-right font-semibold text-[#000000] tabular-nums">{safeNumber(opt.rate).toFixed(3)}%</td>
                                               <td className={`py-2 px-2 text-right tabular-nums ${price >= 100 ? 'text-[#22C55E] font-medium' : 'text-[#000000]'}`}>{price.toFixed(3)}</td>
                                               <td className={`py-2 px-2 text-right tabular-nums ${points < 0 ? 'text-[#22C55E]' : 'text-[#71717A]'}`}>{pointsDisplay}</td>
@@ -2370,7 +2371,7 @@ export default function App() {
                                       const payment = safeNumber(opt.payment)
                                       return (
                                         <div key={optIdx} className={`px-4 py-3 ${isClosestTo100 ? 'bg-[#FAFAFA]' : ''}`}>
-                                          <div className="text-[12px] font-medium text-[#000000] truncate mb-2">{opt.description || programName}</div>
+                                          <div className="text-[11px] font-medium text-[#000000] mb-2">{opt.description || programName}</div>
                                           <div className="grid grid-cols-4 gap-2 text-center">
                                             <div>
                                               <div className="text-[13px] font-bold text-[#000000] tabular-nums">{safeNumber(opt.rate).toFixed(3)}%</div>
