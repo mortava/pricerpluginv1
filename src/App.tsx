@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { DollarSign, Loader2, CheckCircle2, AlertCircle, ChevronDown, ChevronUp, X, Zap, Globe, ShieldCheck, Mail, LogOut, User, HelpCircle, Send, BarChart3, Menu, MessageCircle } from 'lucide-react'
+import { DollarSign, Loader2, CheckCircle2, AlertCircle, ChevronDown, ChevronUp, X, Zap, Globe, ShieldCheck, Mail, LogOut, User, HelpCircle, Send, BarChart3, Menu, MessageCircle, Sun, UserCircle, CheckCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/contexts/AuthContext'
 import { LoginPage } from '@/components/auth/LoginPage'
@@ -66,6 +66,14 @@ const IconRtlTerminal = ({ className = "w-4 h-4" }: { className?: string }) => (
     <line x1="12" y1="18" x2="12" y2="22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
     <polyline points="5,8 8,11 5,14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     <line x1="10" y1="14" x2="16" y2="14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity="0.55"/>
+  </svg>
+)
+
+const IconAtom = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <ellipse cx="12" cy="12" rx="10" ry="4.5" stroke="currentColor" strokeWidth="1.5" transform="rotate(-45 12 12)" />
+    <ellipse cx="12" cy="12" rx="10" ry="4.5" stroke="currentColor" strokeWidth="1.5" transform="rotate(45 12 12)" />
+    <circle cx="12" cy="12" r="2" fill="currentColor" />
   </svg>
 )
 
@@ -1176,9 +1184,12 @@ export default function App() {
       <aside className="hidden lg:flex flex-col fixed left-0 top-0 h-screen w-[200px] bg-white border-r border-[rgba(39,39,42,0.15)] z-50">
         {/* Brand */}
         <div className="px-4 pt-5 pb-4 border-b border-[rgba(39,39,42,0.15)]">
-          <div className="leading-tight">
-            <span className="text-[17px] font-bold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
-            <div className="text-[9px] text-[#A1A1AA] tracking-wide mt-0.5">powered by DEFY TPO</div>
+          <div className="flex items-center gap-2.5">
+            <IconAtom className="w-8 h-8 text-black" />
+            <div className="leading-tight">
+              <span className="text-[17px] font-bold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
+              <div className="text-[9px] text-[#A1A1AA] tracking-wide mt-0.5">Powered by DEFY TPO</div>
+            </div>
           </div>
         </div>
 
@@ -1269,34 +1280,15 @@ export default function App() {
           </div>
         </nav>
 
-        {/* Partner Login / User Info */}
-        <div className="px-3 py-4 border-t border-[rgba(39,39,42,0.15)]">
-          {isPartner && profile ? (
-            <div className="space-y-2">
-              <div className="px-2">
-                <div className="text-[12px] font-semibold text-[#000000] truncate">{profile.first_name} {profile.last_name}</div>
-                <div className="text-[10px] text-[#A1A1AA] truncate">{profile.company_name}</div>
-              </div>
-              <button
-                type="button"
-                onClick={() => signOut()}
-                className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] text-left transition-colors"
-              >
-                <LogOut className="w-3.5 h-3.5 text-[#A1A1AA]" />
-                <span className="text-[12px] text-[#71717A]">Sign Out</span>
-              </button>
+        {/* User Info (login moved to top header) */}
+        {isPartner && profile && (
+          <div className="px-3 py-4 border-t border-[rgba(39,39,42,0.15)]">
+            <div className="px-2">
+              <div className="text-[12px] font-semibold text-[#000000] truncate">{profile.first_name} {profile.last_name}</div>
+              <div className="text-[10px] text-[#A1A1AA] truncate">{profile.company_name}</div>
             </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setCurrentView('login')}
-              className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] text-left transition-colors"
-            >
-              <User className="w-3.5 h-3.5 text-[#A1A1AA]" />
-              <span className="text-[12px] font-semibold text-[#000000]">Partner Login</span>
-            </button>
-          )}
-        </div>
+          </div>
+        )}
       </aside>
 
       {/* ===== MOBILE HEADER (lg:hidden) ===== */}
@@ -1309,9 +1301,12 @@ export default function App() {
         >
           <Menu className="w-5 h-5" />
         </button>
-        <div className="leading-tight">
-          <span className="text-[15px] font-bold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
-          <div className="text-[8px] text-[#A1A1AA] tracking-wide">powered by DEFY TPO</div>
+        <div className="flex items-center gap-2">
+          <IconAtom className="w-6 h-6 text-black" />
+          <div className="leading-tight">
+            <span className="text-[15px] font-bold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
+            <div className="text-[8px] text-[#A1A1AA] tracking-wide">Powered by DEFY TPO</div>
+          </div>
         </div>
         <div className="w-8" />
       </header>
@@ -1322,9 +1317,12 @@ export default function App() {
           <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm lg:hidden" onClick={() => setMobileMenuOpen(false)} />
           <div className="fixed left-0 top-0 h-full w-[260px] bg-white z-[201] flex flex-col shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:hidden">
             <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[rgba(39,39,42,0.15)]">
-              <div className="leading-tight">
-                <span className="text-[15px] font-bold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
-                <div className="text-[8px] text-[#A1A1AA] tracking-wide">powered by DEFY TPO</div>
+              <div className="flex items-center gap-2">
+                <IconAtom className="w-6 h-6 text-black" />
+                <div className="leading-tight">
+                  <span className="text-[15px] font-bold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
+                  <div className="text-[8px] text-[#A1A1AA] tracking-wide">Powered by DEFY TPO</div>
+                </div>
               </div>
               <button type="button" onClick={() => setMobileMenuOpen(false)} className="p-1 text-[#A1A1AA] hover:text-[#000000]">
                 <X className="w-5 h-5" />
@@ -1441,6 +1439,51 @@ export default function App() {
       {/* ===== MAIN CONTENT ===== */}
       <main className="lg:ml-[200px] min-h-screen">
 
+        {/* ===== DESKTOP TOP HEADER BAR ===== */}
+        <div className="hidden lg:block sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-[rgba(39,39,42,0.15)] px-4 lg:px-6 py-2.5">
+          <div className="max-w-6xl mx-auto flex items-center justify-end gap-2.5">
+            {isPartner && profile ? (
+              <>
+                <span className="text-[12px] font-medium text-[#71717A] mr-1">{profile.first_name} {profile.last_name}</span>
+                <button
+                  type="button"
+                  onClick={() => signOut()}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium text-[#71717A] bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] hover:bg-[#F4F4F5] transition-colors"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium text-[#71717A] bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] hover:bg-[#F4F4F5] transition-colors"
+                >
+                  <Sun className="w-3.5 h-3.5" />
+                  Guest Mode
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrentView('login')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium text-[#000000] bg-white border border-[rgba(39,39,42,0.15)] hover:bg-[#FAFAFA] transition-colors"
+                >
+                  <UserCircle className="w-3.5 h-3.5" />
+                  Partners Login
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrentView('signup')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium text-white bg-[#000000] border border-[#000000] hover:opacity-90 transition-opacity"
+                >
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  Get Approved
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+
         {/* ===== STICKY RESULTS SUMMARY BAR ===== */}
         {result && targetPricing && (
             <div
@@ -1480,7 +1523,7 @@ export default function App() {
           )}
 
         {/* ===== FORM SECTION ===== */}
-        <div className="px-4 lg:px-6 py-3 max-w-6xl mx-auto">
+        <div className="px-4 lg:px-6 py-3 max-w-6xl mx-auto bg-white rounded-xl" style={{ border: '1px solid rgba(39,39,42,0.08)' }}>
           <form id="pricing-form" onSubmit={handleSubmit} className="space-y-3">
 
             {/* ===== LOAN INFORMATION SECTION ===== */}
