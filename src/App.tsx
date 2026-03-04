@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatCurrency, formatPercent } from '@/lib/utils'
 import { validateFormBeforeSubmit } from '@/lib/PricingLogic'
-import { LiveChat } from '@/components/live-chat'
+// LiveChat floating bubble removed — chat accessed via sidebar
 import { AdminChatPanel } from '@/components/admin-chat'
 
 /* ── Sidebar SVG Icons (currentColor for theme adaptability) ── */
@@ -1190,8 +1190,13 @@ export default function App() {
           {/* + New Scenario */}
           <button type="button" className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left text-[#000000]">
             <IconNewScenario className="w-[18px] h-[18px] shrink-0" />
-            <span className="text-[13px] font-semibold truncate">+ New Scenario</span>
+            <span className="text-[13px] font-semibold truncate">New Scenario</span>
           </button>
+          {/* Live Human Chat */}
+          <a href="/userchat" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors">
+            <User className="w-[18px] h-[18px] shrink-0 text-[#34D399]" />
+            <span className="text-[13px] font-semibold truncate text-[#34D399]">Live Human Chat</span>
+          </a>
           {/* TRINITY AI DEAL DESK — active */}
           <a href="https://dealr.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg bg-[#000000] text-white hover:opacity-90 transition-opacity">
             <IconDealDesk className="w-[18px] h-[18px] shrink-0" />
@@ -1332,8 +1337,13 @@ export default function App() {
               {/* + New Scenario */}
               <button type="button" onClick={() => setMobileMenuOpen(false)} className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left text-[#000000]">
                 <IconNewScenario className="w-[18px] h-[18px] shrink-0" />
-                <span className="text-[13px] font-semibold">+ New Scenario</span>
+                <span className="text-[13px] font-semibold">New Scenario</span>
               </button>
+              {/* Live Human Chat */}
+              <a href="/userchat" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors">
+                <User className="w-[18px] h-[18px] shrink-0 text-[#34D399]" />
+                <span className="text-[13px] font-semibold text-[#34D399]">Live Human Chat</span>
+              </a>
               {/* TRINITY AI DEAL DESK — active */}
               <a href="https://dealr.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg bg-[#000000] text-white hover:opacity-90 transition-opacity" onClick={() => setMobileMenuOpen(false)}>
                 <IconDealDesk className="w-[18px] h-[18px] shrink-0" />
@@ -2640,7 +2650,7 @@ export default function App() {
         </>
       )}
 
-      <LiveChat userId={user?.id} userName={profile ? `${profile.first_name} ${profile.last_name}` : undefined} />
+      {/* LiveChat removed — chat is now accessed via sidebar link */}
 
       {/* Admin Chat Panel (fullscreen overlay) */}
       {showAdminPanel && <AdminChatPanel onClose={() => setShowAdminPanel(false)} />}

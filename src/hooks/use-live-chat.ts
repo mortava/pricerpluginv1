@@ -85,7 +85,11 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
     setMessages((prev) => {
       const dbIds = new Set(dbData.map((m) => m.id))
       // Keep optimistic user messages not yet confirmed by DB
-      const keptOptimistic = prev.filter((m) => !dbIds.has(m.id) && m.sender_role === 'user')
+      // An optimistic msg is "confirmed" if DB has a message with same content+role
+      const keptOptimistic = prev.filter((m) =>
+        !dbIds.has(m.id) && m.sender_role === 'user' &&
+        !dbData.some((d) => d.sender_role === 'user' && d.content === m.content)
+      )
 
       // Detect genuinely new agent messages for notification sound
       if (playSound) {

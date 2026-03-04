@@ -158,8 +158,11 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
         setMessages((prev) => {
           const dbMsgs = data as ChatMessage[]
           const dbIds = new Set(dbMsgs.map((m) => m.id))
-          // Keep optimistic agent messages not yet in DB
-          const keptOptimistic = prev.filter((m) => !dbIds.has(m.id) && m.sender_role === 'agent')
+          // Keep optimistic agent messages not yet confirmed by DB
+          const keptOptimistic = prev.filter((m) =>
+            !dbIds.has(m.id) && m.sender_role === 'agent' &&
+            !dbMsgs.some((d) => d.sender_role === 'agent' && d.content === m.content)
+          )
 
           // Detect genuinely new user messages for notification sound
           const newUserMsgs = dbMsgs.filter((m) => m.sender_role === 'user' && !seenMsgIdsRef.current.has(m.id))
