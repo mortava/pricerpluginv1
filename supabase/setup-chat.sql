@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS public.chat_messages (
   conversation_id UUID NOT NULL REFERENCES public.chat_conversations(id) ON DELETE CASCADE,
   sender_role TEXT NOT NULL CHECK (sender_role IN ('user', 'agent')),
   sender_name TEXT NOT NULL DEFAULT 'Guest',
-  content TEXT NOT NULL,
+  content TEXT,
+  image_url TEXT,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -50,3 +51,15 @@ ALTER TABLE public.chat_messages REPLICA IDENTITY FULL;
 -- Enable realtime publication
 ALTER PUBLICATION supabase_realtime ADD TABLE public.chat_conversations;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.chat_messages;
+
+-- Storage bucket for chat images
+INSERT INTO storage.buckets (id, name, public) VALUES ('chat-images', 'chat-images', true)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Allow public uploads to chat-images"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'chat-images');
+
+CREATE POLICY "Allow public reads from chat-images"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'chat-images');

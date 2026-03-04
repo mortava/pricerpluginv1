@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { X, Send, MessageCircle, ArrowLeft, RefreshCw } from 'lucide-react'
+import { X, Send, MessageCircle, ArrowLeft, RefreshCw, ImageIcon } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { cn, generateId } from '@/lib/utils'
 import { playAdminNotificationSound } from '@/hooks/use-live-chat'
@@ -21,6 +21,7 @@ interface ChatMessage {
   sender_role: 'user' | 'agent'
   sender_name: string
   content: string
+  image_url?: string | null
   created_at: string
 }
 
@@ -30,8 +31,12 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(true)
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Auto-scroll on new messages
   useEffect(() => {
@@ -67,14 +72,12 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
 
   // === REALTIME: new conversations ===
   useEffect(() => {
-    console.log('[Admin] Subscribing to conversation changes')
     const channel = supabase
       .channel(`admin-convos:${Date.now()}`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'chat_conversations' },
         (payload) => {
-          console.log('[Admin RT] New conversation:', payload.new)
           const newConvo = payload.new as Conversation
           setConversations((prev) => {
             if (prev.some((c) => c.id === newConvo.id)) return prev
@@ -82,7 +85,7 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
           })
           playAdminNotificationSound()
           if (document.hidden && Notification.permission === 'granted') {
-            new Notification('New Chat', { body: `${newConvo.user_name} started a ${newConvo.department} conversation` })
+            new Notification('New Chat', { body: `${newConvo.user_name} started a conversation` })
           }
         }
       )
@@ -96,9 +99,7 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
           }
         }
       )
-      .subscribe((status) => {
-        console.log('[Admin] Conversations realtime status:', status)
-      })
+      .subscribe()
     return () => { supabase.removeChannel(channel) }
   }, [])
 
@@ -115,7 +116,6 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
           const prevIds = new Set(prev.map((c) => c.id))
           const newOnes = (data as Conversation[]).filter((c) => !prevIds.has(c.id))
           if (newOnes.length > 0) playAdminNotificationSound()
-          // Return full fresh list from DB
           return data as Conversation[]
         })
       }
@@ -128,7 +128,6 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     if (!selected) return
     async function loadMessages() {
-      console.log('[Admin] Loading messages for', selected!.id)
       const { data, error } = await supabase
         .from('chat_messages')
         .select('*')
@@ -143,7 +142,7 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
   // Track seen DB message IDs for sound dedup
   const seenMsgIdsRef = useRef<Set<string>>(new Set())
 
-  // === POLL messages every 3s for selected conversation (single source of truth) ===
+  // === POLL messages every 3s for selected conversation ===
   useEffect(() => {
     if (!selected) return
     seenMsgIdsRef.current = new Set()
@@ -158,22 +157,19 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
         setMessages((prev) => {
           const dbMsgs = data as ChatMessage[]
           const dbIds = new Set(dbMsgs.map((m) => m.id))
-          // Keep optimistic agent messages not yet confirmed by DB
           const keptOptimistic = prev.filter((m) =>
             !dbIds.has(m.id) && m.sender_role === 'agent' &&
             !dbMsgs.some((d) => d.sender_role === 'agent' && d.content === m.content)
           )
 
-          // Detect genuinely new user messages for notification sound
           const newUserMsgs = dbMsgs.filter((m) => m.sender_role === 'user' && !seenMsgIdsRef.current.has(m.id))
           if (newUserMsgs.length > 0 && seenMsgIdsRef.current.size > 0) {
             playAdminNotificationSound()
             if (document.hidden && Notification.permission === 'granted') {
-              new Notification('New Message', { body: newUserMsgs[newUserMsgs.length - 1].content })
+              new Notification('New Message', { body: newUserMsgs[newUserMsgs.length - 1].content || 'Sent an image' })
             }
           }
 
-          // Update seen IDs
           dbMsgs.forEach((m) => seenMsgIdsRef.current.add(m.id))
 
           const merged = [...dbMsgs, ...keptOptimistic]
@@ -183,14 +179,21 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
       }
     }
 
-    // Initial fetch
     poll()
     const interval = setInterval(poll, 3000)
     return () => clearInterval(interval)
   }, [selected?.id])
 
-  // Send message as agent (with optimistic update)
+  // Send message as agent
   async function handleSend() {
+    if (selectedImage && selected) {
+      const caption = input.trim() || undefined
+      const file = selectedImage
+      setInput('')
+      clearImage()
+      await handleSendImage(file, caption)
+      return
+    }
     if (!input.trim() || !selected) return
     const content = input.trim()
     setInput('')
@@ -205,7 +208,6 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
     }
     setMessages((prev) => [...prev, optimisticMsg])
 
-    console.log('[Admin] Sending message to', selected.id)
     const { error } = await supabase.from('chat_messages').insert({
       conversation_id: selected.id,
       sender_role: 'agent',
@@ -216,9 +218,69 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
       console.error('[Admin] Send error:', error)
       setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id))
       setInput(content)
-    } else {
-      console.log('[Admin] Message sent OK')
     }
+  }
+
+  // Send image as agent
+  async function handleSendImage(file: File, caption?: string) {
+    if (!selected) return
+    const allowed = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+    if (!allowed.includes(file.type) || file.size > 5 * 1024 * 1024) return
+
+    const ext = file.name.split('.').pop() || 'png'
+    const path = `${selected.id}/${Date.now()}_${generateId()}.${ext}`
+    const localUrl = URL.createObjectURL(file)
+
+    const optimisticMsg: ChatMessage = {
+      id: generateId(),
+      conversation_id: selected.id,
+      sender_role: 'agent',
+      sender_name: 'Admin',
+      content: caption || '',
+      image_url: localUrl,
+      created_at: new Date().toISOString(),
+    }
+    setMessages((prev) => [...prev, optimisticMsg])
+
+    const { error: uploadError } = await supabase.storage
+      .from('chat-images')
+      .upload(path, file, { contentType: file.type })
+
+    if (uploadError) {
+      console.error('[Admin] Upload error:', uploadError)
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id))
+      return
+    }
+
+    const { data: urlData } = supabase.storage.from('chat-images').getPublicUrl(path)
+
+    const { error } = await supabase.from('chat_messages').insert({
+      conversation_id: selected.id,
+      sender_role: 'agent',
+      sender_name: 'Admin',
+      content: caption || '',
+      image_url: urlData.publicUrl,
+    })
+    if (error) {
+      console.error('[Admin] Send image error:', error)
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id))
+    }
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const allowed = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+    if (!allowed.includes(file.type) || file.size > 5 * 1024 * 1024) return
+    setSelectedImage(file)
+    setImagePreview(URL.createObjectURL(file))
+    e.target.value = ''
+  }
+
+  function clearImage() {
+    if (imagePreview) URL.revokeObjectURL(imagePreview)
+    setSelectedImage(null)
+    setImagePreview(null)
   }
 
   // Close a conversation
@@ -254,18 +316,10 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={loadConversations}
-            className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#FAFAFA] transition-colors"
-            title="Refresh"
-          >
+          <button onClick={loadConversations} className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#FAFAFA] transition-colors" title="Refresh">
             <RefreshCw className="w-4 h-4 text-[#71717A]" />
           </button>
-          <button
-            onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#FAFAFA] transition-colors"
-            title="Close Admin Panel"
-          >
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#FAFAFA] transition-colors" title="Close Admin Panel">
             <X className="w-4 h-4 text-black" />
           </button>
         </div>
@@ -369,28 +423,27 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={cn(
-                      'mb-3 flex flex-col',
-                      msg.sender_role === 'agent' ? 'items-end' : 'items-start'
-                    )}
+                    className={cn('mb-3 flex flex-col', msg.sender_role === 'agent' ? 'items-end' : 'items-start')}
                   >
                     <div
                       className={cn(
                         'max-w-[65%] rounded-xl px-4 py-2.5 text-[14px]',
-                        msg.sender_role === 'agent'
-                          ? 'bg-black text-white'
-                          : 'bg-[#FAFAFA] text-black'
+                        msg.sender_role === 'agent' ? 'bg-black text-white' : 'bg-[#FAFAFA] text-black'
                       )}
-                      style={
-                        msg.sender_role === 'user'
-                          ? { border: '1px solid rgba(39, 39, 42, 0.15)' }
-                          : undefined
-                      }
+                      style={msg.sender_role === 'user' ? { border: '1px solid rgba(39, 39, 42, 0.15)' } : undefined}
                     >
                       {msg.sender_role === 'user' && (
                         <p className="mb-1 text-[11px] font-medium text-[#71717A]">{msg.sender_name}</p>
                       )}
-                      <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                      {msg.image_url && (
+                        <img
+                          src={msg.image_url}
+                          alt="Shared image"
+                          className="max-w-[280px] w-full rounded-lg mb-1.5 cursor-pointer hover:opacity-90 transition-opacity"
+                          onClick={() => setLightboxUrl(msg.image_url!)}
+                        />
+                      )}
+                      {msg.content && <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>}
                     </div>
                     <span className="mt-1 text-[11px] text-[#A1A1AA]">{formatTime(msg.created_at)}</span>
                   </div>
@@ -400,20 +453,38 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
 
               {/* Reply Input */}
               <div className="px-4 pb-4 pt-2 border-t border-[rgba(39,39,42,0.1)]">
+                {imagePreview && (
+                  <div className="mb-2 relative inline-block">
+                    <img src={imagePreview} alt="Preview" className="h-16 rounded-lg border border-[rgba(39,39,42,0.15)]" />
+                    <button onClick={clearImage}
+                      className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black text-white"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
+                  <input type="file" ref={fileInputRef} accept="image/png,image/jpeg,image/gif,image/webp" className="hidden" onChange={handleFileSelect} />
+                  <button onClick={() => fileInputRef.current?.click()}
+                    className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-[#FAFAFA] transition-colors shrink-0"
+                    style={{ border: '1px solid rgba(39,39,42,0.15)' }}
+                    title="Attach image"
+                  >
+                    <ImageIcon className="h-4 w-4 text-[#71717A]" />
+                  </button>
                   <input
                     ref={inputRef}
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
-                    placeholder="Reply as Admin..."
+                    placeholder={selectedImage ? 'Add a caption...' : 'Reply as Admin...'}
                     className="flex-1 rounded-lg bg-white px-3 py-2.5 text-[14px] text-black placeholder:text-[#A1A1AA] outline-none transition-all duration-150 focus:border-black"
                     style={{ border: '1px solid rgba(39, 39, 42, 0.3)' }}
                   />
                   <button
                     onClick={handleSend}
-                    disabled={!input.trim()}
+                    disabled={!input.trim() && !selectedImage}
                     className="flex h-10 w-10 items-center justify-center rounded-lg bg-black text-white transition-all duration-150 hover:opacity-85 disabled:opacity-50"
                     title="Send reply"
                   >
@@ -425,6 +496,13 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
           )}
         </div>
       </div>
+
+      {/* Lightbox */}
+      {lightboxUrl && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/70 p-4" onClick={() => setLightboxUrl(null)}>
+          <img src={lightboxUrl} alt="Full size" className="max-w-full max-h-full rounded-xl" />
+        </div>
+      )}
     </div>
   )
 }

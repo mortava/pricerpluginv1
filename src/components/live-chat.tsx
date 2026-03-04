@@ -191,7 +191,10 @@ export function LiveChat({ userId, userName }: LiveChatProps) {
                             {msg.sender_name}
                           </p>
                         )}
-                        <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                        {msg.image_url && (
+                          <img src={msg.image_url} alt="Shared image" className="max-w-[200px] w-full rounded-lg mb-1.5" />
+                        )}
+                        {msg.content && <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>}
                       </div>
                       <span className="mt-1 text-[11px] text-[#A1A1AA]">
                         {formatTime(msg.created_at)}

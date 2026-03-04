@@ -8,6 +8,7 @@ export interface LiveChatMessage {
   sender_role: 'user' | 'agent'
   sender_name: string
   content: string
+  image_url?: string | null
   created_at: string
 }
 
@@ -85,11 +86,17 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
     setMessages((prev) => {
       const dbIds = new Set(dbData.map((m) => m.id))
       // Keep optimistic user messages not yet confirmed by DB
-      // An optimistic msg is "confirmed" if DB has a message with same content+role
-      const keptOptimistic = prev.filter((m) =>
-        !dbIds.has(m.id) && m.sender_role === 'user' &&
-        !dbData.some((d) => d.sender_role === 'user' && d.content === m.content)
-      )
+      // An optimistic msg is "confirmed" if DB has a matching message
+      const keptOptimistic = prev.filter((m) => {
+        if (dbIds.has(m.id) || m.sender_role !== 'user') return false
+        // Check content match OR image match
+        return !dbData.some((d) =>
+          d.sender_role === 'user' && (
+            (d.content && d.content === m.content) ||
+            (d.image_url && m.image_url && d.image_url.includes('chat-images'))
+          )
+        )
+      })
 
       // Detect genuinely new agent messages for notification sound
       if (playSound) {
@@ -237,6 +244,70 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
     [conversation, resolvedUserName]
   )
 
+  const sendImage = useCallback(
+    async (file: File, caption?: string) => {
+      if (!conversation) return
+      const allowed = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+      if (!allowed.includes(file.type)) {
+        console.error('[Chat] Invalid file type:', file.type)
+        return
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        console.error('[Chat] File too large:', file.size)
+        return
+      }
+
+      const ext = file.name.split('.').pop() || 'png'
+      const path = `${conversation.id}/${Date.now()}_${generateId()}.${ext}`
+      const localUrl = URL.createObjectURL(file)
+
+      const localMsg: LiveChatMessage = {
+        id: generateId(),
+        conversation_id: conversation.id,
+        sender_role: 'user',
+        sender_name: resolvedUserName,
+        content: caption?.trim() || '',
+        image_url: localUrl,
+        created_at: new Date().toISOString(),
+      }
+      setMessages((prev) => [...prev, localMsg])
+
+      const { error: uploadError } = await supabase.storage
+        .from('chat-images')
+        .upload(path, file, { contentType: file.type })
+
+      if (uploadError) {
+        console.error('[Chat] Upload error:', uploadError)
+        setMessages((prev) => prev.filter((m) => m.id !== localMsg.id))
+        return
+      }
+
+      const { data: urlData } = supabase.storage.from('chat-images').getPublicUrl(path)
+      const publicUrl = urlData.publicUrl
+
+      const { error } = await supabase.from('chat_messages').insert({
+        conversation_id: conversation.id,
+        sender_role: 'user',
+        sender_name: resolvedUserName,
+        content: caption?.trim() || '',
+        image_url: publicUrl,
+      })
+
+      if (error) {
+        console.error('[Chat] Send image message error:', error)
+        setMessages((prev) => prev.filter((m) => m.id !== localMsg.id))
+        return
+      }
+
+      console.log('[Chat] Image sent OK')
+      await supabase
+        .from('chat_conversations')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', conversation.id)
+    },
+    [conversation, resolvedUserName]
+  )
+
   const endConversation = useCallback(async () => {
     if (conversation) {
       await supabase
@@ -254,6 +325,7 @@ export function useLiveChat({ userId, userName }: UseLiveChatOptions = {}) {
     loading,
     startConversation,
     sendMessage,
+    sendImage,
     endConversation,
     isConnected: true,
   }
