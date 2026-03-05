@@ -1245,10 +1245,10 @@ export default function App() {
             <span className="text-[13px] truncate">RTL Terminal</span>
           </div>
 
-          {/* Secondary Admin */}
+          {/* Admin Code */}
           <div className="mt-3 pt-3 border-t border-[rgba(39,39,42,0.1)]">
             <div className="px-2 py-1 mb-1">
-              <span className="text-[9px] font-bold uppercase tracking-widest text-[#A1A1AA]">Secondary Admin</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-[#A1A1AA]">Admin Code</span>
             </div>
             {!adminUnlocked ? (
               <div className="flex items-center gap-2 px-2">
@@ -1261,7 +1261,7 @@ export default function App() {
                   onChange={(e) => {
                     const val = e.target.value.replace(/\D/g, '').slice(0, 4)
                     setAdminPasscode(val)
-                    if (val === '4040') setAdminUnlocked(true)
+                    if (val === '3001') setAdminUnlocked(true)
                   }}
                   className="w-14 h-7 text-center text-[12px] font-mono bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded text-[#71717A] outline-none focus:border-[#A1A1AA] placeholder:text-[#D1D5DB]"
                 />
@@ -1379,10 +1379,10 @@ export default function App() {
                 <span className="text-[13px]">RTL Terminal</span>
               </div>
 
-              {/* Secondary Admin */}
+              {/* Admin Code */}
               <div className="mt-3 pt-3 border-t border-[rgba(39,39,42,0.1)]">
                 <div className="px-2 py-1 mb-1">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-[#A1A1AA]">Secondary Admin</span>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-[#A1A1AA]">Admin Code</span>
                 </div>
                 {!adminUnlocked ? (
                   <div className="flex items-center gap-2 px-2">
@@ -1395,7 +1395,7 @@ export default function App() {
                       onChange={(e) => {
                         const val = e.target.value.replace(/\D/g, '').slice(0, 4)
                         setAdminPasscode(val)
-                        if (val === '4040') setAdminUnlocked(true)
+                        if (val === '3001') setAdminUnlocked(true)
                       }}
                       className="w-14 h-7 text-center text-[12px] font-mono bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded text-[#71717A] outline-none focus:border-[#A1A1AA] placeholder:text-[#D1D5DB]"
                     />
@@ -2486,10 +2486,10 @@ export default function App() {
                       </div>
                     ) : null}
 
-                    {/* National Rate Access - LP Results Gate */}
-                    {(lpLoading || lpResult) && !lpUnlocked && (
+                    {/* National Rate Access - LP Results Gate (auto-bypass for cross-collateral) */}
+                    {(lpLoading || lpResult) && !lpUnlocked && !formData.isCrossCollateralized && (
                       <div className="mt-4 flex items-center gap-3 justify-end">
-                        <span className="text-[11px] text-[#A1A1AA] font-medium">National Rate Access</span>
+                        <span className="text-[11px] text-[#A1A1AA] font-medium">Secondary Access 4040 (Code)</span>
                         <input
                           type="password"
                           inputMode="numeric"
@@ -2507,7 +2507,7 @@ export default function App() {
                     )}
 
                     {/* LP Loading */}
-                    {lpUnlocked && lpLoading && !lpResult && (
+                    {(lpUnlocked || formData.isCrossCollateralized) && lpLoading && !lpResult && (
                       <div className="mt-4 border border-[rgba(39,39,42,0.15)] bg-white rounded-xl p-6 space-y-4">
                         <div className="flex items-center gap-3">
                           <Globe className="w-5 h-5 text-[#A1A1AA]" />
@@ -2520,7 +2520,7 @@ export default function App() {
                     )}
 
                     {/* LP Results */}
-                    {lpUnlocked && lpResult && lpResult.rateOptions && lpResult.rateOptions.length > 0 && (() => {
+                    {(lpUnlocked || formData.isCrossCollateralized) && lpResult && lpResult.rateOptions && lpResult.rateOptions.length > 0 && (() => {
                       const isInvestment = formData.occupancyType === 'investment'
                       const prepayMonths = parseInt(formData.prepayPeriod) || 0
                       const priceCeiling = 103.000
@@ -2621,7 +2621,7 @@ export default function App() {
                     })()}
 
                     {/* LP empty */}
-                    {lpUnlocked && !lpLoading && lpResult && (!lpResult.rateOptions || lpResult.rateOptions.length === 0) && (
+                    {(lpUnlocked || formData.isCrossCollateralized) && !lpLoading && lpResult && (!lpResult.rateOptions || lpResult.rateOptions.length === 0) && (
                       <div className="mt-4 border border-[rgba(39,39,42,0.15)] bg-white rounded-xl p-6">
                         <div className="flex flex-col items-center gap-2">
                           <Globe className="w-5 h-5 text-[#A1A1AA]" />
