@@ -1534,7 +1534,7 @@ export default function App() {
                 <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${!collapsedSections.has('loan') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('loan') && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-x-4 gap-y-4">
                   {/* Row 1: Lien Position, Loan Purpose, Value/Sales Price, Loan Amount, LTV, CLTV */}
                   <div className="space-y-1.5">
                     <label htmlFor="lienPosition" className="block text-sm font-medium text-slate-900">Lien Position</label>
@@ -1654,7 +1654,7 @@ export default function App() {
                 <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${!collapsedSections.has('property') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('property') && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-x-4 gap-y-4">
                   {/* Row 1: Property Use, Property Type, ZIP Code, State, County, City */}
                   <div className="space-y-1.5">
                     <label htmlFor="occupancyType" className={`block text-sm font-medium ${hasError('occupancyType') ? 'text-[#EF4444]' : 'text-slate-900'}`}>Property Use *</label>
@@ -1748,7 +1748,7 @@ export default function App() {
                 <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${!collapsedSections.has('borrower') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('borrower') && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-x-4 gap-y-4">
                   <div className="space-y-1.5">
                     <label htmlFor="creditScore" className={`block text-sm font-medium ${hasError('creditScore') ? 'text-[#EF4444]' : 'text-slate-900'}`}>Credit Score *</label>
                     <Input id="creditScore" name="creditScore" maxLength={3} value={formData.creditScore} onChange={(e) => handleInputChange('creditScore', e.target.value.replace(/\D/g, ''))} className={`h-11 text-sm border-slate-300 focus:ring-teal-500 ${hasError('creditScore') ? 'border-red-500' : ''}`} />
@@ -1816,7 +1816,7 @@ export default function App() {
                   <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${!collapsedSections.has('investor') ? 'rotate-180' : ''}`} />
                 </button>
                 {!collapsedSections.has('investor') && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-x-4 gap-y-4">
                     <div className="space-y-1.5">
                       <label htmlFor="prepayPeriod" className="block text-sm font-medium text-slate-900">Prepay Period</label>
                       <Select name="prepayPeriod" value={formData.prepayPeriod} onValueChange={(v) => handleInputChange('prepayPeriod', v)}>
