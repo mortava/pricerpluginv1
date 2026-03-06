@@ -36,9 +36,10 @@ export function LoginPage({ onBack, onSignUp }: LoginPageProps) {
           <div className="text-center mb-8">
             <h1 className="font-['Montserrat'] text-3xl font-extrabold tracking-tight">
               <span className="text-slate-900">DEFY </span>
-              <span className="text-cyan-500">CLOUD</span>
+              <span className="text-blue-500">CLOUD</span>
             </h1>
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.25em] mt-1">Portal Access</p>
+            <p className="text-sm text-slate-500 mt-3 italic">Dare to Defy. Brokers Close Harder.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -54,7 +55,7 @@ export function LoginPage({ onBack, onSignUp }: LoginPageProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@company.com"
-                  className="w-full pl-10 pr-4 py-3 bg-blue-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 bg-blue-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150"
                 />
               </div>
             </div>
@@ -71,7 +72,7 @@ export function LoginPage({ onBack, onSignUp }: LoginPageProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full pl-10 pr-4 py-3 bg-blue-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 bg-blue-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150"
                 />
               </div>
             </div>
@@ -94,25 +95,23 @@ export function LoginPage({ onBack, onSignUp }: LoginPageProps) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 bg-slate-900 hover:bg-black text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+              className="w-full py-3.5 bg-slate-900 hover:bg-black text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] disabled:opacity-60"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Sign In <ArrowRight className="w-4 h-4" /></>}
             </button>
           </form>
 
           {/* Back to Guest */}
-          <button type="button" onClick={onBack} className="w-full mt-4 py-2 text-[12px] text-slate-400 hover:text-slate-600 transition-colors text-center">
+          <button type="button" onClick={onBack} className="w-full mt-4 py-2 text-sm text-slate-400 hover:text-slate-600 transition-colors text-center">
             Continue as Guest
           </button>
-        </div>
 
-        {/* Footer */}
-        <div className="text-center mt-6">
-          <div className="w-12 h-px bg-slate-200 mx-auto mb-3" />
-          <p className="text-[11px] text-slate-400">The future of Lending Now</p>
-          <p className="font-['Montserrat'] text-[15px] font-extrabold text-slate-800 tracking-tight mt-1">
-            <span className="text-slate-400 font-normal text-[11px] align-super mr-0.5">°</span>OpenBroker <span className="font-normal text-slate-400">Labs</span>
-          </p>
+          {/* OpenBroker Labs - inside card */}
+          <div className="text-center mt-6 pt-5 border-t border-slate-100">
+            <p className="font-['Montserrat'] text-[15px] font-extrabold text-slate-800 tracking-tight">
+              <span className="text-slate-400 font-normal text-[11px] align-super mr-0.5">°</span>OpenBroker <span className="font-normal text-slate-400">Labs</span>
+            </p>
+          </div>
         </div>
       </div>
     </div>

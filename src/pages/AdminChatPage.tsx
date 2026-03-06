@@ -7,18 +7,18 @@ export default function AdminChatPage() {
 
   if (!unlocked) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center px-4">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
         <div className="w-full max-w-[320px] text-center">
           <div className="mb-6">
             <span className="text-[22px] font-semibold tracking-[-0.02em]">
-              <span className="text-[#000000]">Open</span>
-              <span className="text-[#34D399]">Price</span>
+              <span className="text-slate-900">Open</span>
+              <span className="text-teal-600">Price</span>
             </span>
-            <p className="text-[12px] text-[#A1A1AA] mt-1">Admin Chat Access</p>
+            <p className="text-sm text-slate-400 mt-1">Admin Chat Access</p>
           </div>
           <div className="space-y-4">
             <div>
-              <label className="block text-[11px] font-medium text-[#71717A] mb-1.5">Enter Passcode</label>
+              <label className="block text-sm font-medium text-slate-500 mb-1.5">Enter Passcode</label>
               <input
                 type="password"
                 inputMode="numeric"
@@ -30,11 +30,11 @@ export default function AdminChatPage() {
                   setPasscode(val)
                   if (val === '4040') setUnlocked(true)
                 }}
-                className="w-24 h-10 mx-auto block text-center text-[16px] font-mono bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded-lg text-[#000000] outline-none focus:border-[#000000] placeholder:text-[#D1D5DB]"
+                className="w-24 h-11 mx-auto block text-center text-base font-mono bg-slate-50 border border-slate-300 rounded-lg text-slate-900 outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 placeholder:text-slate-300 transition-all duration-150"
                 autoFocus
               />
             </div>
-            <a href="/" className="inline-block text-[12px] text-[#A1A1AA] hover:text-[#71717A] transition-colors">
+            <a href="/" className="inline-block text-sm text-slate-400 hover:text-slate-600 transition-colors">
               Back to OpenPrice
             </a>
           </div>

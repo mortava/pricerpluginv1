@@ -83,56 +83,55 @@ export default function UserChatPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="w-full max-w-[480px] bg-white rounded-2xl overflow-hidden flex flex-col"
-        style={{ height: 'min(640px, calc(100vh - 2rem))', border: '1px solid rgba(39,39,42,0.15)', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
+        style={{ height: 'min(640px, calc(100vh - 2rem))', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(39,39,42,0.15)' }}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
           <div className="flex items-center gap-3">
             {conversation && (
-              <button onClick={handleEnd} className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#F4F4F5] transition-colors" title="End conversation">
-                <ArrowLeft className="h-4 w-4 text-black" />
+              <button onClick={handleEnd} className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-slate-100 transition-colors" title="End conversation">
+                <ArrowLeft className="h-5 w-5 text-slate-800" />
               </button>
             )}
             <div>
-              <h3 className="text-[15px] font-semibold tracking-[-0.02em]">
+              <h3 className="text-base font-semibold tracking-[-0.02em]">
                 {conversation
                   ? 'Support'
-                  : <><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></>}
+                  : <><span className="text-slate-900">Open</span><span className="text-teal-600">Price</span></>}
               </h3>
-              <p className="text-[12px] text-[#71717A]">
+              <p className="text-sm text-slate-500">
                 {conversation ? (
                   <span className="flex items-center gap-1.5">
-                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#22C55E]" />
+                    <span className="inline-block h-2 w-2 rounded-full bg-teal-600" />
                     Connected
                   </span>
                 ) : 'Live Chat'}
               </p>
             </div>
           </div>
-          <a href="/" className="text-[11px] text-[#A1A1AA] hover:text-[#71717A] transition-colors">Back to app</a>
+          <a href="/" className="text-sm text-slate-400 hover:text-slate-600 transition-colors">Back to app</a>
         </div>
 
         {/* Body */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {!conversation ? (
             <div className="flex flex-1 flex-col items-center justify-center px-6">
-              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#ECFDF5]">
-                <User className="h-7 w-7 text-[#34D399]" />
+              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-teal-50">
+                <User className="h-7 w-7 text-teal-600" />
               </div>
-              <h4 className="mb-1 text-[15px] font-semibold text-black tracking-[-0.02em]">Chat with a Human</h4>
-              <p className="mb-6 text-center text-[13px] text-[#A1A1AA]">Get help from our support team in real-time.</p>
+              <h4 className="mb-1 text-base font-semibold text-slate-900 tracking-[-0.02em]">Chat with a Human</h4>
+              <p className="mb-6 text-center text-sm text-slate-400">Get help from our support team in real-time.</p>
               <button onClick={handleStartChat} disabled={loading}
-                className="flex w-full items-center gap-4 rounded-xl bg-white px-5 py-4 text-left transition-all duration-200 hover:bg-[#FAFAFA]"
-                style={{ border: '1px solid rgba(39,39,42,0.15)' }}
+                className="flex w-full items-center gap-4 rounded-xl bg-white px-5 py-4 text-left transition-all duration-200 hover:bg-slate-50 border border-slate-200"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#ECFDF5]">
-                  <User className="h-5 w-5 text-[#34D399]" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-50">
+                  <User className="h-5 w-5 text-teal-600" />
                 </div>
                 <div>
-                  <span className="text-[14px] font-medium text-black">Support</span>
-                  <p className="text-[13px] text-[#A1A1AA]">Questions, pricing & technical help</p>
+                  <span className="text-sm font-medium text-slate-900">Support</span>
+                  <p className="text-sm text-slate-400">Questions, pricing & technical help</p>
                 </div>
               </button>
             </div>
@@ -141,18 +140,17 @@ export default function UserChatPage() {
               <div className="flex-1 overflow-y-auto px-5 py-4">
                 {messages.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <p className="text-[13px] text-[#A1A1AA]">
+                    <p className="text-sm text-slate-400">
                       A support agent will be with you shortly.
                     </p>
                   </div>
                 )}
                 {messages.map((msg) => (
                   <div key={msg.id} className={cn('mb-3 flex flex-col', msg.sender_role === 'user' ? 'items-end' : 'items-start')}>
-                    <div className={cn('max-w-[80%] rounded-xl px-4 py-2.5 text-[14px]', msg.sender_role === 'user' ? 'bg-black text-white' : 'bg-[#FAFAFA] text-black')}
-                      style={msg.sender_role === 'agent' ? { border: '1px solid rgba(39,39,42,0.15)' } : undefined}
+                    <div className={cn('max-w-[80%] rounded-xl px-4 py-2.5 text-sm', msg.sender_role === 'user' ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-900 border border-slate-200')}
                     >
                       {msg.sender_role === 'agent' && (
-                        <p className="mb-1 text-[11px] font-medium text-[#71717A]">{msg.sender_name}</p>
+                        <p className="mb-1 text-xs font-medium text-slate-500">{msg.sender_name}</p>
                       )}
                       {msg.image_url && (
                         <img
@@ -164,19 +162,19 @@ export default function UserChatPage() {
                       )}
                       {msg.content && <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>}
                     </div>
-                    <span className="mt-1 text-[11px] text-[#A1A1AA]">{formatTime(msg.created_at)}</span>
+                    <span className="mt-1 text-xs text-slate-400">{formatTime(msg.created_at)}</span>
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
               </div>
 
-              <div className="px-4 pb-4 pt-2" style={{ borderTop: '1px solid rgba(39,39,42,0.1)' }}>
+              <div className="px-4 pb-4 pt-2 border-t border-slate-100">
                 {/* Image preview */}
                 {imagePreview && (
                   <div className="mb-2 relative inline-block">
-                    <img src={imagePreview} alt="Preview" className="h-16 rounded-lg border border-[rgba(39,39,42,0.15)]" />
+                    <img src={imagePreview} alt="Preview" className="h-16 rounded-lg border border-slate-200" />
                     <button onClick={clearImage}
-                      className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black text-white"
+                      className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-white"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -185,11 +183,10 @@ export default function UserChatPage() {
                 <div className="flex items-center gap-2">
                   <input type="file" ref={fileInputRef} accept="image/png,image/jpeg,image/gif,image/webp" className="hidden" onChange={handleFileSelect} />
                   <button onClick={() => fileInputRef.current?.click()}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-[#FAFAFA] transition-colors shrink-0"
-                    style={{ border: '1px solid rgba(39,39,42,0.15)' }}
+                    className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-slate-50 transition-colors shrink-0 border border-slate-200"
                     title="Attach image"
                   >
-                    <ImageIcon className="h-4 w-4 text-[#71717A]" />
+                    <ImageIcon className="h-4 w-4 text-slate-500" />
                   </button>
                   <input
                     ref={inputRef}
@@ -198,11 +195,10 @@ export default function UserChatPage() {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
                     placeholder={selectedImage ? 'Add a caption...' : 'Type a message...'}
-                    className="flex-1 rounded-lg bg-white px-3 py-2.5 text-[14px] text-black placeholder:text-[#A1A1AA] outline-none transition-all duration-150 focus:border-black"
-                    style={{ border: '1px solid rgba(39,39,42,0.3)' }}
+                    className="flex-1 rounded-lg bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all duration-150 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 border border-slate-300"
                   />
                   <button onClick={handleSend} disabled={!input.trim() && !selectedImage}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-black text-white transition-all duration-150 hover:opacity-85 disabled:opacity-50"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 text-white transition-all duration-150 hover:bg-black disabled:opacity-50"
                     title="Send message"
                   >
                     <Send className="h-4 w-4" />

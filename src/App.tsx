@@ -1178,48 +1178,48 @@ export default function App() {
 
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-slate-50">
 
       {/* ===== DESKTOP SIDEBAR (fixed, 200px) ===== */}
-      <aside className="hidden lg:flex flex-col fixed left-0 top-0 h-screen w-[200px] bg-white border-r border-[rgba(39,39,42,0.15)] z-50">
+      <aside className="hidden lg:flex flex-col fixed left-0 top-0 h-screen w-[200px] bg-white border-r border-slate-200 z-50">
         {/* Brand */}
-        <div className="px-4 pt-5 pb-4 border-b border-[rgba(39,39,42,0.15)]">
+        <div className="px-4 pt-5 pb-4 border-b border-slate-200">
           <div className="flex items-center gap-2.5">
             <IconAtom className="w-8 h-8 text-black" />
             <div className="leading-tight">
-              <span className="text-[17px] font-bold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
-              <div className="text-[9px] text-[#A1A1AA] tracking-wide mt-0.5">Powered by DEFY TPO</div>
+              <span className="text-[17px] font-bold tracking-[-0.02em]"><span className="text-slate-900">Open</span><span className="text-teal-600">Price</span></span>
+              <div className="text-[9px] text-slate-400 tracking-wide mt-0.5">Powered by DEFY TPO</div>
             </div>
           </div>
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-3 py-4 space-y-0.5">
+        <nav className="flex-1 px-3 py-4 space-y-1.5">
           <div className="px-2 py-1 mb-2">
-            <span className="text-[9px] font-bold uppercase tracking-widest text-[#A1A1AA]">Tools</span>
+            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Tools</span>
           </div>
           {/* + New Scenario */}
-          <button type="button" className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left text-[#000000]">
+          <button type="button" className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-left text-slate-900">
             <IconNewScenario className="w-[18px] h-[18px] shrink-0" />
             <span className="text-[13px] font-semibold truncate">New Scenario</span>
           </button>
           {/* Live Human Chat */}
-          <a href="/userchat" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors">
-            <User className="w-[18px] h-[18px] shrink-0 text-[#34D399]" />
-            <span className="text-[13px] font-semibold truncate text-[#34D399]">Live Human Chat</span>
+          <a href="/userchat" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors">
+            <User className="w-[18px] h-[18px] shrink-0 text-teal-600" />
+            <span className="text-[13px] font-semibold truncate text-teal-600">Live Human Chat</span>
           </a>
           {/* TRINITY AI DEAL DESK */}
-          <a href="https://dealr.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]">
+          <a href="https://dealr.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-slate-900">
             <IconDealDesk className="w-[18px] h-[18px] shrink-0" />
             <span className="text-[11px] font-semibold whitespace-nowrap">TRINITY AI DEAL DESK</span>
           </a>
           {/* Submit a Loan */}
-          <a href="https://app.defywholesale.com/blitz-submit" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]">
+          <a href="https://app.defywholesale.com/blitz-submit" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-slate-900">
             <IconSubmitLoan className="w-[18px] h-[18px] shrink-0" />
             <span className="text-[13px] truncate">Submit a Loan</span>
           </a>
           {/* Rent AVM */}
-          <a href="https://veriqualv1.qualr.com/auth" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]">
+          <a href="https://veriqualv1.qualr.com/auth" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-slate-900">
             <IconRentAvm className="w-[18px] h-[18px] shrink-0" />
             <span className="text-[13px] truncate">Rent AVM</span>
           </a>
@@ -1228,27 +1228,27 @@ export default function App() {
             <button
               type="button"
               onClick={() => { setHelpDeskFields({ name: helpDeskDefaults.name, email: helpDeskDefaults.email, topic: '', message: '' }); setHelpDeskStatus('idle'); setShowHelpDesk(true) }}
-              className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left text-[#000000]"
+              className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-left text-slate-900"
             >
               <HelpCircle className="w-[18px] h-[18px] shrink-0" />
               <span className="text-[13px] truncate">Help Desk</span>
             </button>
           )}
           {/* Launch OpenLOS */}
-          <a href="https://veriqualv1.qualr.com/auth" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]">
+          <a href="https://veriqualv1.qualr.com/auth" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-slate-900">
             <IconOpenLos className="w-[18px] h-[18px] shrink-0" />
             <span className="text-[13px] truncate">Launch OpenLOS</span>
           </a>
           {/* RTL Terminal — disabled */}
-          <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
+          <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-slate-300">
             <IconRtlTerminal className="w-[18px] h-[18px] shrink-0" />
             <span className="text-[13px] truncate">RTL Terminal</span>
           </div>
 
           {/* Admin Code */}
-          <div className="mt-3 pt-3 border-t border-[rgba(39,39,42,0.1)]">
+          <div className="mt-3 pt-3 border-t border-slate-100">
             <div className="px-2 py-1 mb-1">
-              <span className="text-[9px] font-bold uppercase tracking-widest text-[#A1A1AA]">Admin Code</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Admin Code</span>
             </div>
             {!adminUnlocked ? (
               <div className="flex items-center gap-2 px-2">
@@ -1263,15 +1263,15 @@ export default function App() {
                     setAdminPasscode(val)
                     if (val === '3001') setAdminUnlocked(true)
                   }}
-                  className="w-14 h-7 text-center text-[12px] font-mono bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded text-[#71717A] outline-none focus:border-[#A1A1AA] placeholder:text-[#D1D5DB]"
+                  className="w-14 h-7 text-center text-[12px] font-mono bg-slate-50 border border-slate-200 rounded text-slate-500 outline-none focus:border-[#A1A1AA] placeholder:text-slate-300"
                 />
-                <span className="text-[10px] text-[#D1D5DB]">Passcode</span>
+                <span className="text-[10px] text-slate-300">Passcode</span>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={() => setShowAdminPanel(true)}
-                className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left text-[#000000]"
+                className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-left text-slate-900"
               >
                 <MessageCircle className="w-[18px] h-[18px] shrink-0" />
                 <span className="text-[13px] font-semibold truncate">Admin Panel</span>
@@ -1282,21 +1282,21 @@ export default function App() {
 
         {/* User Info (login moved to top header) */}
         {isPartner && profile && (
-          <div className="px-3 py-4 border-t border-[rgba(39,39,42,0.15)]">
+          <div className="px-3 py-4 border-t border-slate-200">
             <div className="px-2">
-              <div className="text-[12px] font-semibold text-[#000000] truncate">{profile.first_name} {profile.last_name}</div>
-              <div className="text-[10px] text-[#A1A1AA] truncate">{profile.company_name}</div>
+              <div className="text-[12px] font-semibold text-slate-900 truncate">{profile.first_name} {profile.last_name}</div>
+              <div className="text-[10px] text-slate-400 truncate">{profile.company_name}</div>
             </div>
           </div>
         )}
       </aside>
 
       {/* ===== MOBILE HEADER (lg:hidden) ===== */}
-      <header className="lg:hidden sticky top-0 z-40 h-12 bg-white/90 backdrop-blur-xl border-b border-[rgba(39,39,42,0.15)] flex items-center justify-between px-4">
+      <header className="lg:hidden sticky top-0 z-40 h-12 bg-white/90 backdrop-blur-xl border-b border-slate-200 flex items-center justify-between px-4">
         <button
           type="button"
           onClick={() => setMobileMenuOpen(true)}
-          className="w-8 h-8 flex items-center justify-center text-[#000000] hover:text-[#000000]"
+          className="w-8 h-8 flex items-center justify-center text-slate-900 hover:text-slate-900"
           aria-label="Open menu"
         >
           <Menu className="w-5 h-5" />
@@ -1304,8 +1304,8 @@ export default function App() {
         <div className="flex items-center gap-2">
           <IconAtom className="w-6 h-6 text-black" />
           <div className="leading-tight">
-            <span className="text-[15px] font-bold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
-            <div className="text-[8px] text-[#A1A1AA] tracking-wide">Powered by DEFY TPO</div>
+            <span className="text-[15px] font-bold tracking-[-0.02em]"><span className="text-slate-900">Open</span><span className="text-teal-600">Price</span></span>
+            <div className="text-[8px] text-slate-400 tracking-wide">Powered by DEFY TPO</div>
           </div>
         </div>
         <div className="w-8" />
@@ -1316,44 +1316,44 @@ export default function App() {
         <>
           <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm lg:hidden" onClick={() => setMobileMenuOpen(false)} />
           <div className="fixed left-0 top-0 h-full w-[260px] bg-white z-[201] flex flex-col shadow-[0_1px_3px_rgba(0,0,0,0.04)] lg:hidden">
-            <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-[rgba(39,39,42,0.15)]">
+            <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-slate-200">
               <div className="flex items-center gap-2">
                 <IconAtom className="w-6 h-6 text-black" />
                 <div className="leading-tight">
-                  <span className="text-[15px] font-bold tracking-[-0.02em]"><span className="text-[#000000]">Open</span><span className="text-[#34D399]">Price</span></span>
-                  <div className="text-[8px] text-[#A1A1AA] tracking-wide">Powered by DEFY TPO</div>
+                  <span className="text-[15px] font-bold tracking-[-0.02em]"><span className="text-slate-900">Open</span><span className="text-teal-600">Price</span></span>
+                  <div className="text-[8px] text-slate-400 tracking-wide">Powered by DEFY TPO</div>
                 </div>
               </div>
-              <button type="button" onClick={() => setMobileMenuOpen(false)} className="p-1 text-[#A1A1AA] hover:text-[#000000]">
+              <button type="button" onClick={() => setMobileMenuOpen(false)} className="p-1 text-slate-400 hover:text-slate-900">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+            <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
               <div className="px-2 py-1 mb-2">
-                <span className="text-[9px] font-bold uppercase tracking-widest text-[#A1A1AA]">Tools</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Tools</span>
               </div>
               {/* + New Scenario */}
-              <button type="button" onClick={() => setMobileMenuOpen(false)} className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left text-[#000000]">
+              <button type="button" onClick={() => setMobileMenuOpen(false)} className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-left text-slate-900">
                 <IconNewScenario className="w-[18px] h-[18px] shrink-0" />
                 <span className="text-[13px] font-semibold">New Scenario</span>
               </button>
               {/* Live Human Chat */}
-              <a href="/userchat" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors">
-                <User className="w-[18px] h-[18px] shrink-0 text-[#34D399]" />
-                <span className="text-[13px] font-semibold text-[#34D399]">Live Human Chat</span>
+              <a href="/userchat" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors">
+                <User className="w-[18px] h-[18px] shrink-0 text-teal-600" />
+                <span className="text-[13px] font-semibold text-teal-600">Live Human Chat</span>
               </a>
               {/* TRINITY AI DEAL DESK */}
-              <a href="https://dealr.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]" onClick={() => setMobileMenuOpen(false)}>
+              <a href="https://dealr.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-slate-900" onClick={() => setMobileMenuOpen(false)}>
                 <IconDealDesk className="w-[18px] h-[18px] shrink-0" />
                 <span className="text-[11px] font-semibold whitespace-nowrap">TRINITY AI DEAL DESK</span>
               </a>
               {/* Submit a Loan */}
-              <a href="https://app.defywholesale.com/blitz-submit" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]" onClick={() => setMobileMenuOpen(false)}>
+              <a href="https://app.defywholesale.com/blitz-submit" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-slate-900" onClick={() => setMobileMenuOpen(false)}>
                 <IconSubmitLoan className="w-[18px] h-[18px] shrink-0" />
                 <span className="text-[13px]">Submit a Loan</span>
               </a>
               {/* Rent AVM */}
-              <a href="https://veriqualv1.qualr.com/auth" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]" onClick={() => setMobileMenuOpen(false)}>
+              <a href="https://veriqualv1.qualr.com/auth" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-slate-900" onClick={() => setMobileMenuOpen(false)}>
                 <IconRentAvm className="w-[18px] h-[18px] shrink-0" />
                 <span className="text-[13px]">Rent AVM</span>
               </a>
@@ -1362,27 +1362,27 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => { setMobileMenuOpen(false); setHelpDeskFields({ name: helpDeskDefaults.name, email: helpDeskDefaults.email, topic: '', message: '' }); setHelpDeskStatus('idle'); setShowHelpDesk(true) }}
-                  className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left text-[#000000]"
+                  className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-left text-slate-900"
                 >
                   <HelpCircle className="w-[18px] h-[18px] shrink-0" />
                   <span className="text-[13px]">Help Desk</span>
                 </button>
               )}
               {/* Launch OpenLOS */}
-              <a href="https://veriqualv1.qualr.com/auth" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-[#000000]" onClick={() => setMobileMenuOpen(false)}>
+              <a href="https://veriqualv1.qualr.com/auth" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-slate-900" onClick={() => setMobileMenuOpen(false)}>
                 <IconOpenLos className="w-[18px] h-[18px] shrink-0" />
                 <span className="text-[13px]">Launch OpenLOS</span>
               </a>
               {/* RTL Terminal — disabled */}
-              <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-[#D1D5DB]">
+              <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg cursor-not-allowed text-slate-300">
                 <IconRtlTerminal className="w-[18px] h-[18px] shrink-0" />
                 <span className="text-[13px]">RTL Terminal</span>
               </div>
 
               {/* Admin Code */}
-              <div className="mt-3 pt-3 border-t border-[rgba(39,39,42,0.1)]">
+              <div className="mt-3 pt-3 border-t border-slate-100">
                 <div className="px-2 py-1 mb-1">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-[#A1A1AA]">Admin Code</span>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Admin Code</span>
                 </div>
                 {!adminUnlocked ? (
                   <div className="flex items-center gap-2 px-2">
@@ -1397,15 +1397,15 @@ export default function App() {
                         setAdminPasscode(val)
                         if (val === '3001') setAdminUnlocked(true)
                       }}
-                      className="w-14 h-7 text-center text-[12px] font-mono bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded text-[#71717A] outline-none focus:border-[#A1A1AA] placeholder:text-[#D1D5DB]"
+                      className="w-14 h-7 text-center text-[12px] font-mono bg-slate-50 border border-slate-200 rounded text-slate-500 outline-none focus:border-[#A1A1AA] placeholder:text-slate-300"
                     />
-                    <span className="text-[10px] text-[#D1D5DB]">Passcode</span>
+                    <span className="text-[10px] text-slate-300">Passcode</span>
                   </div>
                 ) : (
                   <button
                     type="button"
                     onClick={() => { setMobileMenuOpen(false); setShowAdminPanel(true) }}
-                    className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] transition-colors text-left text-[#000000]"
+                    className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-left text-slate-900"
                   >
                     <MessageCircle className="w-[18px] h-[18px] shrink-0" />
                     <span className="text-[13px] font-semibold">Admin Panel</span>
@@ -1413,22 +1413,22 @@ export default function App() {
                 )}
               </div>
             </nav>
-            <div className="px-3 py-4 border-t border-[rgba(39,39,42,0.15)]">
+            <div className="px-3 py-4 border-t border-slate-200">
               {isPartner && profile ? (
                 <div className="space-y-2">
                   <div className="px-2">
-                    <div className="text-[12px] font-semibold text-[#000000] truncate">{profile.first_name} {profile.last_name}</div>
-                    <div className="text-[10px] text-[#A1A1AA] truncate">{profile.company_name}</div>
+                    <div className="text-[12px] font-semibold text-slate-900 truncate">{profile.first_name} {profile.last_name}</div>
+                    <div className="text-[10px] text-slate-400 truncate">{profile.company_name}</div>
                   </div>
-                  <button type="button" onClick={() => { setMobileMenuOpen(false); signOut() }} className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] text-left transition-colors">
-                    <LogOut className="w-3.5 h-3.5 text-[#A1A1AA]" />
-                    <span className="text-[12px] text-[#71717A]">Sign Out</span>
+                  <button type="button" onClick={() => { setMobileMenuOpen(false); signOut() }} className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-slate-50 text-left transition-colors">
+                    <LogOut className="w-3.5 h-3.5 text-slate-400" />
+                    <span className="text-[12px] text-slate-500">Sign Out</span>
                   </button>
                 </div>
               ) : (
-                <button type="button" onClick={() => { setMobileMenuOpen(false); setCurrentView('login') }} className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-[#FAFAFA] text-left transition-colors">
-                  <User className="w-3.5 h-3.5 text-[#A1A1AA]" />
-                  <span className="text-[12px] font-semibold text-[#000000]">Partner Login</span>
+                <button type="button" onClick={() => { setMobileMenuOpen(false); setCurrentView('login') }} className="w-full flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-slate-50 text-left transition-colors">
+                  <User className="w-3.5 h-3.5 text-slate-400" />
+                  <span className="text-[12px] font-semibold text-slate-900">Partner Login</span>
                 </button>
               )}
             </div>
@@ -1440,15 +1440,15 @@ export default function App() {
       <main className="lg:ml-[200px] min-h-screen">
 
         {/* ===== DESKTOP TOP HEADER BAR ===== */}
-        <div className="hidden lg:block sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-[rgba(39,39,42,0.15)] px-4 lg:px-6 py-4">
+        <div className="hidden lg:block sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200 shadow-sm px-4 lg:px-6 py-4">
           <div className="max-w-6xl mx-auto flex items-center justify-end gap-2.5">
             {isPartner && profile ? (
               <>
-                <span className="text-[12px] font-medium text-[#71717A] mr-1">{profile.first_name} {profile.last_name}</span>
+                <span className="text-[12px] font-medium text-slate-500 mr-1">{profile.first_name} {profile.last_name}</span>
                 <button
                   type="button"
                   onClick={() => signOut()}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium text-[#71717A] bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] hover:bg-[#F4F4F5] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium text-slate-500 bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors"
                 >
                   <LogOut className="w-3.5 h-3.5" />
                   Sign Out
@@ -1458,7 +1458,7 @@ export default function App() {
               <>
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium text-[#71717A] bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] hover:bg-[#F4F4F5] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 border border-slate-300 hover:bg-slate-50 transition-all active:scale-[0.98]"
                 >
                   <Sun className="w-3.5 h-3.5" />
                   Guest Mode
@@ -1466,7 +1466,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setCurrentView('login')}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium text-[#000000] bg-white border border-[rgba(39,39,42,0.15)] hover:bg-[#FAFAFA] transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-slate-600 border border-slate-300 hover:bg-slate-50 transition-all active:scale-[0.98]"
                 >
                   <UserCircle className="w-3.5 h-3.5" />
                   Partners Login
@@ -1475,7 +1475,7 @@ export default function App() {
                   href="https://apps.docusign.com/webforms/us/095ff92910ccc16fe109ea3aad3cc927"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium text-white bg-[#000000] border border-[#000000] hover:opacity-90 transition-opacity"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 transition-all active:scale-[0.98]"
                 >
                   <CheckCircle className="w-3.5 h-3.5" />
                   Get Approved
@@ -1488,35 +1488,35 @@ export default function App() {
         {/* ===== STICKY RESULTS SUMMARY BAR ===== */}
         {result && targetPricing && (
             <div
-              className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-[rgba(39,39,42,0.15)] px-4 lg:px-6 py-2.5 transition-all duration-200"
+              className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-slate-200 px-4 lg:px-6 py-2.5 transition-all duration-200"
               style={{ transform: stickyBarVisible ? 'translateY(0)' : 'translateY(-100%)', opacity: stickyBarVisible ? 1 : 0 }}
             >
               <div className="max-w-6xl mx-auto flex items-center gap-4 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#22C55E] bg-[rgba(34,197,94,0.08)] border border-[rgba(34,197,94,0.2)] px-2 py-0.5 rounded-[4px] shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />Live
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-teal-600 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-[4px] shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-600" />Live
                 </span>
                 <div className="flex items-center gap-4 flex-wrap text-sm">
                   <div>
-                    <span className="font-bold text-[#000000] tabular-nums">{formatPercent(targetPricing.rate)}</span>
-                    <span className="text-[10px] text-[#A1A1AA] ml-1 uppercase">Rate</span>
+                    <span className="font-bold text-slate-900 tabular-nums">{formatPercent(targetPricing.rate)}</span>
+                    <span className="text-[10px] text-slate-400 ml-1 uppercase">Rate</span>
                   </div>
                   <div>
-                    <span className="font-semibold text-[#000000] tabular-nums">{targetPricing.price.toFixed(3)}</span>
-                    <span className="text-[10px] text-[#A1A1AA] ml-1 uppercase">Price</span>
+                    <span className="font-semibold text-slate-900 tabular-nums">{targetPricing.price.toFixed(3)}</span>
+                    <span className="text-[10px] text-slate-400 ml-1 uppercase">Price</span>
                   </div>
                   <div>
-                    <span className="font-semibold text-[#000000] tabular-nums">{formatPercent(targetPricing.apr)}</span>
-                    <span className="text-[10px] text-[#A1A1AA] ml-1 uppercase">APR</span>
+                    <span className="font-semibold text-slate-900 tabular-nums">{formatPercent(targetPricing.apr)}</span>
+                    <span className="text-[10px] text-slate-400 ml-1 uppercase">APR</span>
                   </div>
                   {targetPricing.payment > 0 && (
                     <div>
-                      <span className="font-semibold text-[#000000] tabular-nums">{formatCurrency(targetPricing.payment)}</span>
-                      <span className="text-[10px] text-[#A1A1AA] ml-1 uppercase">Pmt</span>
+                      <span className="font-semibold text-slate-900 tabular-nums">{formatCurrency(targetPricing.payment)}</span>
+                      <span className="text-[10px] text-slate-400 ml-1 uppercase">Pmt</span>
                     </div>
                   )}
                   <div>
-                    <span className="font-semibold text-[#000000] tabular-nums">{safeNumber(result.ltvRatio).toFixed(1)}%</span>
-                    <span className="text-[10px] text-[#A1A1AA] ml-1 uppercase">LTV</span>
+                    <span className="font-semibold text-slate-900 tabular-nums">{safeNumber(result.ltvRatio).toFixed(1)}%</span>
+                    <span className="text-[10px] text-slate-400 ml-1 uppercase">LTV</span>
                   </div>
                 </div>
               </div>
@@ -1524,22 +1524,22 @@ export default function App() {
           )}
 
         {/* ===== FORM SECTION ===== */}
-        <div className="px-4 lg:px-6 py-3 max-w-6xl mx-auto bg-white rounded-xl" style={{ border: '1px solid rgba(39,39,42,0.08)' }}>
-          <form id="pricing-form" onSubmit={handleSubmit} className="space-y-3">
+        <div className="px-4 lg:px-8 py-6 max-w-6xl mx-auto">
+          <form id="pricing-form" onSubmit={handleSubmit} className="space-y-6">
 
             {/* ===== LOAN INFORMATION SECTION ===== */}
-            <div id="section-loan">
-              <button type="button" onClick={() => toggleSection('loan')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[rgba(39,39,42,0.15)]">
-                <span className="text-xs font-semibold uppercase tracking-widest text-[#71717A]">Loan Information</span>
-                <ChevronDown className={`w-4 h-4 text-[#A1A1AA] transition-transform ${!collapsedSections.has('loan') ? 'rotate-180' : ''}`} />
+            <div id="section-loan" className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+              <button type="button" onClick={() => toggleSection('loan')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-slate-200">
+                <span className="text-base font-semibold tracking-wide text-slate-800">Loan Information</span>
+                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${!collapsedSections.has('loan') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('loan') && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-4">
                   {/* Row 1: Lien Position, Loan Purpose, Value/Sales Price, Loan Amount, LTV, CLTV */}
-                  <div className="space-y-0.5">
-                    <label htmlFor="lienPosition" className="block text-[10px] font-medium text-[#000000]">Lien Position</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="lienPosition" className="block text-sm font-medium text-slate-900">Lien Position</label>
                     <Select name="lienPosition" value={formData.lienPosition} onValueChange={(v) => handleInputChange('lienPosition', v)}>
-                      <SelectTrigger id="lienPosition" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="lienPosition" className="h-11 text-sm border-slate-300 focus:ring-teal-500"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="1st">1st</SelectItem>
                         <SelectItem value="2nd">2nd</SelectItem>
@@ -1547,10 +1547,10 @@ export default function App() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="loanPurpose" className={`block text-[10px] font-medium ${hasError('loanPurpose') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Loan Purpose *</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="loanPurpose" className={`block text-sm font-medium ${hasError('loanPurpose') ? 'text-[#EF4444]' : 'text-slate-900'}`}>Loan Purpose *</label>
                     <Select name="loanPurpose" value={formData.loanPurpose} onValueChange={(v) => handleInputChange('loanPurpose', v)}>
-                      <SelectTrigger id="loanPurpose" className={`h-8 text-[10px] border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('loanPurpose') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="loanPurpose" className={`h-11 text-sm border-slate-300 focus:ring-teal-500 ${hasError('loanPurpose') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="purchase">Purchase</SelectItem>
                         <SelectItem value="refinance">Refi Rate/Term</SelectItem>
@@ -1559,32 +1559,32 @@ export default function App() {
                     </Select>
                     {hasError('loanPurpose') && <p className="text-[10px] text-[#EF4444]">{validationErrors.loanPurpose}</p>}
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="propertyValue" className={`block text-[10px] font-medium ${hasError('propertyValue') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Value/Sales Price *</label>
-                    <Input id="propertyValue" name="propertyValue" value={formData.propertyValue} onChange={(e) => handleInputChange('propertyValue', formatNumberInput(e.target.value))} icon={<DollarSign className="w-3.5 h-3.5" />} className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('propertyValue') ? 'border-red-500' : ''}`} />
+                  <div className="space-y-1.5">
+                    <label htmlFor="propertyValue" className={`block text-sm font-medium ${hasError('propertyValue') ? 'text-[#EF4444]' : 'text-slate-900'}`}>Value/Sales Price *</label>
+                    <Input id="propertyValue" name="propertyValue" value={formData.propertyValue} onChange={(e) => handleInputChange('propertyValue', formatNumberInput(e.target.value))} icon={<DollarSign className="w-3.5 h-3.5" />} className={`h-11 text-sm border-slate-300 focus:ring-teal-500 ${hasError('propertyValue') ? 'border-red-500' : ''}`} />
                     {hasError('propertyValue') && <p className="text-[10px] text-[#EF4444]">{validationErrors.propertyValue}</p>}
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="loanAmount" className={`block text-[10px] font-medium ${hasError('loanAmount') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Loan Amount *</label>
-                    <Input id="loanAmount" name="loanAmount" value={formData.loanAmount} onChange={(e) => handleInputChange('loanAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-3.5 h-3.5" />} className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('loanAmount') ? 'border-red-500' : ''}`} />
+                  <div className="space-y-1.5">
+                    <label htmlFor="loanAmount" className={`block text-sm font-medium ${hasError('loanAmount') ? 'text-[#EF4444]' : 'text-slate-900'}`}>Loan Amount *</label>
+                    <Input id="loanAmount" name="loanAmount" value={formData.loanAmount} onChange={(e) => handleInputChange('loanAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-3.5 h-3.5" />} className={`h-11 text-sm border-slate-300 focus:ring-teal-500 ${hasError('loanAmount') ? 'border-red-500' : ''}`} />
                     {hasError('loanAmount') && <p className="text-[10px] text-[#EF4444]">{validationErrors.loanAmount}</p>}
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="ltv" className="block text-[10px] font-medium text-[#000000]">LTV</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="ltv" className="block text-sm font-medium text-slate-900">LTV</label>
                     <div className="relative">
-                      <Input id="ltv" name="ltv" value={formData.ltv} onChange={(e) => handleInputChange('ltv', e.target.value.replace(/[^0-9.]/g, ''))} className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] pr-6 bg-[#FAFAFA]" />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#A1A1AA] pointer-events-none">%</span>
+                      <Input id="ltv" name="ltv" value={formData.ltv} onChange={(e) => handleInputChange('ltv', e.target.value.replace(/[^0-9.]/g, ''))} className="h-11 text-sm border-slate-300 focus:ring-teal-500 pr-6 bg-slate-50" />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">%</span>
                     </div>
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="cltv" className="block text-[10px] font-medium text-[#000000]">CLTV</label>
-                    <div id="cltv" className="h-8 px-3 py-1.5 bg-[#F3F4F6] border border-[rgba(39,39,42,0.15)] rounded-md text-xs font-medium text-[#A1A1AA] flex items-center">{formData.lienPosition !== '1st' ? 'Enter 2nd' : '—'}</div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="cltv" className="block text-sm font-medium text-slate-900">CLTV</label>
+                    <div id="cltv" className="h-8 px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-md text-xs font-medium text-slate-400 flex items-center">{formData.lienPosition !== '1st' ? 'Enter 2nd' : '—'}</div>
                   </div>
                   {/* Row 2: Term, Amortization, Payment, Impound Type, Lock Period, Cashout Amount */}
-                  <div className="space-y-0.5">
-                    <label htmlFor="loanTerm" className={`block text-[10px] font-medium ${hasError('loanTerm') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Term *</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="loanTerm" className={`block text-sm font-medium ${hasError('loanTerm') ? 'text-[#EF4444]' : 'text-slate-900'}`}>Term *</label>
                     <Select name="loanTerm" value={formData.loanTerm} onValueChange={(v) => handleInputChange('loanTerm', v)}>
-                      <SelectTrigger id="loanTerm" className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('loanTerm') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="loanTerm" className={`h-11 text-sm border-slate-300 focus:ring-teal-500 ${hasError('loanTerm') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="30">30 Year</SelectItem>
                         <SelectItem value="25">25 Year</SelectItem>
@@ -1595,10 +1595,10 @@ export default function App() {
                     </Select>
                     {hasError('loanTerm') && <p className="text-[10px] text-[#EF4444]">{validationErrors.loanTerm}</p>}
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="amortization" className="block text-[10px] font-medium text-[#000000]">Amortization</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="amortization" className="block text-sm font-medium text-slate-900">Amortization</label>
                     <Select name="amortization" value={formData.amortization} onValueChange={(v) => handleInputChange('amortization', v)}>
-                      <SelectTrigger id="amortization" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="amortization" className="h-11 text-sm border-slate-300 focus:ring-teal-500"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="fixed">Fixed</SelectItem>
                         <SelectItem value="arm3">3 Year ARM</SelectItem>
@@ -1609,57 +1609,57 @@ export default function App() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="paymentType" className="block text-[10px] font-medium text-[#000000]">Payment</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="paymentType" className="block text-sm font-medium text-slate-900">Payment</label>
                     <Select name="paymentType" value={formData.paymentType} onValueChange={(v) => handleInputChange('paymentType', v)}>
-                      <SelectTrigger id="paymentType" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="paymentType" className="h-11 text-sm border-slate-300 focus:ring-teal-500"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="pi">P&I</SelectItem>
                         <SelectItem value="io">Interest Only</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="impoundType" className="block text-[10px] font-medium text-[#000000]">Impound Type</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="impoundType" className="block text-sm font-medium text-slate-900">Impound Type</label>
                     <Select name="impoundType" value={formData.impoundType} onValueChange={(v) => handleInputChange('impoundType', v)}>
-                      <SelectTrigger id="impoundType" className="h-8 text-[10px] border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="impoundType" className="h-11 text-sm border-slate-300 focus:ring-teal-500"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="escrowed">Taxes and Insurance Escrowed</SelectItem>
                         <SelectItem value="noescrow">No Escrow</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="lockPeriod" className="block text-[10px] font-medium text-[#000000]">Lock Period</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="lockPeriod" className="block text-sm font-medium text-slate-900">Lock Period</label>
                     <Select name="lockPeriod" value={formData.lockPeriod} onValueChange={(v) => handleInputChange('lockPeriod', v)}>
-                      <SelectTrigger id="lockPeriod" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="lockPeriod" className="h-11 text-sm border-slate-300 focus:ring-teal-500"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="30">30</SelectItem>
                         <SelectItem value="45">45</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="cashoutAmount" className="block text-[10px] font-medium text-[#000000]">Cashout Amount</label>
-                    <Input id="cashoutAmount" name="cashoutAmount" value={formData.cashoutAmount} onChange={(e) => handleInputChange('cashoutAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-3.5 h-3.5" />} className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]" />
+                  <div className="space-y-1.5">
+                    <label htmlFor="cashoutAmount" className="block text-sm font-medium text-slate-900">Cashout Amount</label>
+                    <Input id="cashoutAmount" name="cashoutAmount" value={formData.cashoutAmount} onChange={(e) => handleInputChange('cashoutAmount', formatNumberInput(e.target.value))} icon={<DollarSign className="w-3.5 h-3.5" />} className="h-11 text-sm border-slate-300 focus:ring-teal-500" />
                   </div>
                 </div>
               )}
             </div>
 
             {/* ===== PROPERTY DETAILS SECTION ===== */}
-            <div id="section-property">
-              <button type="button" onClick={() => toggleSection('property')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[rgba(39,39,42,0.15)]">
-                <span className="text-xs font-semibold uppercase tracking-widest text-[#71717A]">Property Details</span>
-                <ChevronDown className={`w-4 h-4 text-[#A1A1AA] transition-transform ${!collapsedSections.has('property') ? 'rotate-180' : ''}`} />
+            <div id="section-property" className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+              <button type="button" onClick={() => toggleSection('property')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-slate-200">
+                <span className="text-base font-semibold tracking-wide text-slate-800">Property Details</span>
+                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${!collapsedSections.has('property') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('property') && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-4">
                   {/* Row 1: Property Use, Property Type, ZIP Code, State, County, City */}
-                  <div className="space-y-0.5">
-                    <label htmlFor="occupancyType" className={`block text-[10px] font-medium ${hasError('occupancyType') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Property Use *</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="occupancyType" className={`block text-sm font-medium ${hasError('occupancyType') ? 'text-[#EF4444]' : 'text-slate-900'}`}>Property Use *</label>
                     <Select name="occupancyType" value={formData.occupancyType} onValueChange={(v) => handleInputChange('occupancyType', v)}>
-                      <SelectTrigger id="occupancyType" className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('occupancyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="occupancyType" className={`h-11 text-sm border-slate-300 focus:ring-teal-500 ${hasError('occupancyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="primary">Primary Residence</SelectItem>
                         <SelectItem value="secondary">Second Home</SelectItem>
@@ -1668,10 +1668,10 @@ export default function App() {
                     </Select>
                     {hasError('occupancyType') && <p className="text-[10px] text-[#EF4444]">{validationErrors.occupancyType}</p>}
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="propertyType" className={`block text-[10px] font-medium ${hasError('propertyType') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Property Type *</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="propertyType" className={`block text-sm font-medium ${hasError('propertyType') ? 'text-[#EF4444]' : 'text-slate-900'}`}>Property Type *</label>
                     <Select name="propertyType" value={formData.propertyType} onValueChange={(v) => handleInputChange('propertyType', v)}>
-                      <SelectTrigger id="propertyType" className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('propertyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="propertyType" className={`h-11 text-sm border-slate-300 focus:ring-teal-500 ${hasError('propertyType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="sfr">Single Family</SelectItem>
                         <SelectItem value="condo">Condo</SelectItem>
@@ -1685,34 +1685,34 @@ export default function App() {
                     </Select>
                     {hasError('propertyType') && <p className="text-[10px] text-[#EF4444]">{validationErrors.propertyType}</p>}
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="propertyZip" className={`block text-[10px] font-medium ${hasError('propertyZip') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>
+                  <div className="space-y-1.5">
+                    <label htmlFor="propertyZip" className={`block text-sm font-medium ${hasError('propertyZip') ? 'text-[#EF4444]' : 'text-slate-900'}`}>
                       ZIP Code * {zipLoading && <Loader2 className="w-3 h-3 inline animate-spin ml-1" />}
                     </label>
-                    <Input id="propertyZip" name="propertyZip" maxLength={5} value={formData.propertyZip} onChange={(e) => handleInputChange('propertyZip', e.target.value.replace(/\D/g, ''))} className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('propertyZip') ? 'border-red-500' : ''}`} placeholder="ZIP" autoComplete="postal-code" />
+                    <Input id="propertyZip" name="propertyZip" maxLength={5} value={formData.propertyZip} onChange={(e) => handleInputChange('propertyZip', e.target.value.replace(/\D/g, ''))} className={`h-11 text-sm border-slate-300 focus:ring-teal-500 ${hasError('propertyZip') ? 'border-red-500' : ''}`} placeholder="ZIP" autoComplete="postal-code" />
                     {hasError('propertyZip') && <p className="text-[10px] text-[#EF4444]">{validationErrors.propertyZip}</p>}
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="propertyState" className={`block text-[10px] font-medium ${hasError('propertyState') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>State *</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="propertyState" className={`block text-sm font-medium ${hasError('propertyState') ? 'text-[#EF4444]' : 'text-slate-900'}`}>State *</label>
                     <Select name="propertyState" value={formData.propertyState} onValueChange={(v) => handleInputChange('propertyState', v)}>
-                      <SelectTrigger id="propertyState" className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('propertyState') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="propertyState" className={`h-11 text-sm border-slate-300 focus:ring-teal-500 ${hasError('propertyState') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>{US_STATES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                     </Select>
                     {hasError('propertyState') && <p className="text-[10px] text-[#EF4444]">{validationErrors.propertyState}</p>}
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="propertyCounty" className="block text-[10px] font-medium text-[#000000]">County</label>
-                    <Input id="propertyCounty" name="propertyCounty" value={formData.propertyCounty} onChange={(e) => handleInputChange('propertyCounty', e.target.value)} className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]" />
+                  <div className="space-y-1.5">
+                    <label htmlFor="propertyCounty" className="block text-sm font-medium text-slate-900">County</label>
+                    <Input id="propertyCounty" name="propertyCounty" value={formData.propertyCounty} onChange={(e) => handleInputChange('propertyCounty', e.target.value)} className="h-11 text-sm border-slate-300 focus:ring-teal-500" />
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="propertyCity" className="block text-[10px] font-medium text-[#000000]">City</label>
-                    <Input id="propertyCity" name="propertyCity" value={formData.propertyCity} onChange={(e) => handleInputChange('propertyCity', e.target.value)} className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]" autoComplete="address-level2" />
+                  <div className="space-y-1.5">
+                    <label htmlFor="propertyCity" className="block text-sm font-medium text-slate-900">City</label>
+                    <Input id="propertyCity" name="propertyCity" value={formData.propertyCity} onChange={(e) => handleInputChange('propertyCity', e.target.value)} className="h-11 text-sm border-slate-300 focus:ring-teal-500" autoComplete="address-level2" />
                   </div>
                   {/* Row 2: Structure Type + pill toggles inline */}
-                  <div className="space-y-0.5">
-                    <label htmlFor="structureType" className="block text-[10px] font-medium text-[#000000]">Structure Type</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="structureType" className="block text-sm font-medium text-slate-900">Structure Type</label>
                     <Select name="structureType" value={formData.structureType} onValueChange={(v) => handleInputChange('structureType', v)}>
-                      <SelectTrigger id="structureType" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="structureType" className="h-11 text-sm border-slate-300 focus:ring-teal-500"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="detached">Detached</SelectItem>
                         <SelectItem value="attached">Attached</SelectItem>
@@ -1720,19 +1720,19 @@ export default function App() {
                     </Select>
                   </div>
                   <div className="col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-5 flex flex-wrap items-end gap-2 pb-0.5">
-                    <label htmlFor="isRuralProperty" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isRuralProperty ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
+                    <label htmlFor="isRuralProperty" className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-all border ${formData.isRuralProperty ? 'bg-teal-600 text-white border-teal-600 shadow-sm' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'}`}>
                       <input type="checkbox" id="isRuralProperty" name="isRuralProperty" className="sr-only" checked={formData.isRuralProperty} onChange={(e) => handleInputChange('isRuralProperty', e.target.checked)} />
                       Rural Property
                     </label>
-                    <label htmlFor="isNonWarrantableProject" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isNonWarrantableProject ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
+                    <label htmlFor="isNonWarrantableProject" className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-all border ${formData.isNonWarrantableProject ? 'bg-teal-600 text-white border-teal-600 shadow-sm' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'}`}>
                       <input type="checkbox" id="isNonWarrantableProject" name="isNonWarrantableProject" className="sr-only" checked={formData.isNonWarrantableProject} onChange={(e) => handleInputChange('isNonWarrantableProject', e.target.checked)} />
                       Non-Warrantable
                     </label>
-                    <label htmlFor="isMixedUsePML" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isMixedUsePML ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
+                    <label htmlFor="isMixedUsePML" className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-all border ${formData.isMixedUsePML ? 'bg-teal-600 text-white border-teal-600 shadow-sm' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'}`}>
                       <input type="checkbox" id="isMixedUsePML" name="isMixedUsePML" className="sr-only" checked={formData.isMixedUsePML} onChange={(e) => handleInputChange('isMixedUsePML', e.target.checked)} />
                       Mixed Use
                     </label>
-                    <label htmlFor="is5PlusUnits" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.is5PlusUnits ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
+                    <label htmlFor="is5PlusUnits" className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-all border ${formData.is5PlusUnits ? 'bg-teal-600 text-white border-teal-600 shadow-sm' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'}`}>
                       <input type="checkbox" id="is5PlusUnits" name="is5PlusUnits" className="sr-only" checked={formData.is5PlusUnits} onChange={(e) => handleInputChange('is5PlusUnits', e.target.checked)} />
                       5+ Units
                     </label>
@@ -1742,27 +1742,27 @@ export default function App() {
             </div>
 
             {/* ===== BORROWER DETAILS SECTION ===== */}
-            <div id="section-borrower">
-              <button type="button" onClick={() => toggleSection('borrower')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[rgba(39,39,42,0.15)]">
-                <span className="text-xs font-semibold uppercase tracking-widest text-[#71717A]">Borrower Details</span>
-                <ChevronDown className={`w-4 h-4 text-[#A1A1AA] transition-transform ${!collapsedSections.has('borrower') ? 'rotate-180' : ''}`} />
+            <div id="section-borrower" className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+              <button type="button" onClick={() => toggleSection('borrower')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-slate-200">
+                <span className="text-base font-semibold tracking-wide text-slate-800">Borrower Details</span>
+                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${!collapsedSections.has('borrower') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('borrower') && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-2">
-                  <div className="space-y-0.5">
-                    <label htmlFor="creditScore" className={`block text-[10px] font-medium ${hasError('creditScore') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Credit Score *</label>
-                    <Input id="creditScore" name="creditScore" maxLength={3} value={formData.creditScore} onChange={(e) => handleInputChange('creditScore', e.target.value.replace(/\D/g, ''))} className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('creditScore') ? 'border-red-500' : ''}`} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-4">
+                  <div className="space-y-1.5">
+                    <label htmlFor="creditScore" className={`block text-sm font-medium ${hasError('creditScore') ? 'text-[#EF4444]' : 'text-slate-900'}`}>Credit Score *</label>
+                    <Input id="creditScore" name="creditScore" maxLength={3} value={formData.creditScore} onChange={(e) => handleInputChange('creditScore', e.target.value.replace(/\D/g, ''))} className={`h-11 text-sm border-slate-300 focus:ring-teal-500 ${hasError('creditScore') ? 'border-red-500' : ''}`} />
                     {hasError('creditScore') && <p className="text-[10px] text-[#EF4444]">{validationErrors.creditScore}</p>}
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="dti" className={`block text-[10px] font-medium ${hasError('dti') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>DTI % *</label>
-                    <Input id="dti" name="dti" maxLength={2} value={formData.dti} onChange={(e) => handleInputChange('dti', e.target.value.replace(/\D/g, ''))} className={`h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('dti') ? 'border-red-500' : ''}`} />
+                  <div className="space-y-1.5">
+                    <label htmlFor="dti" className={`block text-sm font-medium ${hasError('dti') ? 'text-[#EF4444]' : 'text-slate-900'}`}>DTI % *</label>
+                    <Input id="dti" name="dti" maxLength={2} value={formData.dti} onChange={(e) => handleInputChange('dti', e.target.value.replace(/\D/g, ''))} className={`h-11 text-sm border-slate-300 focus:ring-teal-500 ${hasError('dti') ? 'border-red-500' : ''}`} />
                     {hasError('dti') && <p className="text-[10px] text-[#EF4444]">{validationErrors.dti}</p>}
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="citizenship" className="block text-[10px] font-medium text-[#000000]">Citizenship</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="citizenship" className="block text-sm font-medium text-slate-900">Citizenship</label>
                     <Select name="citizenship" value={formData.citizenship} onValueChange={(v) => handleInputChange('citizenship', v)}>
-                      <SelectTrigger id="citizenship" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="citizenship" className="h-11 text-sm border-slate-300 focus:ring-teal-500"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="usCitizen">US Citizen</SelectItem>
                         <SelectItem value="permanentResident">Permanent Resident</SelectItem>
@@ -1772,10 +1772,10 @@ export default function App() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-0.5">
-                    <label htmlFor="documentationType" className={`block text-[10px] font-medium ${hasError('documentationType') ? 'text-[#EF4444]' : 'text-[#000000]'}`}>Doc Type</label>
+                  <div className="space-y-1.5">
+                    <label htmlFor="documentationType" className={`block text-sm font-medium ${hasError('documentationType') ? 'text-[#EF4444]' : 'text-slate-900'}`}>Doc Type</label>
                     <Select name="documentationType" value={formData.documentationType} onValueChange={(v) => handleInputChange('documentationType', v)}>
-                      <SelectTrigger id="documentationType" className={`h-8 text-[10px] border-[rgba(39,39,42,0.15)] focus:ring-[#000000] ${hasError('documentationType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="documentationType" className={`h-11 text-sm border-slate-300 focus:ring-teal-500 ${hasError('documentationType') ? 'border-red-500' : ''}`}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="fullDoc">Full Document</SelectItem>
                         <SelectItem value="dscr">Debt Service Coverage (DSCR)</SelectItem>
@@ -1791,15 +1791,15 @@ export default function App() {
                     {hasError('documentationType') && <p className="text-[10px] text-[#EF4444]">{validationErrors.documentationType}</p>}
                   </div>
                   <div className="col-span-full flex flex-wrap gap-2">
-                    <label htmlFor="isSelfEmployed" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isSelfEmployed ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
+                    <label htmlFor="isSelfEmployed" className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-all border ${formData.isSelfEmployed ? 'bg-teal-600 text-white border-teal-600 shadow-sm' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'}`}>
                       <input type="checkbox" id="isSelfEmployed" name="isSelfEmployed" className="sr-only" checked={formData.isSelfEmployed} onChange={(e) => handleInputChange('isSelfEmployed', e.target.checked)} />
                       Self Employed
                     </label>
-                    <label htmlFor="isFTHB" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isFTHB ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
+                    <label htmlFor="isFTHB" className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-all border ${formData.isFTHB ? 'bg-teal-600 text-white border-teal-600 shadow-sm' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'}`}>
                       <input type="checkbox" id="isFTHB" name="isFTHB" className="sr-only" checked={formData.isFTHB} onChange={(e) => handleInputChange('isFTHB', e.target.checked)} />
                       FTHB
                     </label>
-                    <label htmlFor="hasITIN" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.hasITIN ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
+                    <label htmlFor="hasITIN" className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-all border ${formData.hasITIN ? 'bg-teal-600 text-white border-teal-600 shadow-sm' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'}`}>
                       <input type="checkbox" id="hasITIN" name="hasITIN" className="sr-only" checked={formData.hasITIN} onChange={(e) => handleInputChange('hasITIN', e.target.checked)} />
                       Has ITIN
                     </label>
@@ -1810,17 +1810,17 @@ export default function App() {
 
             {/* ===== INVESTOR DETAILS SECTION (conditional) ===== */}
             {showInvestorDetails && (
-              <div id="section-investor">
-                <button type="button" onClick={() => toggleSection('investor')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-[rgba(39,39,42,0.15)]">
-                  <span className="text-xs font-semibold uppercase tracking-widest text-[#71717A]">Investor Details</span>
-                  <ChevronDown className={`w-4 h-4 text-[#A1A1AA] transition-transform ${!collapsedSections.has('investor') ? 'rotate-180' : ''}`} />
+              <div id="section-investor" className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                <button type="button" onClick={() => toggleSection('investor')} className="flex items-center justify-between w-full pb-1.5 mb-2 border-b border-slate-200">
+                  <span className="text-base font-semibold tracking-wide text-slate-800">Investor Details</span>
+                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${!collapsedSections.has('investor') ? 'rotate-180' : ''}`} />
                 </button>
                 {!collapsedSections.has('investor') && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-3 gap-y-2">
-                    <div className="space-y-0.5">
-                      <label htmlFor="prepayPeriod" className="block text-[10px] font-medium text-[#000000]">Prepay Period</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-4">
+                    <div className="space-y-1.5">
+                      <label htmlFor="prepayPeriod" className="block text-sm font-medium text-slate-900">Prepay Period</label>
                       <Select name="prepayPeriod" value={formData.prepayPeriod} onValueChange={(v) => handleInputChange('prepayPeriod', v)}>
-                        <SelectTrigger id="prepayPeriod" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger id="prepayPeriod" className="h-11 text-sm border-slate-300 focus:ring-teal-500"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="60mo">60 Months</SelectItem>
                           <SelectItem value="48mo">48 Months</SelectItem>
@@ -1831,10 +1831,10 @@ export default function App() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-0.5">
-                      <label htmlFor="prepayType" className="block text-[10px] font-medium text-[#000000]">Prepay Type</label>
+                    <div className="space-y-1.5">
+                      <label htmlFor="prepayType" className="block text-sm font-medium text-slate-900">Prepay Type</label>
                       <Select name="prepayType" value={formData.prepayType} onValueChange={(v) => handleInputChange('prepayType', v)}>
-                        <SelectTrigger id="prepayType" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
+                        <SelectTrigger id="prepayType" className="h-11 text-sm border-slate-300 focus:ring-teal-500"><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="5pct">5%</SelectItem>
                           <SelectItem value="declining">Declining</SelectItem>
@@ -1844,10 +1844,10 @@ export default function App() {
                     </div>
                     {formData.documentationType === 'dscr' && (
                       <>
-                        <div className="space-y-0.5">
-                          <label htmlFor="dscrEntityType" className="block text-[10px] font-medium text-[#000000]">DSCR Entity Type</label>
+                        <div className="space-y-1.5">
+                          <label htmlFor="dscrEntityType" className="block text-sm font-medium text-slate-900">DSCR Entity Type</label>
                           <Select name="dscrEntityType" value={formData.dscrEntityType} onValueChange={(v) => handleInputChange('dscrEntityType', v)}>
-                            <SelectTrigger id="dscrEntityType" className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"><SelectValue /></SelectTrigger>
+                            <SelectTrigger id="dscrEntityType" className="h-11 text-sm border-slate-300 focus:ring-teal-500"><SelectValue /></SelectTrigger>
                             <SelectContent>
                               <SelectItem value="individual">Individual</SelectItem>
                               <SelectItem value="llc">LLC</SelectItem>
@@ -1856,8 +1856,8 @@ export default function App() {
                             </SelectContent>
                           </Select>
                         </div>
-                        <div className="space-y-0.5">
-                          <label htmlFor="dscrManualInput" className="block text-[10px] font-medium text-[#000000]">DSCR %</label>
+                        <div className="space-y-1.5">
+                          <label htmlFor="dscrManualInput" className="block text-sm font-medium text-slate-900">DSCR %</label>
                           <Input id="dscrManualInput" name="dscrManualInput" type="text" inputMode="decimal" placeholder="1.000" value={formData.dscrManualInput}
                             onChange={(e) => {
                               const val = e.target.value.replace(/[^0-9.]/g, '')
@@ -1869,16 +1869,16 @@ export default function App() {
                               handleInputChange('presentHousingExpense', '5,000')
                             }}
                             icon={<span className="text-xs font-semibold text-gray-500">%</span>}
-                            className="h-8 text-xs border-[rgba(39,39,42,0.15)] focus:ring-[#000000]"
+                            className="h-11 text-sm border-slate-300 focus:ring-teal-500"
                           />
                         </div>
-                        <div className="space-y-0.5">
-                          <label className="block text-[10px] font-medium text-[#000000]">Range</label>
-                          <div className="h-8 px-3 py-1.5 bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded-md text-xs font-medium flex items-center justify-between">
-                            <span className={`${calculatedDSCR.ratio >= 1.0 ? 'text-[#22C55E]' : calculatedDSCR.ratio >= 0.75 ? 'text-[#F59E0B]' : 'text-[#EF4444]'}`}>
+                        <div className="space-y-1.5">
+                          <label className="block text-sm font-medium text-slate-900">Range</label>
+                          <div className="h-8 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-xs font-medium flex items-center justify-between">
+                            <span className={`${calculatedDSCR.ratio >= 1.0 ? 'text-teal-600' : calculatedDSCR.ratio >= 0.75 ? 'text-[#F59E0B]' : 'text-[#EF4444]'}`}>
                               {calculatedDSCR.display}
                             </span>
-                            <span className="text-[10px] text-[#A1A1AA] ml-2">
+                            <span className="text-[10px] text-slate-400 ml-2">
                               ({calculatedDSCR.range === '>=1.250' ? '>=1.250' : calculatedDSCR.range === 'noRatio' ? 'No Ratio' : calculatedDSCR.range})
                             </span>
                           </div>
@@ -1886,13 +1886,13 @@ export default function App() {
                       </>
                     )}
                     <div className="col-span-full flex flex-wrap gap-2">
-                      <label htmlFor="isSeasonalProperty" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${(formData.isSeasonalProperty || formData.isShortTermRental) ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
+                      <label htmlFor="isSeasonalProperty" className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-all border ${(formData.isSeasonalProperty || formData.isShortTermRental) ? 'bg-teal-600 text-white border-teal-600 shadow-sm' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'}`}>
                         <input type="checkbox" id="isSeasonalProperty" name="isSeasonalProperty" className="sr-only" checked={formData.isSeasonalProperty || formData.isShortTermRental}
                           onChange={(e) => { handleInputChange('isSeasonalProperty', e.target.checked); handleInputChange('isShortTermRental', e.target.checked) }}
                         />
                         Seasonal / STR
                       </label>
-                      <label htmlFor="isCrossCollateralized" className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-medium cursor-pointer transition-colors border ${formData.isCrossCollateralized ? 'bg-[#000000] text-white border-[#000000]' : 'bg-transparent text-[#71717A] border-[rgba(39,39,42,0.15)] hover:border-[#000000]'}`}>
+                      <label htmlFor="isCrossCollateralized" className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium cursor-pointer transition-all border ${formData.isCrossCollateralized ? 'bg-teal-600 text-white border-teal-600 shadow-sm' : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'}`}>
                         <input type="checkbox" id="isCrossCollateralized" name="isCrossCollateralized" className="sr-only" checked={formData.isCrossCollateralized} onChange={(e) => handleInputChange('isCrossCollateralized', e.target.checked)} />
                         Cross-Collateralized
                       </label>
@@ -1918,8 +1918,8 @@ export default function App() {
             {isLoading ? (
               <div className="w-full max-w-sm">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] font-semibold text-[#71717A] uppercase tracking-wider">Processing</span>
-                  <span className="text-[11px] font-bold text-[#000000] tabular-nums">{loadingProgress}%</span>
+                  <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Processing</span>
+                  <span className="text-[11px] font-bold text-slate-900 tabular-nums">{loadingProgress}%</span>
                 </div>
                 <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(39,39,42,0.1)' }}>
                   <div
@@ -1935,7 +1935,7 @@ export default function App() {
               <button
                 type="submit"
                 form="pricing-form"
-                className="w-full max-w-sm h-11 bg-[#000000] text-white font-semibold rounded-lg hover:opacity-85 transition-colors flex items-center justify-center gap-2 text-sm"
+                className="max-w-xs ml-auto h-12 px-8 bg-gradient-to-r from-teal-600 to-teal-700 text-white font-semibold text-base rounded-xl shadow-md hover:shadow-lg hover:from-teal-700 hover:to-teal-800 transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 Get Pricing
               </button>
@@ -1949,7 +1949,7 @@ export default function App() {
             {/* Loading — shimmer skeleton placeholder */}
             {isLoading && !result && (
               <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <div className="rounded-xl border border-[rgba(39,39,42,0.15)] bg-white p-8 space-y-4 min-h-[200px]">
+                <div className="rounded-xl border border-slate-200 bg-white p-8 space-y-4 min-h-[200px]">
                   <div className="skeleton-card h-6 w-2/5 rounded-md" />
                   <div className="skeleton-card h-4 w-3/4 rounded-md" />
                   <div className="skeleton-card h-4 w-1/2 rounded-md" />
@@ -1964,9 +1964,9 @@ export default function App() {
 
             {/* Empty state */}
             {!result && !isLoading && (
-              <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-[200px]">
-                <BarChart3 className="w-12 h-12 text-[#71717A]/30 mb-4" />
-                <p className="text-sm text-[#71717A]">Enter loan details and click Get Pricing</p>
+              <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center min-h-[200px] border-2 border-dashed border-slate-200 rounded-2xl p-12 text-center">
+                <BarChart3 className="w-12 h-12 text-slate-300 mb-4" />
+                <p className="text-base text-slate-400 font-medium">Enter loan details and click Get Pricing</p>
               </motion.div>
             )}
 
@@ -1977,21 +1977,21 @@ export default function App() {
                 {/* mlMessage / Out of scope state */}
                 {(result as any).mlMessage && (!Array.isArray(result.programs) || result.programs.length === 0) ? (
                   formData.isCrossCollateralized ? (
-                    <div className="bg-white border border-[rgba(39,39,42,0.15)] rounded-xl p-5">
+                    <div className="bg-white border border-slate-200 rounded-xl p-5">
                       <div className="flex items-center gap-3 mb-3">
-                        <div className="w-9 h-9 rounded-[10px] bg-[#FAFAFA] flex items-center justify-center">
-                          <Zap className="w-5 h-5 text-[#000000]" />
+                        <div className="w-9 h-9 rounded-[10px] bg-slate-50 flex items-center justify-center">
+                          <Zap className="w-5 h-5 text-slate-900" />
                         </div>
-                        <div className="text-sm font-semibold text-[#000000]">Pass to National Rate Card</div>
+                        <div className="text-sm font-semibold text-slate-900">Pass to National Rate Card</div>
                       </div>
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="inline-flex items-center gap-1 text-xs font-medium text-[#22C55E] bg-[rgba(34,197,94,0.08)] border border-[rgba(34,197,94,0.2)] px-2.5 py-0.5 rounded-full">
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-teal-600 bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded-full">
                           <ShieldCheck className="w-3 h-3" />Verified
                         </span>
-                        <span className="text-xs text-[#71717A]">Cross-Collateralized</span>
+                        <span className="text-xs text-slate-500">Cross-Collateralized</span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-[#71717A]">
-                        <Globe className="w-3.5 h-3.5 text-[#A1A1AA]" />
+                      <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <Globe className="w-3.5 h-3.5 text-slate-400" />
                         <span>We just checked all of the Industry Leading Pricing Engines for you.</span>
                       </div>
                     </div>
@@ -2000,10 +2000,10 @@ export default function App() {
                       <div className="flex items-start gap-3">
                         <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                         <div>
-                          <div className="text-sm font-bold text-[#000000] mb-1">Scenario Out of Scope</div>
-                          <p className="text-xs text-[#71717A] leading-relaxed">
+                          <div className="text-sm font-bold text-slate-900 mb-1">Scenario Out of Scope</div>
+                          <p className="text-xs text-slate-500 leading-relaxed">
                             Please check your input fields and try again. If you continue to receive this message then your details just missed our static Rate Sheet. Please fire a Scenario Details Email over to{' '}
-                            <a href="mailto:defylocks@qualr.com" className="text-[#000000] font-semibold hover:underline">defylocks@qualr.com</a>{' '}
+                            <a href="mailto:defylocks@qualr.com" className="text-slate-900 font-semibold hover:underline">defylocks@qualr.com</a>{' '}
                             for a Fast Custom Quote.
                           </p>
                         </div>
@@ -2013,61 +2013,61 @@ export default function App() {
                 ) : (
                   <>
                     {/* ===== HERO PRICING CARD ===== */}
-                    <div className="bg-white border border-[rgba(39,39,42,0.15)] rounded-xl p-6">
+                    <div className="bg-white border border-slate-200 rounded-xl p-6">
                       <div className="flex items-center justify-between mb-4">
-                        <span className="text-xs font-semibold uppercase tracking-widest text-[#71717A]">Best Available Rate</span>
-                        <span className="bg-[rgba(34,197,94,0.08)] text-[#22C55E] border border-[rgba(34,197,94,0.2)] text-xs font-medium px-2.5 py-0.5 rounded-[4px] flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" />Live
+                        <span className="text-base font-semibold tracking-wide text-slate-800">Best Available Rate</span>
+                        <span className="bg-teal-50 text-teal-600 border border-teal-200 text-xs font-medium px-2.5 py-0.5 rounded-[4px] flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-teal-600" />Live
                         </span>
                       </div>
-                      <div className="text-5xl font-bold text-[#000000] tabular-nums mb-1">
+                      <div className="text-5xl font-bold text-slate-900 tabular-nums mb-1">
                         {targetPricing ? formatPercent(targetPricing.rate) : formatPercent(safeNumber(result.rate))}
                       </div>
-                      <div className="text-[11px] font-medium text-[#A1A1AA] uppercase tracking-widest mb-5">Interest Rate</div>
+                      <div className="text-[11px] font-medium text-slate-400 uppercase tracking-widest mb-5">Interest Rate</div>
                       {result.apiError && (
                         <div className="inline-flex items-center gap-1 text-[11px] font-medium text-[#EF4444] bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] px-2 py-0.5 rounded-[4px] mb-3">
                           <AlertCircle className="w-3 h-3" />Error
                         </div>
                       )}
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-y-3 gap-x-0 border-t border-[rgba(39,39,42,0.15)] pt-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-y-3 gap-x-0 border-t border-slate-200 pt-4">
                         <div>
-                          <div className="text-base font-semibold text-[#000000] tabular-nums">{targetPricing ? targetPricing.price.toFixed(3) : '100.000'}</div>
-                          <div className="text-[10px] text-[#A1A1AA] uppercase tracking-wider mt-0.5">Price</div>
+                          <div className="text-base font-semibold text-slate-900 tabular-nums">{targetPricing ? targetPricing.price.toFixed(3) : '100.000'}</div>
+                          <div className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">Price</div>
                         </div>
-                        <div className="border-l border-[rgba(39,39,42,0.15)] pl-3">
-                          <div className="text-base font-semibold text-[#000000] tabular-nums">{targetPricing ? formatPercent(targetPricing.apr) : formatPercent(safeNumber(result.apr))}</div>
-                          <div className="text-[10px] text-[#A1A1AA] uppercase tracking-wider mt-0.5">APR</div>
+                        <div className="border-l border-slate-200 pl-3">
+                          <div className="text-base font-semibold text-slate-900 tabular-nums">{targetPricing ? formatPercent(targetPricing.apr) : formatPercent(safeNumber(result.apr))}</div>
+                          <div className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">APR</div>
                         </div>
-                        <div className="border-l border-[rgba(39,39,42,0.15)] pl-3">
-                          <div className="text-base font-semibold text-[#000000] tabular-nums">{targetPricing && targetPricing.payment > 0 ? formatCurrency(targetPricing.payment) : formatCurrency(safeNumber(result.monthlyPayment))}</div>
-                          <div className="text-[10px] text-[#A1A1AA] uppercase tracking-wider mt-0.5">Payment</div>
+                        <div className="border-l border-slate-200 pl-3">
+                          <div className="text-base font-semibold text-slate-900 tabular-nums">{targetPricing && targetPricing.payment > 0 ? formatCurrency(targetPricing.payment) : formatCurrency(safeNumber(result.monthlyPayment))}</div>
+                          <div className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">Payment</div>
                         </div>
-                        <div className="border-l border-[rgba(39,39,42,0.15)] pl-3">
-                          <div className="text-base font-semibold text-[#000000] tabular-nums">{targetPricing ? targetPricing.points.toFixed(3) : safeNumber(result.points).toFixed(3)}</div>
-                          <div className="text-[10px] text-[#A1A1AA] uppercase tracking-wider mt-0.5">Points</div>
+                        <div className="border-l border-slate-200 pl-3">
+                          <div className="text-base font-semibold text-slate-900 tabular-nums">{targetPricing ? targetPricing.points.toFixed(3) : safeNumber(result.points).toFixed(3)}</div>
+                          <div className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">Points</div>
                         </div>
-                        <div className="border-l border-[rgba(39,39,42,0.15)] pl-3">
-                          <div className="text-base font-semibold text-[#000000] tabular-nums">{safeNumber(result.ltvRatio).toFixed(1)}%</div>
-                          <div className="text-[10px] text-[#A1A1AA] uppercase tracking-wider mt-0.5">LTV</div>
+                        <div className="border-l border-slate-200 pl-3">
+                          <div className="text-base font-semibold text-slate-900 tabular-nums">{safeNumber(result.ltvRatio).toFixed(1)}%</div>
+                          <div className="text-[10px] text-slate-400 uppercase tracking-wider mt-0.5">LTV</div>
                         </div>
                       </div>
                     </div>
 
                     {/* ===== ADJUSTMENTS CARD ===== */}
                     {targetPricing && targetPricing.adjustments && targetPricing.adjustments.length > 0 && (
-                      <div className="bg-white border border-[rgba(39,39,42,0.15)] rounded-xl p-5">
-                        <div className="text-xs font-semibold uppercase tracking-widest text-[#71717A] mb-3">Adjustments</div>
+                      <div className="bg-white border border-slate-200 rounded-xl p-5">
+                        <div className="text-base font-semibold tracking-wide text-slate-800 mb-3">Adjustments</div>
                         <div className="space-y-1">
                           {targetPricing.adjustments.map((adj, idx) => {
                             const rateDisplay = adj.rateAdj !== undefined ? adj.rateAdj : (adj.percentage !== undefined ? adj.percentage : 0)
                             const priceDisplay = adj.amount || 0
                             return (
-                              <div key={idx} className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-[#FAFAFA] transition-colors">
+                              <div key={idx} className="flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-slate-50 transition-colors">
                                 <div className="flex items-center gap-3 min-w-0 flex-1">
-                                  <span className="text-xs text-[#A1A1AA] tabular-nums w-14 shrink-0">{rateDisplay.toFixed(3)}%</span>
-                                  <span className="text-xs text-[#000000] truncate">{adj.description}</span>
+                                  <span className="text-xs text-slate-400 tabular-nums w-14 shrink-0">{rateDisplay.toFixed(3)}%</span>
+                                  <span className="text-xs text-slate-900 truncate">{adj.description}</span>
                                 </div>
-                                <span className={`text-xs font-semibold tabular-nums ml-3 ${priceDisplay > 0 ? 'text-[#22C55E]' : priceDisplay < 0 ? 'text-[#EF4444]' : 'text-[#A1A1AA]'}`}>
+                                <span className={`text-xs font-semibold tabular-nums ml-3 ${priceDisplay > 0 ? 'text-teal-600' : priceDisplay < 0 ? 'text-[#EF4444]' : 'text-slate-400'}`}>
                                   {priceDisplay > 0 ? '+' : ''}{priceDisplay.toFixed(3)}
                                 </span>
                               </div>
@@ -2079,16 +2079,16 @@ export default function App() {
 
                     {/* ===== EMAIL FORM ===== */}
                     {showEmailForm && (
-                      <div className="bg-white border border-[rgba(39,39,42,0.15)] rounded-xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                      <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                          <Mail className="w-4 h-4 text-[#A1A1AA] shrink-0" />
+                          <Mail className="w-4 h-4 text-slate-400 shrink-0" />
                           <input
                             type="email"
                             placeholder="Enter email address"
                             value={emailTo}
                             onChange={(e) => setEmailTo(e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSendEmail() } }}
-                            className="flex-1 min-w-0 text-sm bg-transparent outline-none placeholder:text-[#D1D5DB] text-[#000000]"
+                            className="flex-1 min-w-0 text-sm bg-transparent outline-none placeholder:text-slate-300 text-slate-900"
                             autoFocus
                           />
                         </div>
@@ -2097,12 +2097,12 @@ export default function App() {
                             type="button"
                             onClick={handleSendEmail}
                             disabled={emailSending || !emailTo}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold text-white bg-[#000000] rounded-lg hover:opacity-85 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 text-[13px] font-semibold text-white bg-slate-900 rounded-lg hover:opacity-85 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                           >
                             {emailSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : emailStatus === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
                             {emailSending ? 'Sending...' : emailStatus === 'success' ? 'Sent!' : 'Send'}
                           </button>
-                          <button type="button" onClick={() => { setShowEmailForm(false); setEmailStatus('idle') }} className="p-2 text-[#A1A1AA] hover:text-[#000000] transition-colors">
+                          <button type="button" onClick={() => { setShowEmailForm(false); setEmailStatus('idle') }} className="p-2 text-slate-400 hover:text-slate-900 transition-colors">
                             <X className="w-4 h-4" />
                           </button>
                         </div>
@@ -2114,8 +2114,8 @@ export default function App() {
                     {Array.isArray(result.programs) && result.programs.length > 0 ? (
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-sm font-semibold text-[#000000]">Available Programs</h3>
-                          <span className="text-[11px] font-medium text-[#71717A] bg-[#F3F4F6] px-2 py-0.5 rounded-full">
+                          <h3 className="text-sm font-semibold text-slate-900">Available Programs</h3>
+                          <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
                             {result.programs.filter(p => p && Array.isArray(p.rateOptions) && filterRateOptionsByPrice(p.rateOptions).length > 0).length} found
                           </span>
                         </div>
@@ -2136,30 +2136,30 @@ export default function App() {
                           const isSelectedPrepay = formData.occupancyType === 'investment' && programMatchesPrepay(programName, formData.prepayPeriod)
 
                           return (
-                            <div key={idx} className={`rounded-xl overflow-hidden border transition-all bg-white ${isSelectedPrepay ? 'border-[#000000] shadow-[0_1px_3px_rgba(0,0,0,0.04)]' : isExpanded ? 'border-[#D1D5DB] shadow-[0_1px_3px_rgba(0,0,0,0.04)]' : 'border-[rgba(39,39,42,0.15)]'}`}>
+                            <div key={idx} className={`rounded-xl overflow-hidden border transition-all bg-white ${isSelectedPrepay ? 'border-slate-900 shadow-[0_1px_3px_rgba(0,0,0,0.04)]' : isExpanded ? 'border-[#D1D5DB] shadow-[0_1px_3px_rgba(0,0,0,0.04)]' : 'border-slate-200'}`}>
                               <div className="px-4 py-3">
                                 <div className="flex items-center justify-between mb-2.5">
                                   <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-2">
-                                      <div className="font-semibold text-[12px] text-[#000000]">{programName}</div>
+                                      <div className="font-semibold text-[12px] text-slate-900">{programName}</div>
                                       {isSelectedPrepay && (
-                                        <span className="shrink-0 text-[9px] font-bold text-[#000000] bg-[#F3F4F6] px-1.5 py-0.5 rounded uppercase tracking-wider">Selected Prepay</span>
+                                        <span className="shrink-0 text-[9px] font-bold text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded uppercase tracking-wider">Selected Prepay</span>
                                       )}
                                     </div>
-                                    <div className="text-[11px] text-[#A1A1AA] mt-0.5">{filteredRateOptions.length} rate option{filteredRateOptions.length !== 1 ? 's' : ''}</div>
+                                    <div className="text-[11px] text-slate-400 mt-0.5">{filteredRateOptions.length} rate option{filteredRateOptions.length !== 1 ? 's' : ''}</div>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <button
                                       type="button"
                                       onClick={(e) => { e.stopPropagation(); setShowEmailForm(!showEmailForm) }}
-                                      className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-[#000000] bg-white border border-[rgba(39,39,42,0.15)] rounded-lg hover:bg-[#FAFAFA] transition-all"
+                                      className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-medium text-slate-900 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all"
                                     >
                                       <Mail className="w-3 h-3" />Email Results
                                     </button>
                                     <button
                                       type="button"
                                       onClick={() => setExpandedProgram(isExpanded ? null : programName)}
-                                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all ${isExpanded ? 'text-[#000000] bg-[#F3F4F6] border border-[#D1D5DB]' : 'text-[#71717A] bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] hover:bg-[#F3F4F6]'}`}
+                                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider rounded-lg transition-all ${isExpanded ? 'text-slate-900 bg-slate-100 border border-[#D1D5DB]' : 'text-slate-500 bg-slate-50 border border-slate-200 hover:bg-slate-100'}`}
                                     >
                                       MORE PRICING
                                       {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -2168,32 +2168,32 @@ export default function App() {
                                 </div>
                                 <div className="grid grid-cols-4 gap-2">
                                   <div>
-                                    <div className="text-lg font-bold text-[#000000] tabular-nums">{bestRate ? safeNumber(bestRate.rate).toFixed(3) : '-'}%</div>
-                                    <div className="text-[10px] font-medium text-[#A1A1AA] uppercase tracking-wider">Rate</div>
+                                    <div className="text-lg font-bold text-slate-900 tabular-nums">{bestRate ? safeNumber(bestRate.rate).toFixed(3) : '-'}%</div>
+                                    <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Rate</div>
                                   </div>
                                   <div>
-                                    <div className="text-lg font-bold text-[#000000] tabular-nums">{bestRate ? (100 - safeNumber(bestRate.points)).toFixed(3) : '-'}</div>
-                                    <div className="text-[10px] font-medium text-[#A1A1AA] uppercase tracking-wider">Price</div>
+                                    <div className="text-lg font-bold text-slate-900 tabular-nums">{bestRate ? (100 - safeNumber(bestRate.points)).toFixed(3) : '-'}</div>
+                                    <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Price</div>
                                   </div>
                                   <div>
-                                    <div className="text-lg font-bold text-[#000000] tabular-nums">{bestRate ? safeNumber(bestRate.apr).toFixed(3) : '-'}%</div>
-                                    <div className="text-[10px] font-medium text-[#A1A1AA] uppercase tracking-wider">APR</div>
+                                    <div className="text-lg font-bold text-slate-900 tabular-nums">{bestRate ? safeNumber(bestRate.apr).toFixed(3) : '-'}%</div>
+                                    <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">APR</div>
                                   </div>
                                   <div>
-                                    <div className="text-lg font-bold text-[#000000] tabular-nums">{bestPayment > 0 ? formatCurrency(bestPayment) : '-'}</div>
-                                    <div className="text-[10px] font-medium text-[#A1A1AA] uppercase tracking-wider">Payment</div>
+                                    <div className="text-lg font-bold text-slate-900 tabular-nums">{bestPayment > 0 ? formatCurrency(bestPayment) : '-'}</div>
+                                    <div className="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Payment</div>
                                   </div>
                                 </div>
                               </div>
 
                               {/* Expanded Rate Options */}
                               {isExpanded && filteredRateOptions.length > 0 && (
-                                <div className="border-t border-[rgba(39,39,42,0.15)]">
+                                <div className="border-t border-slate-200">
                                   {/* Desktop table */}
                                   <div className="hidden sm:block px-4 py-2 overflow-x-auto">
                                     <table className="w-full text-xs">
                                       <thead>
-                                        <tr className="text-[#A1A1AA] border-b border-[rgba(39,39,42,0.15)] text-[10px] uppercase tracking-wider">
+                                        <tr className="text-slate-400 border-b border-slate-200 text-[10px] uppercase tracking-wider">
                                           <th className="text-left py-2 pr-2 font-medium">Actions</th>
                                           <th className="text-left py-2 pr-2 font-medium">Program/PPP</th>
                                           <th className="text-right py-2 px-2 font-medium">Rate</th>
@@ -2216,7 +2216,7 @@ export default function App() {
                                           const totalAdjustment = adjustments.reduce((sum, adj) => sum + (adj.amount || 0), 0)
                                           const isActiveRow = activeRowAction?.programName === programName && activeRowAction?.optIdx === optIdx
                                           return (
-                                            <tr key={optIdx} className={`border-t border-[rgba(39,39,42,0.15)] ${isClosestTo100 ? 'bg-[#FAFAFA]' : ''} ${isActiveRow ? 'bg-yellow-50/50' : ''}`}>
+                                            <tr key={optIdx} className={`border-t border-slate-200 ${isClosestTo100 ? 'bg-slate-50' : ''} ${isActiveRow ? 'bg-yellow-50/50' : ''}`}>
                                               <td className="py-2 pr-2 text-left">
                                                 <div className="relative">
                                                   <button
@@ -2226,12 +2226,12 @@ export default function App() {
                                                       const key = `${programName}-${optIdx}`
                                                       setOpenActionDropdown(openActionDropdown === key ? null : key)
                                                     }}
-                                                    className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-white bg-[#000000] rounded hover:opacity-85 transition-colors whitespace-nowrap"
+                                                    className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-white bg-slate-900 rounded hover:opacity-85 transition-colors whitespace-nowrap"
                                                   >
                                                     Actions <ChevronDown className={`w-3 h-3 transition-transform ${openActionDropdown === `${programName}-${optIdx}` ? 'rotate-180' : ''}`} />
                                                   </button>
                                                   {openActionDropdown === `${programName}-${optIdx}` && (
-                                                    <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-[rgba(39,39,42,0.15)] py-1 min-w-[180px]">
+                                                    <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-slate-200 py-1 min-w-[180px]">
                                                       <button
                                                         type="button"
                                                         onClick={(e) => {
@@ -2245,7 +2245,7 @@ export default function App() {
                                                           setRowStatus('idle')
                                                           setOpenActionDropdown(null)
                                                         }}
-                                                        className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#000000] hover:bg-[#FAFAFA] transition-colors"
+                                                        className="w-full text-left px-3 py-2 text-[11px] font-semibold text-slate-900 hover:bg-slate-50 transition-colors"
                                                       >
                                                         Reserve Pricing
                                                       </button>
@@ -2263,7 +2263,7 @@ export default function App() {
                                                             setRowStatus('idle')
                                                             setOpenActionDropdown(null)
                                                           }}
-                                                          className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#000000] hover:bg-[#FAFAFA] transition-colors"
+                                                          className="w-full text-left px-3 py-2 text-[11px] font-semibold text-slate-900 hover:bg-slate-50 transition-colors"
                                                         >
                                                           Request Lock
                                                         </button>
@@ -2274,7 +2274,7 @@ export default function App() {
                                                           target="_blank"
                                                           rel="noopener noreferrer"
                                                           onClick={(e) => { e.stopPropagation(); setOpenActionDropdown(null) }}
-                                                          className="block w-full text-left px-3 py-2 text-[11px] font-semibold text-[#71717A] hover:bg-[#FAFAFA] transition-colors no-underline"
+                                                          className="block w-full text-left px-3 py-2 text-[11px] font-semibold text-slate-500 hover:bg-slate-50 transition-colors no-underline"
                                                         >
                                                           Select Rate + Submit File
                                                         </a>
@@ -2283,15 +2283,15 @@ export default function App() {
                                                   )}
                                                 </div>
                                               </td>
-                                              <td className="py-2 pr-2 text-left"><div className="font-medium text-[10px] text-[#000000] whitespace-nowrap" title={opt.description || ''}>{opt.description || programName}</div></td>
-                                              <td className="py-2 px-2 text-right font-semibold text-[#000000] tabular-nums">{safeNumber(opt.rate).toFixed(3)}%</td>
-                                              <td className={`py-2 px-2 text-right tabular-nums ${price >= 100 ? 'text-[#22C55E] font-medium' : 'text-[#000000]'}`}>{price.toFixed(3)}</td>
-                                              <td className={`py-2 px-2 text-right tabular-nums ${points < 0 ? 'text-[#22C55E]' : 'text-[#71717A]'}`}>{pointsDisplay}</td>
-                                              <td className="py-2 px-2 text-right tabular-nums text-[#000000]">{safeNumber(opt.apr).toFixed(3)}%</td>
-                                              <td className="py-2 px-2 text-right font-medium tabular-nums text-[#000000]">{payment > 0 ? formatCurrency(payment) : '-'}</td>
+                                              <td className="py-2 pr-2 text-left"><div className="font-medium text-[10px] text-slate-900 whitespace-nowrap" title={opt.description || ''}>{opt.description || programName}</div></td>
+                                              <td className="py-2 px-2 text-right font-semibold text-slate-900 tabular-nums">{safeNumber(opt.rate).toFixed(3)}%</td>
+                                              <td className={`py-2 px-2 text-right tabular-nums ${price >= 100 ? 'text-teal-600 font-medium' : 'text-slate-900'}`}>{price.toFixed(3)}</td>
+                                              <td className={`py-2 px-2 text-right tabular-nums ${points < 0 ? 'text-teal-600' : 'text-slate-500'}`}>{pointsDisplay}</td>
+                                              <td className="py-2 px-2 text-right tabular-nums text-slate-900">{safeNumber(opt.apr).toFixed(3)}%</td>
+                                              <td className="py-2 px-2 text-right font-medium tabular-nums text-slate-900">{payment > 0 ? formatCurrency(payment) : '-'}</td>
                                               <td className="py-2 pl-2 text-right tabular-nums">
                                                 {adjustments.length > 0 ? (
-                                                  <span className={totalAdjustment >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}>
+                                                  <span className={totalAdjustment >= 0 ? 'text-teal-600' : 'text-[#EF4444]'}>
                                                     {totalAdjustment >= 0 ? '+' : ''}{totalAdjustment.toFixed(3)}
                                                   </span>
                                                 ) : '-'}
@@ -2305,37 +2305,37 @@ export default function App() {
 
                                   {/* Per-row action form */}
                                   {activeRowAction && activeRowAction.programName === programName && (
-                                    <div className="mx-4 mb-3 mt-1 border border-[rgba(39,39,42,0.15)] rounded-xl p-4 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                                    <div className="mx-4 mb-3 mt-1 border border-slate-200 rounded-xl p-4 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
                                       <div className="flex items-center justify-between mb-3">
                                         <div>
-                                          <div className="text-sm font-bold text-[#000000]">
+                                          <div className="text-sm font-bold text-slate-900">
                                             {activeRowAction.type === 'reserve' ? 'Reserve Rate & Pricing' : 'Request Rate Lock'}
                                           </div>
-                                          <div className="text-[11px] text-[#71717A] mt-0.5">
+                                          <div className="text-[11px] text-slate-500 mt-0.5">
                                             {formatPercent(activeRowAction.rate)} @ {activeRowAction.price.toFixed(3)} &mdash; {activeRowAction.description}
                                           </div>
                                         </div>
-                                        <button type="button" onClick={() => { setActiveRowAction(null); setRowStatus('idle') }} className="p-1 text-[#A1A1AA] hover:text-[#000000] transition-colors">
+                                        <button type="button" onClick={() => { setActiveRowAction(null); setRowStatus('idle') }} className="p-1 text-slate-400 hover:text-slate-900 transition-colors">
                                           <X className="w-4 h-4" />
                                         </button>
                                       </div>
 
                                       {activeRowAction.type === 'reserve' ? (
                                         <div className="space-y-3">
-                                          <p className="text-xs text-[#71717A] leading-relaxed max-w-md">
+                                          <p className="text-xs text-slate-500 leading-relaxed max-w-md">
                                             Confirm you would like to reserve this Rate &amp; Pricing. This quote expires after 48 hours unless a full file is submitted.
                                           </p>
                                           <label className="flex items-start gap-2 cursor-pointer">
-                                            <input type="checkbox" checked={rowReserveFields.confirmed} onChange={(e) => setRowReserveFields(prev => ({ ...prev, confirmed: e.target.checked }))} className="mt-0.5 w-4 h-4 rounded border-[#D1D5DB] text-[#000000] focus:ring-[#000000]" />
-                                            <span className="text-xs text-[#000000] leading-relaxed">I confirm and understand the 48-hour expiration policy</span>
+                                            <input type="checkbox" checked={rowReserveFields.confirmed} onChange={(e) => setRowReserveFields(prev => ({ ...prev, confirmed: e.target.checked }))} className="mt-0.5 w-4 h-4 rounded border-[#D1D5DB] text-slate-900 focus:ring-[#000000]" />
+                                            <span className="text-xs text-slate-900 leading-relaxed">I confirm and understand the 48-hour expiration policy</span>
                                           </label>
                                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                            <input type="text" placeholder="Your Name *" value={rowReserveFields.name} onChange={(e) => setRowReserveFields(prev => ({ ...prev, name: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[rgba(39,39,42,0.15)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
-                                            <input type="email" placeholder="Email *" value={rowReserveFields.email} onChange={(e) => setRowReserveFields(prev => ({ ...prev, email: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[rgba(39,39,42,0.15)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
-                                            <input type="text" placeholder="Scenario Name" value={rowReserveFields.scenarioName} onChange={(e) => setRowReserveFields(prev => ({ ...prev, scenarioName: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[rgba(39,39,42,0.15)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
+                                            <input type="text" placeholder="Your Name *" value={rowReserveFields.name} onChange={(e) => setRowReserveFields(prev => ({ ...prev, name: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
+                                            <input type="email" placeholder="Email *" value={rowReserveFields.email} onChange={(e) => setRowReserveFields(prev => ({ ...prev, email: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
+                                            <input type="text" placeholder="Scenario Name" value={rowReserveFields.scenarioName} onChange={(e) => setRowReserveFields(prev => ({ ...prev, scenarioName: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
                                           </div>
                                           <div className="flex items-center gap-3">
-                                            <button type="button" onClick={handleRowReserve} disabled={rowSending || !rowReserveFields.confirmed || !rowReserveFields.name || !rowReserveFields.email} className="inline-flex items-center gap-1.5 px-5 py-2 text-[13px] font-semibold text-white bg-[#000000] rounded-lg hover:opacity-85 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                            <button type="button" onClick={handleRowReserve} disabled={rowSending || !rowReserveFields.confirmed || !rowReserveFields.name || !rowReserveFields.email} className="inline-flex items-center gap-1.5 px-5 py-2 text-[13px] font-semibold text-white bg-slate-900 rounded-lg hover:opacity-85 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                                               {rowSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : rowStatus === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
                                               {rowSending ? 'Sending...' : rowStatus === 'success' ? 'Sent!' : 'Send Reservation'}
                                             </button>
@@ -2345,12 +2345,12 @@ export default function App() {
                                       ) : (
                                         <div className="space-y-3">
                                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                            <input type="text" placeholder="Your Name *" value={rowLockFields.name} onChange={(e) => setRowLockFields(prev => ({ ...prev, name: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[rgba(39,39,42,0.15)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
-                                            <input type="email" placeholder="Email *" value={rowLockFields.email} onChange={(e) => setRowLockFields(prev => ({ ...prev, email: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[rgba(39,39,42,0.15)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
-                                            <input type="text" placeholder="DEFY Loan Number *" value={rowLockFields.loanNumber} onChange={(e) => setRowLockFields(prev => ({ ...prev, loanNumber: e.target.value }))} className="w-full px-3 py-2 text-sm border border-[rgba(39,39,42,0.15)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
+                                            <input type="text" placeholder="Your Name *" value={rowLockFields.name} onChange={(e) => setRowLockFields(prev => ({ ...prev, name: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
+                                            <input type="email" placeholder="Email *" value={rowLockFields.email} onChange={(e) => setRowLockFields(prev => ({ ...prev, email: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
+                                            <input type="text" placeholder="DEFY Loan Number *" value={rowLockFields.loanNumber} onChange={(e) => setRowLockFields(prev => ({ ...prev, loanNumber: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
                                           </div>
                                           <div className="flex items-center gap-3">
-                                            <button type="button" onClick={handleRowLock} disabled={rowSending || !rowLockFields.name || !rowLockFields.email || !rowLockFields.loanNumber} className="inline-flex items-center gap-1.5 px-5 py-2 text-[13px] font-semibold text-white bg-[#000000] rounded-lg hover:opacity-85 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                            <button type="button" onClick={handleRowLock} disabled={rowSending || !rowLockFields.name || !rowLockFields.email || !rowLockFields.loanNumber} className="inline-flex items-center gap-1.5 px-5 py-2 text-[13px] font-semibold text-white bg-slate-900 rounded-lg hover:opacity-85 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                                               {rowSending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : rowStatus === 'success' ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
                                               {rowSending ? 'Sending...' : rowStatus === 'success' ? 'Sent!' : 'Send Lock Request'}
                                             </button>
@@ -2370,24 +2370,24 @@ export default function App() {
                                       const isClosestTo100 = bestRate === opt
                                       const payment = safeNumber(opt.payment)
                                       return (
-                                        <div key={optIdx} className={`px-4 py-3 ${isClosestTo100 ? 'bg-[#FAFAFA]' : ''}`}>
-                                          <div className="text-[11px] font-medium text-[#000000] mb-2">{opt.description || programName}</div>
+                                        <div key={optIdx} className={`px-4 py-3 ${isClosestTo100 ? 'bg-slate-50' : ''}`}>
+                                          <div className="text-[11px] font-medium text-slate-900 mb-2">{opt.description || programName}</div>
                                           <div className="grid grid-cols-4 gap-2 text-center">
                                             <div>
-                                              <div className="text-[13px] font-bold text-[#000000] tabular-nums">{safeNumber(opt.rate).toFixed(3)}%</div>
-                                              <div className="text-[9px] text-[#A1A1AA] uppercase">Rate</div>
+                                              <div className="text-[13px] font-bold text-slate-900 tabular-nums">{safeNumber(opt.rate).toFixed(3)}%</div>
+                                              <div className="text-[9px] text-slate-400 uppercase">Rate</div>
                                             </div>
                                             <div>
-                                              <div className={`text-[13px] font-bold tabular-nums ${price >= 100 ? 'text-[#22C55E]' : 'text-[#000000]'}`}>{price.toFixed(3)}</div>
-                                              <div className="text-[9px] text-[#A1A1AA] uppercase">Price</div>
+                                              <div className={`text-[13px] font-bold tabular-nums ${price >= 100 ? 'text-teal-600' : 'text-slate-900'}`}>{price.toFixed(3)}</div>
+                                              <div className="text-[9px] text-slate-400 uppercase">Price</div>
                                             </div>
                                             <div>
-                                              <div className="text-[13px] font-bold text-[#000000] tabular-nums">{safeNumber(opt.apr).toFixed(3)}%</div>
-                                              <div className="text-[9px] text-[#A1A1AA] uppercase">APR</div>
+                                              <div className="text-[13px] font-bold text-slate-900 tabular-nums">{safeNumber(opt.apr).toFixed(3)}%</div>
+                                              <div className="text-[9px] text-slate-400 uppercase">APR</div>
                                             </div>
                                             <div>
-                                              <div className="text-[13px] font-bold text-[#000000] tabular-nums">{payment > 0 ? formatCurrency(payment) : '-'}</div>
-                                              <div className="text-[9px] text-[#A1A1AA] uppercase">Pmt</div>
+                                              <div className="text-[13px] font-bold text-slate-900 tabular-nums">{payment > 0 ? formatCurrency(payment) : '-'}</div>
+                                              <div className="text-[9px] text-slate-400 uppercase">Pmt</div>
                                             </div>
                                           </div>
                                           <div className="relative mt-2">
@@ -2397,12 +2397,12 @@ export default function App() {
                                                 const key = `m-${programName}-${optIdx}`
                                                 setOpenActionDropdown(openActionDropdown === key ? null : key)
                                               }}
-                                              className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-white bg-[#000000] rounded hover:opacity-85 transition-colors"
+                                              className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-bold text-white bg-slate-900 rounded hover:opacity-85 transition-colors"
                                             >
                                               Actions <ChevronDown className={`w-3 h-3 transition-transform ${openActionDropdown === `m-${programName}-${optIdx}` ? 'rotate-180' : ''}`} />
                                             </button>
                                             {openActionDropdown === `m-${programName}-${optIdx}` && (
-                                              <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-[rgba(39,39,42,0.15)] py-1 min-w-[180px]">
+                                              <div className="absolute left-0 top-full mt-1 z-50 bg-white rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.04)] border border-slate-200 py-1 min-w-[180px]">
                                                 <button
                                                   type="button"
                                                   onClick={() => {
@@ -2415,7 +2415,7 @@ export default function App() {
                                                     setRowStatus('idle')
                                                     setOpenActionDropdown(null)
                                                   }}
-                                                  className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#000000] hover:bg-[#FAFAFA] transition-colors"
+                                                  className="w-full text-left px-3 py-2 text-[11px] font-semibold text-slate-900 hover:bg-slate-50 transition-colors"
                                                 >
                                                   Reserve Pricing
                                                 </button>
@@ -2432,7 +2432,7 @@ export default function App() {
                                                       setRowStatus('idle')
                                                       setOpenActionDropdown(null)
                                                     }}
-                                                    className="w-full text-left px-3 py-2 text-[11px] font-semibold text-[#000000] hover:bg-[#FAFAFA] transition-colors"
+                                                    className="w-full text-left px-3 py-2 text-[11px] font-semibold text-slate-900 hover:bg-slate-50 transition-colors"
                                                   >
                                                     Request Lock
                                                   </button>
@@ -2443,7 +2443,7 @@ export default function App() {
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     onClick={() => setOpenActionDropdown(null)}
-                                                    className="block w-full text-left px-3 py-2 text-[11px] font-semibold text-[#71717A] hover:bg-[#FAFAFA] transition-colors no-underline"
+                                                    className="block w-full text-left px-3 py-2 text-[11px] font-semibold text-slate-500 hover:bg-slate-50 transition-colors no-underline"
                                                   >
                                                     Select Rate + Submit File
                                                   </a>
@@ -2458,13 +2458,13 @@ export default function App() {
 
                                   {/* Adjustments detail (best rate) */}
                                   {bestRate && bestRate.adjustments && bestRate.adjustments.length > 0 && (
-                                    <div className="px-4 py-3 border-t border-[rgba(39,39,42,0.15)] bg-[#FAFAFA]">
-                                      <div className="text-[10px] font-semibold text-[#A1A1AA] uppercase tracking-widest mb-2">Adjustments (Best Rate)</div>
+                                    <div className="px-4 py-3 border-t border-slate-200 bg-slate-50">
+                                      <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-2">Adjustments (Best Rate)</div>
                                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5">
                                         {bestRate.adjustments.map((adj: Adjustment, adjIdx: number) => (
-                                          <div key={adjIdx} className="flex justify-between items-center text-xs bg-white px-2.5 py-1.5 rounded-lg border border-[rgba(39,39,42,0.15)]">
-                                            <span className="text-[#000000] truncate mr-2">{adj.description}</span>
-                                            <span className={`font-semibold tabular-nums ${adj.amount >= 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
+                                          <div key={adjIdx} className="flex justify-between items-center text-xs bg-white px-2.5 py-1.5 rounded-lg border border-slate-200">
+                                            <span className="text-slate-900 truncate mr-2">{adj.description}</span>
+                                            <span className={`font-semibold tabular-nums ${adj.amount >= 0 ? 'text-teal-600' : 'text-[#EF4444]'}`}>
                                               {adj.amount >= 0 ? '+' : ''}{adj.amount.toFixed(3)}
                                             </span>
                                           </div>
@@ -2476,7 +2476,7 @@ export default function App() {
                               )}
 
                               {isExpanded && filteredRateOptions.length === 0 && (
-                                <div className="bg-[#FAFAFA] px-4 py-3 text-xs text-[#A1A1AA] border-t border-[rgba(39,39,42,0.15)]">
+                                <div className="bg-slate-50 px-4 py-3 text-xs text-slate-400 border-t border-slate-200">
                                   No rate options in price range (99-101)
                                 </div>
                               )}
@@ -2489,7 +2489,7 @@ export default function App() {
                     {/* National Rate Access - LP Results Gate (auto-bypass for cross-collateral) */}
                     {(lpLoading || lpResult) && !lpUnlocked && !formData.isCrossCollateralized && (
                       <div className="mt-4 flex items-center gap-3 justify-end">
-                        <span className="text-[11px] text-[#A1A1AA] font-medium">Secondary Access 4040 (Code)</span>
+                        <span className="text-[11px] text-slate-400 font-medium">Secondary Access 4040 (Code)</span>
                         <input
                           type="password"
                           inputMode="numeric"
@@ -2501,17 +2501,17 @@ export default function App() {
                             setLpPasscode(val)
                             if (val === '4040') setLpUnlocked(true)
                           }}
-                          className="w-16 h-7 text-center text-[12px] font-mono bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded text-[#71717A] outline-none focus:border-[#A1A1AA] placeholder:text-[#D1D5DB]"
+                          className="w-16 h-7 text-center text-[12px] font-mono bg-slate-50 border border-slate-200 rounded text-slate-500 outline-none focus:border-[#A1A1AA] placeholder:text-slate-300"
                         />
                       </div>
                     )}
 
                     {/* LP Loading */}
                     {(lpUnlocked || formData.isCrossCollateralized) && lpLoading && !lpResult && (
-                      <div className="mt-4 border border-[rgba(39,39,42,0.15)] bg-white rounded-xl p-6 space-y-4">
+                      <div className="mt-4 border border-slate-200 bg-white rounded-xl p-6 space-y-4">
                         <div className="flex items-center gap-3">
-                          <Globe className="w-5 h-5 text-[#A1A1AA]" />
-                          <span className="text-sm text-[#A1A1AA] font-medium tracking-wide">Scanning national pricing engines...</span>
+                          <Globe className="w-5 h-5 text-slate-400" />
+                          <span className="text-sm text-slate-400 font-medium tracking-wide">Scanning national pricing engines...</span>
                         </div>
                         <div className="skeleton-card h-12 w-full" />
                         <div className="skeleton-card h-12 w-full" />
@@ -2556,53 +2556,53 @@ export default function App() {
                         : 999
                       const prepayLabel = isInvestment && prepayMonths > 0 ? ` - ${prepayMonths} Month Prepay` : ''
                       return (
-                        <div className="mt-4 border border-[rgba(39,39,42,0.15)] bg-white rounded-xl overflow-hidden">
+                        <div className="mt-4 border border-slate-200 bg-white rounded-xl overflow-hidden">
                           <div className="px-5 pt-5 pb-3">
                             <div className="flex items-center justify-between flex-wrap gap-3 mb-2">
                               <div className="flex items-center gap-2.5">
-                                <div className="flex items-center justify-center w-8 h-8 rounded-[10px] bg-[#FAFAFA]">
-                                  <Zap className="w-4 h-4 text-[#000000]" />
+                                <div className="flex items-center justify-center w-8 h-8 rounded-[10px] bg-slate-50">
+                                  <Zap className="w-4 h-4 text-slate-900" />
                                 </div>
-                                <div className="text-base font-semibold text-[#000000] tracking-tight">National Wholesale Rate Results{prepayLabel}</div>
+                                <div className="text-base font-semibold text-slate-900 tracking-tight">National Wholesale Rate Results{prepayLabel}</div>
                               </div>
                               <div className="flex items-center gap-2">
-                                <div className="flex items-center gap-1.5 text-[11px] text-[#22C55E] bg-[rgba(34,197,94,0.08)] border border-[rgba(34,197,94,0.2)] px-2.5 py-1 rounded-[4px] font-medium">
+                                <div className="flex items-center gap-1.5 text-[11px] text-teal-600 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-[4px] font-medium">
                                   <ShieldCheck className="w-3 h-3" />Verified
                                 </div>
-                                <span className="text-[11px] font-mono text-[#A1A1AA]">{filteredLpRates.length} rates</span>
+                                <span className="text-[11px] font-mono text-slate-400">{filteredLpRates.length} rates</span>
                               </div>
                             </div>
-                            <p className="text-[11px] text-[#A1A1AA] flex items-center gap-1.5">
-                              <Globe className="w-3 h-3 text-[#A1A1AA]" />
+                            <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                              <Globe className="w-3 h-3 text-slate-400" />
                               We just checked all of the Industry Leading Pricing Engines for you.
                             </p>
                           </div>
                           <div className="px-5 pb-5">
                             {filteredLpRates.length > 0 ? (
-                              <div className="overflow-x-auto rounded-lg border border-[rgba(39,39,42,0.12)]">
+                              <div className="overflow-x-auto rounded-lg border border-slate-200">
                                 <table className="w-full text-sm">
                                   <thead>
-                                    <tr className="border-b border-[rgba(39,39,42,0.15)]">
-                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-[#71717A]">Rate</th>
-                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-[#71717A]">Price</th>
-                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-[#71717A]">Payment</th>
-                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-[#71717A]">Price Adj.</th>
+                                    <tr className="border-b border-slate-200">
+                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Rate</th>
+                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Price</th>
+                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Payment</th>
+                                      <th className="text-right py-2.5 px-4 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Price Adj.</th>
                                     </tr>
                                   </thead>
                                   <tbody>
                                     {filteredLpRates.map((opt: any, idx: number) => {
                                       const isClosest = Math.abs(opt.price - 100) === closestPrice
                                       return (
-                                        <tr key={idx} className={`border-t border-[rgba(39,39,42,0.08)] transition-colors duration-150 ${isClosest ? 'bg-[#FAFAFA]' : 'hover:bg-[#FAFAFA]'}`}>
-                                          <td className="py-2.5 px-4 text-right font-semibold text-[#000000] font-mono">{safeNumber(opt.rate).toFixed(3)}%</td>
-                                          <td className={`py-2.5 px-4 text-right font-mono ${opt.price >= 100 ? 'text-[#22C55E] font-semibold' : 'text-[#000000]'}`}>{safeNumber(opt.price).toFixed(3)}</td>
-                                          <td className="py-2.5 px-4 text-right text-[#000000] font-mono">{opt.payment > 0 ? formatCurrency(safeNumber(opt.payment)) : '-'}</td>
+                                        <tr key={idx} className={`border-t border-slate-100 transition-colors duration-150 ${isClosest ? 'bg-slate-50' : 'hover:bg-slate-50'}`}>
+                                          <td className="py-2.5 px-4 text-right font-semibold text-slate-900 font-mono">{safeNumber(opt.rate).toFixed(3)}%</td>
+                                          <td className={`py-2.5 px-4 text-right font-mono ${opt.price >= 100 ? 'text-teal-600 font-semibold' : 'text-slate-900'}`}>{safeNumber(opt.price).toFixed(3)}</td>
+                                          <td className="py-2.5 px-4 text-right text-slate-900 font-mono">{opt.payment > 0 ? formatCurrency(safeNumber(opt.payment)) : '-'}</td>
                                           <td className="py-2.5 px-4 text-right font-mono">
                                             {opt.totalAdjustments !== 0 ? (
-                                              <span className={opt.totalAdjustments > 0 ? 'text-[#22C55E]' : 'text-[#EF4444]'}>
+                                              <span className={opt.totalAdjustments > 0 ? 'text-teal-600' : 'text-[#EF4444]'}>
                                                 {opt.totalAdjustments > 0 ? '+' : ''}{safeNumber(opt.totalAdjustments).toFixed(3)}
                                               </span>
-                                            ) : <span className="text-[#A1A1AA]">-</span>}
+                                            ) : <span className="text-slate-400">-</span>}
                                           </td>
                                         </tr>
                                       )
@@ -2611,7 +2611,7 @@ export default function App() {
                                 </table>
                               </div>
                             ) : (
-                              <p className="text-sm text-[#A1A1AA] text-center py-3">
+                              <p className="text-sm text-slate-400 text-center py-3">
                                 {adjustedLpRates.length} rates returned, none in price range
                               </p>
                             )}
@@ -2622,10 +2622,10 @@ export default function App() {
 
                     {/* LP empty */}
                     {(lpUnlocked || formData.isCrossCollateralized) && !lpLoading && lpResult && (!lpResult.rateOptions || lpResult.rateOptions.length === 0) && (
-                      <div className="mt-4 border border-[rgba(39,39,42,0.15)] bg-white rounded-xl p-6">
+                      <div className="mt-4 border border-slate-200 bg-white rounded-xl p-6">
                         <div className="flex flex-col items-center gap-2">
-                          <Globe className="w-5 h-5 text-[#A1A1AA]" />
-                          <p className="text-sm text-[#A1A1AA] text-center">No LP market rates available for this scenario</p>
+                          <Globe className="w-5 h-5 text-slate-400" />
+                          <p className="text-sm text-slate-400 text-center">No LP market rates available for this scenario</p>
                         </div>
                       </div>
                     )}
@@ -2637,9 +2637,9 @@ export default function App() {
         </div>
 
         {/* Footer */}
-        <footer className="border-t border-[rgba(39,39,42,0.1)] bg-white px-6 lg:px-10 py-3 mt-6 flex items-center justify-between">
-          <span className="text-[12px] text-[#71717A]">&copy; 2026 OpenBroker Labs</span>
-          <span className="text-[9px] text-[#A1A1AA] max-w-xl hidden sm:block">B2B technology platform. Not a lender, broker, or originator. Use at your own risk.</span>
+        <footer className="border-t border-slate-100 bg-white px-6 lg:px-10 py-3 mt-6 flex items-center justify-between">
+          <span className="text-[12px] text-slate-500">&copy; 2026 OpenBroker Labs</span>
+          <span className="text-[9px] text-slate-400 max-w-xl hidden sm:block">B2B technology platform. Not a lender, broker, or originator. Use at your own risk.</span>
         </footer>
       </main>
 
@@ -2651,26 +2651,26 @@ export default function App() {
             <div className="w-full max-w-[420px] bg-white rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <HelpCircle className="w-5 h-5 text-[#000000]" />
-                  <h3 className="text-lg font-bold text-[#000000]">Help Desk</h3>
+                  <HelpCircle className="w-5 h-5 text-slate-900" />
+                  <h3 className="text-lg font-bold text-slate-900">Help Desk</h3>
                 </div>
-                <button type="button" onClick={() => setShowHelpDesk(false)} className="p-1 text-[#A1A1AA] hover:text-[#000000] transition-colors">
+                <button type="button" onClick={() => setShowHelpDesk(false)} className="p-1 text-slate-400 hover:text-slate-900 transition-colors">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-[13px] text-[#71717A] mb-4">Submit a help request and our team will get back to you.</p>
+              <p className="text-[13px] text-slate-500 mb-4">Submit a help request and our team will get back to you.</p>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#71717A] uppercase tracking-wider mb-1">Name *</label>
-                  <input type="text" value={helpDeskFields.name} onChange={(e) => setHelpDeskFields(prev => ({ ...prev, name: e.target.value }))} placeholder="Your name" className="w-full px-3 py-2.5 bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
+                  <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Name *</label>
+                  <input type="text" value={helpDeskFields.name} onChange={(e) => setHelpDeskFields(prev => ({ ...prev, name: e.target.value }))} placeholder="Your name" className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#71717A] uppercase tracking-wider mb-1">Email *</label>
-                  <input type="email" value={helpDeskFields.email} onChange={(e) => setHelpDeskFields(prev => ({ ...prev, email: e.target.value }))} placeholder="you@company.com" className="w-full px-3 py-2.5 bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
+                  <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Email *</label>
+                  <input type="email" value={helpDeskFields.email} onChange={(e) => setHelpDeskFields(prev => ({ ...prev, email: e.target.value }))} placeholder="you@company.com" className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent" />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#71717A] uppercase tracking-wider mb-1">Help Topic *</label>
-                  <select value={helpDeskFields.topic} onChange={(e) => setHelpDeskFields(prev => ({ ...prev, topic: e.target.value }))} className="w-full px-3 py-2.5 bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent">
+                  <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Help Topic *</label>
+                  <select value={helpDeskFields.topic} onChange={(e) => setHelpDeskFields(prev => ({ ...prev, topic: e.target.value }))} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent">
                     <option value="">Select a topic...</option>
                     <option value="Pricing">Pricing</option>
                     <option value="Lock Desk">Lock Desk</option>
@@ -2680,10 +2680,10 @@ export default function App() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-[#71717A] uppercase tracking-wider mb-1">Message</label>
-                  <textarea value={helpDeskFields.message} onChange={(e) => setHelpDeskFields(prev => ({ ...prev, message: e.target.value }))} placeholder="Describe your issue or question..." rows={3} className="w-full px-3 py-2.5 bg-[#FAFAFA] border border-[rgba(39,39,42,0.15)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent resize-none" />
+                  <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Message</label>
+                  <textarea value={helpDeskFields.message} onChange={(e) => setHelpDeskFields(prev => ({ ...prev, message: e.target.value }))} placeholder="Describe your issue or question..." rows={3} className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#000000] focus:border-transparent resize-none" />
                 </div>
-                <button type="button" onClick={handleHelpDeskSubmit} disabled={helpDeskSending || !helpDeskFields.name || !helpDeskFields.email || !helpDeskFields.topic} className="w-full py-3 bg-[#000000] hover:opacity-85 text-white rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-opacity duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
+                <button type="button" onClick={handleHelpDeskSubmit} disabled={helpDeskSending || !helpDeskFields.name || !helpDeskFields.email || !helpDeskFields.topic} className="w-full py-3 bg-slate-900 hover:opacity-85 text-white rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-opacity duration-150 disabled:opacity-50 disabled:cursor-not-allowed">
                   {helpDeskSending ? <Loader2 className="w-4 h-4 animate-spin" /> : helpDeskStatus === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <Send className="w-4 h-4" />}
                   {helpDeskSending ? 'Sending...' : helpDeskStatus === 'success' ? 'Sent!' : 'Submit Request'}
                 </button>
