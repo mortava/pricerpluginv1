@@ -1437,10 +1437,10 @@ export default function App() {
       )}
 
       {/* ===== MAIN CONTENT ===== */}
-      <main className="lg:ml-[200px] min-h-screen">
+      <main className="lg:ml-[200px] min-h-screen lg:h-screen flex flex-col lg:overflow-hidden">
 
         {/* ===== DESKTOP TOP HEADER BAR ===== */}
-        <div className="hidden lg:block sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200 shadow-sm px-4 lg:px-6 py-4">
+        <div className="hidden lg:block shrink-0 z-40 bg-white/90 backdrop-blur-xl border-b border-slate-200 shadow-sm px-4 lg:px-6 py-4">
           <div className="max-w-6xl mx-auto flex items-center justify-end gap-2.5">
             {isPartner && profile ? (
               <>
@@ -1488,7 +1488,7 @@ export default function App() {
         {/* ===== STICKY RESULTS SUMMARY BAR ===== */}
         {result && targetPricing && (
             <div
-              className="sticky top-0 z-30 bg-white/90 backdrop-blur-xl border-b border-slate-200 px-4 lg:px-6 py-2.5 transition-all duration-200"
+              className="shrink-0 z-30 bg-white/90 backdrop-blur-xl border-b border-slate-200 px-4 lg:px-6 py-2.5 transition-all duration-200"
               style={{ transform: stickyBarVisible ? 'translateY(0)' : 'translateY(-100%)', opacity: stickyBarVisible ? 1 : 0 }}
             >
               <div className="max-w-6xl mx-auto flex items-center gap-4 flex-wrap">
@@ -1524,6 +1524,7 @@ export default function App() {
           )}
 
         {/* ===== FORM SECTION ===== */}
+        <div className="lg:flex-1 lg:overflow-y-auto">
         <div className="px-4 lg:px-8 py-6 max-w-6xl mx-auto">
           <form id="pricing-form" onSubmit={handleSubmit} className="space-y-6">
 
@@ -1534,7 +1535,7 @@ export default function App() {
                 <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${!collapsedSections.has('loan') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('loan') && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-x-4 gap-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-5 gap-y-4">
                   {/* Row 1: Lien Position, Loan Purpose, Value/Sales Price, Loan Amount, LTV, CLTV */}
                   <div className="space-y-1.5">
                     <label htmlFor="lienPosition" className="block text-sm font-medium text-slate-900">Lien Position</label>
@@ -1654,7 +1655,7 @@ export default function App() {
                 <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${!collapsedSections.has('property') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('property') && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-x-4 gap-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-5 gap-y-4">
                   {/* Row 1: Property Use, Property Type, ZIP Code, State, County, City */}
                   <div className="space-y-1.5">
                     <label htmlFor="occupancyType" className={`block text-sm font-medium ${hasError('occupancyType') ? 'text-[#EF4444]' : 'text-slate-900'}`}>Property Use *</label>
@@ -1748,7 +1749,7 @@ export default function App() {
                 <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${!collapsedSections.has('borrower') ? 'rotate-180' : ''}`} />
               </button>
               {!collapsedSections.has('borrower') && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-x-4 gap-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-5 gap-y-4">
                   <div className="space-y-1.5">
                     <label htmlFor="creditScore" className={`block text-sm font-medium ${hasError('creditScore') ? 'text-[#EF4444]' : 'text-slate-900'}`}>Credit Score *</label>
                     <Input id="creditScore" name="creditScore" maxLength={3} value={formData.creditScore} onChange={(e) => handleInputChange('creditScore', e.target.value.replace(/\D/g, ''))} className={`h-11 text-sm border-slate-300 focus:ring-teal-500 ${hasError('creditScore') ? 'border-red-500' : ''}`} />
@@ -1816,7 +1817,7 @@ export default function App() {
                   <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${!collapsedSections.has('investor') ? 'rotate-180' : ''}`} />
                 </button>
                 {!collapsedSections.has('investor') && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-x-4 gap-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-x-5 gap-y-4">
                     <div className="space-y-1.5">
                       <label htmlFor="prepayPeriod" className="block text-sm font-medium text-slate-900">Prepay Period</label>
                       <Select name="prepayPeriod" value={formData.prepayPeriod} onValueChange={(v) => handleInputChange('prepayPeriod', v)}>
@@ -2637,10 +2638,11 @@ export default function App() {
         </div>
 
         {/* Footer */}
-        <footer className="border-t border-slate-100 bg-white px-6 lg:px-10 py-3 mt-6 flex items-center justify-between">
+        <footer className="border-t border-slate-100 bg-white px-6 lg:px-10 py-3 flex items-center justify-between shrink-0">
           <span className="text-[12px] text-slate-500">&copy; 2026 OpenBroker Labs</span>
           <span className="text-[9px] text-slate-400 max-w-xl hidden sm:block">B2B technology platform. Not a lender, broker, or originator. Use at your own risk.</span>
         </footer>
+        </div>{/* end scroll wrapper */}
       </main>
 
       {/* ===== HELP DESK MODAL ===== */}
