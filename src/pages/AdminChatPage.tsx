@@ -1,36 +1,39 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AdminChatPanel } from '@/components/admin-chat'
 
 export default function AdminChatPage() {
   const [unlocked, setUnlocked] = useState(false)
   const [passcode, setPasscode] = useState('')
 
+  // Hide from search engines
+  useEffect(() => {
+    const meta = document.createElement('meta')
+    meta.name = 'robots'
+    meta.content = 'noindex, nofollow'
+    document.head.appendChild(meta)
+    return () => { document.head.removeChild(meta) }
+  }, [])
+
   if (!unlocked) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-        <div className="w-full max-w-[320px] text-center">
-          <div className="mb-6">
-            <span className="text-[22px] font-semibold tracking-[-0.02em]">
-              <span className="text-slate-900">Open</span>
-              <span className="text-teal-600">Price</span>
-            </span>
-            <p className="text-sm text-slate-400 mt-1">Admin Chat Access</p>
+        <div className="w-full max-w-[280px] text-center">
+          <div className="mb-5">
+            <span className="text-[13px] font-bold tracking-wide text-slate-300">vBASE</span>
           </div>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-500 mb-1.5">Enter Passcode</label>
               <input
                 type="password"
-                inputMode="numeric"
                 maxLength={4}
-                placeholder="----"
+                placeholder="····"
                 value={passcode}
                 onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, '').slice(0, 4)
+                  const val = e.target.value.slice(0, 4)
                   setPasscode(val)
-                  if (val === '4040') setUnlocked(true)
+                  if (val === 'D326') setUnlocked(true)
                 }}
-                className="w-24 h-11 mx-auto block text-center text-base font-mono bg-slate-50 border border-slate-300 rounded-lg text-slate-900 outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 placeholder:text-slate-300 transition-all duration-150"
+                className="w-20 h-11 mx-auto block text-center text-base font-mono bg-white border border-slate-300 rounded-lg text-slate-900 outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 placeholder:text-slate-300 transition-all duration-150"
                 autoFocus
               />
             </div>

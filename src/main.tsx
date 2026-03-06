@@ -10,9 +10,9 @@ const UserChatPage = lazy(() => import('@/pages/UserChatPage'))
 function Router() {
   const path = window.location.pathname
 
-  if (path === '/adminchat') {
+  if (path === '/vbase' || path === '/adminchat') {
     return (
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-[#A1A1AA] text-sm">Loading...</div>}>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-slate-400 text-sm">Loading...</div>}>
         <AdminChatPage />
       </Suspense>
     )
@@ -20,7 +20,7 @@ function Router() {
 
   if (path === '/userchat') {
     return (
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-[#A1A1AA] text-sm">Loading...</div>}>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-slate-400 text-sm">Loading...</div>}>
         <UserChatPage />
       </Suspense>
     )

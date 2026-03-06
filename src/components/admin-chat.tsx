@@ -307,38 +307,38 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[300] flex flex-col bg-white">
       {/* Top Bar */}
-      <div className="flex items-center justify-between px-5 py-3 border-b border-[rgba(39,39,42,0.15)]">
+      <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200">
         <div className="flex items-center gap-3">
-          <MessageCircle className="w-5 h-5 text-black" />
-          <h2 className="text-[15px] font-semibold text-black tracking-[-0.02em]">Admin Chat Panel</h2>
-          <span className="text-[11px] text-[#A1A1AA] font-medium">
+          <MessageCircle className="w-5 h-5 text-teal-600" />
+          <h2 className="text-base font-semibold text-slate-900 tracking-[-0.02em]">OpenBroker Chat</h2>
+          <span className="text-xs text-slate-400 font-medium">
             {conversations.length} open {conversations.length === 1 ? 'conversation' : 'conversations'}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={loadConversations} className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#FAFAFA] transition-colors" title="Refresh">
-            <RefreshCw className="w-4 h-4 text-[#71717A]" />
+          <button onClick={loadConversations} className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-slate-50 transition-colors" title="Refresh">
+            <RefreshCw className="w-4 h-4 text-slate-500" />
           </button>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#FAFAFA] transition-colors" title="Close Admin Panel">
-            <X className="w-4 h-4 text-black" />
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-slate-50 transition-colors" title="Close Admin Panel">
+            <X className="w-4 h-4 text-slate-900" />
           </button>
         </div>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
         {/* Conversation List */}
-        <div className="w-[320px] border-r border-[rgba(39,39,42,0.15)] flex flex-col overflow-y-auto">
+        <div className="w-[320px] border-r border-slate-200 flex flex-col overflow-y-auto">
           {loading ? (
             <div className="flex-1 flex items-center justify-center">
-              <span className="text-[13px] text-[#A1A1AA]">Loading...</span>
+              <span className="text-sm text-slate-400">Loading...</span>
             </div>
           ) : conversations.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-[#FAFAFA]">
-                <MessageCircle className="h-6 w-6 text-[#A1A1AA]" />
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50">
+                <MessageCircle className="h-6 w-6 text-slate-400" />
               </div>
-              <p className="text-[13px] text-[#A1A1AA]">No open conversations</p>
-              <p className="text-[11px] text-[#D1D5DB] mt-1">New chats will appear here in real-time</p>
+              <p className="text-sm text-slate-400">No open conversations</p>
+              <p className="text-xs text-slate-300 mt-1">New chats will appear here in real-time</p>
             </div>
           ) : (
             conversations.map((convo) => (
@@ -346,23 +346,23 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
                 key={convo.id}
                 onClick={() => setSelected(convo)}
                 className={cn(
-                  'w-full flex items-start gap-3 px-4 py-3.5 text-left transition-colors border-b border-[rgba(39,39,42,0.08)]',
-                  selected?.id === convo.id ? 'bg-[#FAFAFA]' : 'hover:bg-[#FAFAFA]/60'
+                  'w-full flex items-start gap-3 px-4 py-3.5 text-left transition-colors border-b border-slate-100',
+                  selected?.id === convo.id ? 'bg-slate-50' : 'hover:bg-slate-50/60'
                 )}
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-black text-white text-[12px] font-semibold shrink-0 mt-0.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white text-xs font-semibold shrink-0 mt-0.5">
                   {convo.user_name.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <span className="text-[13px] font-semibold text-black truncate">{convo.user_name}</span>
-                    <span className="text-[10px] text-[#A1A1AA] shrink-0 ml-2">{formatDate(convo.created_at)}</span>
+                    <span className="text-sm font-semibold text-slate-900 truncate">{convo.user_name}</span>
+                    <span className="text-[10px] text-slate-400 shrink-0 ml-2">{formatDate(convo.created_at)}</span>
                   </div>
                   <div className="flex items-center justify-between mt-0.5">
-                    <span className="text-[11px] text-[#71717A] capitalize">{convo.department}</span>
+                    <span className="text-xs text-slate-500 capitalize">{convo.department}</span>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleCloseConversation(convo.id) }}
-                      className="text-[10px] text-[#A1A1AA] hover:text-red-500 transition-colors"
+                      className="text-[10px] text-slate-400 hover:text-red-500 transition-colors"
                     >
                       Close
                     </button>
@@ -377,37 +377,37 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
         <div className="flex-1 flex flex-col">
           {!selected ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
-              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-[#FAFAFA]">
-                <MessageCircle className="h-7 w-7 text-[#A1A1AA]" />
+              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-slate-50">
+                <MessageCircle className="h-7 w-7 text-slate-400" />
               </div>
-              <p className="text-[14px] text-[#71717A] font-medium">Select a conversation</p>
-              <p className="text-[12px] text-[#A1A1AA] mt-1">Choose from the list to start responding</p>
+              <p className="text-sm text-slate-500 font-medium">Select a conversation</p>
+              <p className="text-xs text-slate-400 mt-1">Choose from the list to start responding</p>
             </div>
           ) : (
             <>
               {/* Chat Header */}
-              <div className="flex items-center justify-between px-5 py-3 border-b border-[rgba(39,39,42,0.15)]">
+              <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200">
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => { setSelected(null); setMessages([]) }}
-                    className="lg:hidden flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[#FAFAFA] transition-colors"
+                    className="lg:hidden flex h-8 w-8 items-center justify-center rounded-lg hover:bg-slate-50 transition-colors"
                   >
-                    <ArrowLeft className="w-4 h-4 text-black" />
+                    <ArrowLeft className="w-4 h-4 text-slate-900" />
                   </button>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black text-white text-[12px] font-semibold">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-white text-xs font-semibold">
                     {selected.user_name.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <span className="text-[14px] font-semibold text-black">{selected.user_name}</span>
-                    <p className="text-[11px] text-[#71717A] capitalize flex items-center gap-1.5">
-                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#22C55E]" />
+                    <span className="text-sm font-semibold text-slate-900">{selected.user_name}</span>
+                    <p className="text-xs text-slate-500 capitalize flex items-center gap-1.5">
+                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-teal-600" />
                       {selected.department} · {formatTime(selected.created_at)}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => handleCloseConversation(selected.id)}
-                  className="text-[12px] text-[#A1A1AA] hover:text-red-500 px-3 py-1.5 rounded-lg hover:bg-[#FAFAFA] transition-colors"
+                  className="text-xs text-slate-400 hover:text-red-500 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   End Chat
                 </button>
@@ -417,7 +417,7 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
               <div className="flex-1 overflow-y-auto px-5 py-4">
                 {messages.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <p className="text-[13px] text-[#A1A1AA]">No messages yet. The user will send the first message.</p>
+                    <p className="text-sm text-slate-400">No messages yet. The user will send the first message.</p>
                   </div>
                 )}
                 {messages.map((msg) => (
@@ -427,13 +427,12 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
                   >
                     <div
                       className={cn(
-                        'max-w-[65%] rounded-xl px-4 py-2.5 text-[14px]',
-                        msg.sender_role === 'agent' ? 'bg-black text-white' : 'bg-[#FAFAFA] text-black'
+                        'max-w-[65%] rounded-xl px-4 py-2.5 text-sm',
+                        msg.sender_role === 'agent' ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-900 border border-slate-200'
                       )}
-                      style={msg.sender_role === 'user' ? { border: '1px solid rgba(39, 39, 42, 0.15)' } : undefined}
                     >
                       {msg.sender_role === 'user' && (
-                        <p className="mb-1 text-[11px] font-medium text-[#71717A]">{msg.sender_name}</p>
+                        <p className="mb-1 text-xs font-medium text-slate-500">{msg.sender_name}</p>
                       )}
                       {msg.image_url && (
                         <img
@@ -445,19 +444,19 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
                       )}
                       {msg.content && <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>}
                     </div>
-                    <span className="mt-1 text-[11px] text-[#A1A1AA]">{formatTime(msg.created_at)}</span>
+                    <span className="mt-1 text-xs text-slate-400">{formatTime(msg.created_at)}</span>
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
               </div>
 
               {/* Reply Input */}
-              <div className="px-4 pb-4 pt-2 border-t border-[rgba(39,39,42,0.1)]">
+              <div className="px-4 pb-4 pt-2 border-t border-slate-100">
                 {imagePreview && (
                   <div className="mb-2 relative inline-block">
-                    <img src={imagePreview} alt="Preview" className="h-16 rounded-lg border border-[rgba(39,39,42,0.15)]" />
+                    <img src={imagePreview} alt="Preview" className="h-16 rounded-lg border border-slate-200" />
                     <button onClick={clearImage}
-                      className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black text-white"
+                      className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-white"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -466,11 +465,11 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
                 <div className="flex items-center gap-2">
                   <input type="file" ref={fileInputRef} accept="image/png,image/jpeg,image/gif,image/webp" className="hidden" onChange={handleFileSelect} />
                   <button onClick={() => fileInputRef.current?.click()}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-[#FAFAFA] transition-colors shrink-0"
-                    style={{ border: '1px solid rgba(39,39,42,0.15)' }}
+                    className="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-slate-50 transition-colors shrink-0 border border-slate-200"
+                    
                     title="Attach image"
                   >
-                    <ImageIcon className="h-4 w-4 text-[#71717A]" />
+                    <ImageIcon className="h-4 w-4 text-slate-500" />
                   </button>
                   <input
                     ref={inputRef}
@@ -479,13 +478,13 @@ export function AdminChatPanel({ onClose }: { onClose: () => void }) {
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
                     placeholder={selectedImage ? 'Add a caption...' : 'Reply as Admin...'}
-                    className="flex-1 rounded-lg bg-white px-3 py-2.5 text-[14px] text-black placeholder:text-[#A1A1AA] outline-none transition-all duration-150 focus:border-black"
-                    style={{ border: '1px solid rgba(39, 39, 42, 0.3)' }}
+                    className="flex-1 rounded-lg bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition-all duration-150 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 border border-slate-300"
+                    
                   />
                   <button
                     onClick={handleSend}
                     disabled={!input.trim() && !selectedImage}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-black text-white transition-all duration-150 hover:opacity-85 disabled:opacity-50"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 text-white transition-all duration-150 hover:opacity-85 disabled:opacity-50"
                     title="Send reply"
                   >
                     <Send className="h-4 w-4" />

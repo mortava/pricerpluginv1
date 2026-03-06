@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { Send, User, ArrowLeft, ImageIcon, X } from 'lucide-react'
 import { useLiveChat } from '@/hooks/use-live-chat'
+import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
 
 export default function UserChatPage() {
+  const { user, profile, isPartner } = useAuth()
   const [input, setInput] = useState('')
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -13,6 +15,10 @@ export default function UserChatPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const notificationRequested = useRef(false)
 
+  // Pass real user info when logged in, otherwise Guest
+  const chatUserId = isPartner && user ? user.id : undefined
+  const chatUserName = isPartner && profile ? `${profile.first_name} ${profile.last_name}` : 'Guest'
+
   const {
     conversation,
     messages,
@@ -21,7 +27,7 @@ export default function UserChatPage() {
     sendMessage,
     sendImage,
     endConversation,
-  } = useLiveChat({})
+  } = useLiveChat({ userId: chatUserId, userName: chatUserName })
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })

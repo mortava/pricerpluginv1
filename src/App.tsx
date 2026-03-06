@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { formatCurrency, formatPercent } from '@/lib/utils'
 import { validateFormBeforeSubmit } from '@/lib/PricingLogic'
 // LiveChat floating bubble removed — chat accessed via sidebar
-import { AdminChatPanel } from '@/components/admin-chat'
+// Admin panel moved to /vbase route
 
 /* ── Sidebar SVG Icons (currentColor for theme adaptability) ── */
 const IconNewScenario = ({ className = "w-4 h-4" }: { className?: string }) => (
@@ -356,7 +356,7 @@ export default function App() {
   // Secondary Admin state
   const [adminUnlocked, setAdminUnlocked] = useState(false)
   const [adminPasscode, setAdminPasscode] = useState('')
-  const [showAdminPanel, setShowAdminPanel] = useState(false)
+  // Admin panel moved to /vbase route
   const [emailTo, setEmailTo] = useState('')
   const [emailSending, setEmailSending] = useState(false)
   const [emailStatus, setEmailStatus] = useState<'idle' | 'success' | 'error'>('idle')
@@ -1178,7 +1178,7 @@ export default function App() {
 
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-slate-50">
 
       {/* ===== DESKTOP SIDEBAR (fixed, 200px) ===== */}
       <aside className="hidden lg:flex flex-col fixed left-0 top-0 h-screen w-[200px] bg-white border-r border-slate-200 z-50">
@@ -1187,7 +1187,7 @@ export default function App() {
           <div className="flex items-center gap-2.5">
             <IconAtom className="w-8 h-8 text-black" />
             <div className="leading-tight">
-              <span className="text-[17px] font-bold tracking-[-0.02em]"><span className="text-slate-900">Open</span><span className="text-teal-600">Price</span></span>
+              <span className="text-[20px] font-bold tracking-[-0.02em]"><span className="text-slate-900">Open</span><span className="text-teal-600">Price</span></span>
               <div className="text-[9px] text-slate-400 tracking-wide mt-0.5">Powered by DEFY TPO</div>
             </div>
           </div>
@@ -1203,10 +1203,10 @@ export default function App() {
             <IconNewScenario className="w-[18px] h-[18px] shrink-0" />
             <span className="text-[13px] font-semibold truncate">New Scenario</span>
           </button>
-          {/* Live Human Chat */}
+          {/* OpenBroker Chat */}
           <a href="/userchat" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors">
-            <User className="w-[18px] h-[18px] shrink-0 text-teal-600" />
-            <span className="text-[13px] font-semibold truncate text-teal-600">Live Human Chat</span>
+            <MessageCircle className="w-[18px] h-[18px] shrink-0 text-teal-600" />
+            <span className="text-[13px] font-semibold truncate text-teal-600">OpenBroker Chat</span>
           </a>
           {/* TRINITY AI DEAL DESK */}
           <a href="https://dealr.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-slate-900">
@@ -1245,37 +1245,34 @@ export default function App() {
             <span className="text-[13px] truncate">RTL Terminal</span>
           </div>
 
-          {/* Admin Code */}
+          {/* vBASE */}
           <div className="mt-3 pt-3 border-t border-slate-100">
             <div className="px-2 py-1 mb-1">
-              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Admin Code</span>
+              <span className="text-[11px] font-bold tracking-wide text-slate-300">vBASE</span>
             </div>
             {!adminUnlocked ? (
               <div className="flex items-center gap-2 px-2">
                 <input
                   type="password"
-                  inputMode="numeric"
                   maxLength={4}
-                  placeholder="----"
+                  placeholder="····"
                   value={adminPasscode}
                   onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, '').slice(0, 4)
+                    const val = e.target.value.slice(0, 4)
                     setAdminPasscode(val)
-                    if (val === '3001') setAdminUnlocked(true)
+                    if (val === 'D326') setAdminUnlocked(true)
                   }}
-                  className="w-14 h-7 text-center text-[12px] font-mono bg-slate-50 border border-slate-200 rounded text-slate-500 outline-none focus:border-[#A1A1AA] placeholder:text-slate-300"
+                  className="w-14 h-7 text-center text-[12px] font-mono bg-slate-50 border border-slate-200 rounded text-slate-500 outline-none focus:border-teal-500 placeholder:text-slate-300"
                 />
-                <span className="text-[10px] text-slate-300">Passcode</span>
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => setShowAdminPanel(true)}
+              <a
+                href="/vbase"
                 className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-left text-slate-900"
               >
                 <MessageCircle className="w-[18px] h-[18px] shrink-0" />
-                <span className="text-[13px] font-semibold truncate">Admin Panel</span>
-              </button>
+                <span className="text-[13px] font-semibold truncate">OpenBroker Chat</span>
+              </a>
             )}
           </div>
         </nav>
@@ -1337,10 +1334,10 @@ export default function App() {
                 <IconNewScenario className="w-[18px] h-[18px] shrink-0" />
                 <span className="text-[13px] font-semibold">New Scenario</span>
               </button>
-              {/* Live Human Chat */}
+              {/* OpenBroker Chat */}
               <a href="/userchat" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors">
-                <User className="w-[18px] h-[18px] shrink-0 text-teal-600" />
-                <span className="text-[13px] font-semibold text-teal-600">Live Human Chat</span>
+                <MessageCircle className="w-[18px] h-[18px] shrink-0 text-teal-600" />
+                <span className="text-[13px] font-semibold text-teal-600">OpenBroker Chat</span>
               </a>
               {/* TRINITY AI DEAL DESK */}
               <a href="https://dealr.defywholesale.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-slate-900" onClick={() => setMobileMenuOpen(false)}>
@@ -1379,37 +1376,35 @@ export default function App() {
                 <span className="text-[13px]">RTL Terminal</span>
               </div>
 
-              {/* Admin Code */}
+              {/* vBASE */}
               <div className="mt-3 pt-3 border-t border-slate-100">
                 <div className="px-2 py-1 mb-1">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Admin Code</span>
+                  <span className="text-[11px] font-bold tracking-wide text-slate-300">vBASE</span>
                 </div>
                 {!adminUnlocked ? (
                   <div className="flex items-center gap-2 px-2">
                     <input
                       type="password"
-                      inputMode="numeric"
                       maxLength={4}
-                      placeholder="----"
+                      placeholder="····"
                       value={adminPasscode}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '').slice(0, 4)
+                        const val = e.target.value.slice(0, 4)
                         setAdminPasscode(val)
-                        if (val === '3001') setAdminUnlocked(true)
+                        if (val === 'D326') setAdminUnlocked(true)
                       }}
-                      className="w-14 h-7 text-center text-[12px] font-mono bg-slate-50 border border-slate-200 rounded text-slate-500 outline-none focus:border-[#A1A1AA] placeholder:text-slate-300"
+                      className="w-14 h-7 text-center text-[12px] font-mono bg-slate-50 border border-slate-200 rounded text-slate-500 outline-none focus:border-teal-500 placeholder:text-slate-300"
                     />
-                    <span className="text-[10px] text-slate-300">Passcode</span>
                   </div>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => { setMobileMenuOpen(false); setShowAdminPanel(true) }}
+                  <a
+                    href="/vbase"
+                    onClick={() => setMobileMenuOpen(false)}
                     className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-slate-50 transition-colors text-left text-slate-900"
                   >
                     <MessageCircle className="w-[18px] h-[18px] shrink-0" />
-                    <span className="text-[13px] font-semibold">Admin Panel</span>
-                  </button>
+                    <span className="text-[13px] font-semibold">OpenBroker Chat</span>
+                  </a>
                 )}
               </div>
             </nav>
@@ -2699,7 +2694,7 @@ export default function App() {
       {/* LiveChat removed — chat is now accessed via sidebar link */}
 
       {/* Admin Chat Panel (fullscreen overlay) */}
-      {showAdminPanel && <AdminChatPanel onClose={() => setShowAdminPanel(false)} />}
+      {/* Admin panel moved to /vbase route */}
     </div>
   )
 }
